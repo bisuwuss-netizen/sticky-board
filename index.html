@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便利贴白板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f2e9; --ink:#23272f; --muted:#6b7280; --card:#fffdf6;
+  --shadow:0 1px 0 rgba(35,39,47,.06),0 12px 28px -12px rgba(35,39,47,.22);
+  --shadow-lg:0 2px 0 rgba(35,39,47,.06),0 24px 48px -16px rgba(35,39,47,.28);
+  --blue:#cfe4ff; --pink:#ffd9e1; --green:#c9f2d4;
+  --yellow:#fff3a3; --purple:#ddd0ff; --cyan:#b8eef7;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;color:var(--ink);overflow:hidden;
+  font-family:"Inter",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--paper);
+}
+#viewport{position:fixed;inset:0;overflow:hidden;cursor:grab}
+#viewport.panning{cursor:grabbing}
+#viewport::before{
+  content:"";position:absolute;inset:-2000px;
+  background:
+    linear-gradient(rgba(35,39,47,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(35,39,47,.055) 1px,transparent 1px),
+    linear-gradient(rgba(35,39,47,.09) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(35,39,47,.09) 1px,transparent 1px),
+    var(--paper);
+  background-size:28px 28px,28px 28px,140px 140px,140px 140px,auto;
+}
+#world{position:absolute;left:0;top:0;transform-origin:0 0}
+#sidebar{
+  position:fixed;left:14px;top:14px;bottom:14px;width:248px;z-index:60;
+  background:rgba(255,253,246,.94);backdrop-filter:blur(10px);
+  border:1.5px solid rgba(35,39,47,.85);border-radius:18px;
+  box-shadow:var(--shadow-lg);display:flex;flex-direction:column;padding:16px 12px;
+}
+#sidebar h1{font-family:"Caveat",cursive;font-size:34px;margin:0 6px;line-height:1}
+#sidebar .sub{font-size:11.5px;color:var(--muted);margin:2px 6px 12px}
+#boardList{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.board{
+  display:flex;align-items:center;gap:8px;border:1px solid transparent;
+  border-radius:12px;padding:9px 10px;cursor:pointer;font-size:13.5px;font-weight:600;
+}
+.board:hover{background:#f3eee1}
+.board.active{background:#23272f;color:#fff}
+.board .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board .ct{font-size:11px;font-weight:700;background:rgba(127,127,127,.25);
+  border-radius:999px;padding:2px 8px}
+.board .bx{border:0;background:transparent;cursor:pointer;font-size:13px;
+  color:inherit;opacity:0;padding:2px 4px;border-radius:6px}
+.board:hover .bx{opacity:.7}
+.board .bx:hover{opacity:1;background:rgba(127,127,127,.3)}
+#newBoard{
+  margin-top:10px;border:1.5px dashed rgba(35,39,47,.4);border-radius:12px;
+  background:transparent;padding:10px;font-size:13px;font-weight:700;cursor:pointer;
+}
+#newBoard:hover{background:#f3eee1}
+#sidebar .foot{font-size:11px;color:var(--muted);margin:10px 6px 0;line-height:1.6}
+.side-head{display:flex;align-items:flex-start;justify-content:space-between;margin:0 2px}
+#collapseBtn{border:1px solid rgba(35,39,47,.3);background:#fff;border-radius:9px;width:28px;height:28px;
+  cursor:pointer;font-size:15px;line-height:1;color:var(--ink);flex:none;margin-top:4px}
+#collapseBtn:hover{background:#f3eee1}
+#sidebar{transition:transform .2s ease-out}
+body.side-hidden #sidebar{transform:translateX(calc(-100% - 18px))}
+.zoom{transition:left .2s ease-out}
+body.side-hidden .zoom{left:16px}
+#sideTab{position:fixed;left:0;top:44%;z-index:60;width:26px;height:64px;border-radius:0 12px 12px 0;
+  background:rgba(255,253,246,.96);border:1.5px solid rgba(35,39,47,.85);border-left:0;cursor:pointer;
+  font-size:15px;color:var(--ink);box-shadow:var(--shadow);
+  transform:translateX(-110%);transition:transform .2s ease-out}
+body.side-hidden #sideTab{transform:translateX(0)}
+#sideTab:hover{background:#f3eee1}
+@media (max-width:760px){
+  #collapseBtn,#sideTab{display:none}
+  body.side-hidden #sidebar{transform:none}
+}
+#toolbar{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:55;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border:1px solid rgba(35,39,47,.12);border-radius:14px;padding:6px 8px;
+  box-shadow:var(--shadow);max-width:calc(100vw - 600px);
+}
+#toolbar .bname{font-family:"Caveat",cursive;font-size:23px;padding:0 8px;
+  max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#addBtn{
+  border:0;border-radius:10px;background:#23272f;color:#fff;font-weight:700;
+  font-size:13px;padding:9px 16px;cursor:pointer;white-space:nowrap;
+}
+#addBtn:hover{background:#000}
+#palette{
+  position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:70;
+  width:min(480px,92vw);max-height:70vh;overflow-y:auto;
+  background:rgba(255,253,246,.98);border:1.5px solid rgba(35,39,47,.85);
+  border-radius:18px;box-shadow:var(--shadow-lg);padding:16px;display:none;
+}
+#palette.open{display:block}
+#palette h4{margin:10px 2px 8px;font-size:12px;letter-spacing:.1em;color:var(--muted)}
+#palette h4:first-child{margin-top:0}
+.prow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.pcell{
+  border:1px solid rgba(35,39,47,.2);border-radius:10px;padding:10px 4px 8px;
+  cursor:pointer;text-align:center;font-size:11px;font-weight:600;background:#fff;
+}
+.pcell:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.pcell .mini{height:44px;border-radius:6px;margin-bottom:6px;padding:6px 5px;
+  font-family:"Caveat",cursive;font-size:15px;line-height:1.1;overflow:hidden;
+  border:1px solid rgba(35,39,47,.12);text-align:left}
+.pcell .mini i{display:block;height:5px;border-radius:3px;background:rgba(35,39,47,.25);margin:4px 2px}
+.pcell .mini b{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(35,39,47,.6);
+  border-radius:3px;vertical-align:middle;margin-right:3px}
+.sticky{
+  position:absolute;width:220px;border-radius:4px 4px 12px 4px;
+  padding:30px 12px 10px;transform:rotate(var(--rot,0deg));
+  box-shadow:0 10px 18px -10px rgba(35,39,47,.35);
+  border:1px solid rgba(35,39,47,.12);cursor:grab;
+}
+.sticky.sel{box-shadow:0 22px 36px -12px rgba(35,39,47,.45);z-index:50;
+  transform:rotate(var(--rot,0deg)) scale(1.03)}
+.sticky.drag{cursor:grabbing;box-shadow:0 28px 44px -14px rgba(35,39,47,.5);z-index:100}
+.sticky::before{
+  content:"";position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-3deg);
+  width:74px;height:24px;background:rgba(255,255,255,.62);
+  border-left:1px dashed rgba(35,39,47,.18);border-right:1px dashed rgba(35,39,47,.18);
+  box-shadow:0 2px 5px rgba(35,39,47,.12);
+}
+.sticky h3{font-family:"Caveat",cursive;font-size:21px;line-height:1.05;margin:0 0 6px;
+  outline:none;border-radius:4px}
+.sticky h3:focus,.sticky p:focus,.ttext:focus{background:rgba(255,255,255,.55)}
+.sticky p{font-size:12.5px;line-height:1.6;color:rgba(35,39,47,.8);margin:0;
+  white-space:pre-line;outline:none;border-radius:4px;min-height:1em}
+.sticky.titlekind{width:240px}
+.sticky.titlekind h3{font-size:30px}
+.sticky .del{
+  position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;
+  border:1px solid rgba(35,39,47,.4);background:rgba(255,255,255,.8);cursor:pointer;
+  font-size:12px;display:none;place-items:center;line-height:1;
+}
+.sticky:hover .del,.sticky.sel .del{display:grid}
+.sticky .dots{display:none;gap:5px;margin-top:9px;padding-top:8px;
+  border-top:1px dashed rgba(35,39,47,.25)}
+.sticky.sel .dots{display:flex}
+.dots button{width:18px;height:18px;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(35,39,47,.45);padding:0}
+.dots button.on{outline:2px solid #23272f;outline-offset:1px}
+.sticky ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
+.trow{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;line-height:1.45}
+.tbox{flex:none;width:15px;height:15px;border-radius:4px;margin-top:1px;cursor:pointer;
+  border:1.6px solid rgba(35,39,47,.7);background:rgba(255,255,255,.65);
+  display:grid;place-items:center}
+.trow.done .tbox{background:#23272f;border-color:#23272f}
+.trow.done .tbox svg{opacity:1}
+.tbox svg{opacity:0}
+.trow.done .ttext{text-decoration:line-through;opacity:.55}
+.ttext{flex:1;outline:none;border-radius:4px;min-height:1em;word-break:break-word}
+.tx{border:0;background:transparent;cursor:pointer;opacity:0;color:var(--muted);font-size:12px;padding:0 2px}
+.trow:hover .tx{opacity:1}
+.tadd{width:100%;border:1px dashed rgba(35,39,47,.35);border-radius:8px;background:transparent;
+  font-size:12px;padding:6px 8px;margin-top:7px;color:inherit;outline:none;font-family:inherit}
+.tadd:focus{background:rgba(255,255,255,.55)}
+.b-blue{background:var(--blue)} .b-pink{background:var(--pink)}
+.b-green{background:var(--green)} .b-yellow{background:var(--yellow)}
+.b-purple{background:var(--purple)} .b-cyan{background:var(--cyan)}
+.b-white{background:#fdfdf8}
+.sticky.imgkind{width:240px;padding:26px 12px 10px}
+.frame{background:#fff;border:1px solid rgba(35,39,47,.4);border-radius:3px;
+  padding:10px 10px 8px;box-shadow:inset 0 0 0 1px rgba(35,39,47,.08)}
+.frame img{display:block;width:100%;border-radius:2px;user-select:none;-webkit-user-drag:none}
+.caption{font-family:"Caveat",cursive;font-size:19px;text-align:center;margin:7px 0 0;
+  outline:none;border-radius:4px;min-height:1em;word-break:break-word}
+.caption:focus{background:rgba(255,255,255,.55)}
+#ver{opacity:.55}
+#imgPick{position:fixed;top:0;left:0;width:4px;height:4px;opacity:0;pointer-events:none}
+#imgBtn{
+  border:1px solid rgba(35,39,47,.3);border-radius:10px;background:#fff;font-weight:700;
+  font-size:13px;padding:8px 14px;cursor:pointer;white-space:nowrap;
+}
+#imgBtn:hover{background:#f3eee1}
+.sticky .rh{position:absolute;right:-11px;bottom:-11px;width:26px;height:26px;border-radius:50%;
+  background:#fff;border:1.5px solid rgba(35,39,47,.6);cursor:grab;display:none;place-items:center;
+  box-shadow:var(--shadow);color:#23272f}
+.sticky:hover .rh,.sticky.sel .rh{display:grid}
+.sticky .rh svg{display:block;pointer-events:none}
+.sticky .rsz{position:absolute;left:-11px;bottom:-11px;width:26px;height:26px;border-radius:50%;
+  background:#fff;border:1.5px solid rgba(35,39,47,.6);cursor:nesw-resize;display:none;place-items:center;
+  box-shadow:var(--shadow);color:#23272f}
+.sticky:hover .rsz,.sticky.sel .rsz{display:grid}
+.sticky .rsz svg{display:block;pointer-events:none}
+/* ---- dynamic-island dialog ---- */
+#islandWrap{position:fixed;inset:0;display:none;justify-content:center;align-items:flex-start;
+  padding-top:20vh;z-index:95;pointer-events:none}
+#islandWrap.show{display:flex}
+#island{pointer-events:auto;width:180px;height:36px;max-width:92vw;border-radius:22px;overflow:hidden;
+  background:var(--card);color:var(--ink);border:1.5px solid rgba(35,39,47,.85);
+  box-shadow:var(--shadow-lg)}
+.island-inner{opacity:0;transition:opacity .25s;padding:20px 22px 18px;width:100%}
+#island.ready .island-inner{opacity:1}
+.isl-title{font-family:"Caveat",cursive;font-size:28px;margin-bottom:10px;text-align:center}
+#islInput{width:100%;border:1.5px solid rgba(35,39,47,.5);background:#fff;color:var(--ink);
+  border-radius:10px;padding:9px 11px;font-size:14px;outline:none;font-family:inherit;text-align:center}
+#islInput:focus{border-color:var(--ink)}
+#islInput::placeholder{color:#9ca3af}
+.isl-btns{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.isl-btns button{border-radius:9px;padding:8px 22px;font-size:13px;font-weight:700;cursor:pointer}
+#islOk{background:#23272f;color:#fff;border:1.5px solid #23272f}
+#islOk:hover{background:#000}
+#islCancel{background:#fff;color:var(--ink);border:1.5px solid rgba(35,39,47,.4)}
+#islCancel:hover{background:#f3eee1}
+.zoom{
+  position:fixed;left:276px;bottom:16px;z-index:55;display:flex;align-items:center;gap:2px;
+  background:rgba(255,255,255,.94);border:1px solid rgba(35,39,47,.12);
+  border-radius:12px;padding:4px;box-shadow:var(--shadow);font-size:13px;font-weight:600;
+}
+.zoom button{border:0;background:transparent;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px}
+.zoom button:hover{background:#f1ede2}
+.hint{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:45;
+  background:rgba(35,39,47,.86);color:#fff;font-size:12px;padding:8px 14px;border-radius:999px;
+  white-space:nowrap;
+}
+.hint b{color:#fde68a}
+#empty{
+  position:fixed;inset:0;display:none;place-items:center;pointer-events:none;z-index:5;
+  font-family:"Caveat",cursive;font-size:34px;color:#a8a29e;transform:rotate(-3deg);
+}
+@media (max-width:760px){
+  #sidebar{left:8px;right:8px;top:8px;bottom:auto;width:auto;padding:10px}
+  #boardList{flex-direction:row;overflow-x:auto}
+  .board{white-space:nowrap}
+  #sidebar .sub,#sidebar .foot{display:none}
+  .zoom{left:8px}
+  .hint{display:none}
+  #toolbar{top:auto;bottom:70px;max-width:94vw}
+  #palette{top:auto;bottom:130px}
+}
+</style>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="side-head"><h1>Sticky Board</h1><button id="collapseBtn" title="收起侧栏">‹</button></div>
+  <div class="sub">便利贴白板 · 自动保存到本地</div>
+  <div id="boardList"></div>
+  <button id="newBoard">+ 新画板</button>
+  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.8 · 白板版</span></div>
+</aside>
+<button id="sideTab" title="展开侧栏">›</button>
+
+<div id="toolbar">
+  <button id="addBtn">+ 便利贴</button>
+  <button id="imgBtn">+ 图片</button>
+  <input type="file" id="imgPick" accept="image/*">
+  <span class="bname" id="boardName"></span>
+  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
+</div>
+<div id="palette"></div>
+<div id="islandWrap"><div id="island"><div class="island-inner">
+  <div class="isl-title">新画板</div>
+  <input id="islInput" maxlength="24" placeholder="给画板起个名字" autocomplete="off">
+  <div class="isl-btns"><button id="islCancel">取消</button><button id="islOk">创建</button></div>
+</div></div></div>
+
+<div id="viewport"><div id="world"></div></div>
+<div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
+
+<div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
+<div class="hint">拖背景平移 · 滚轮缩放 · 拖便利贴移动 · <b>双击改字</b> · 右下角旋转 · 图片左下角缩放</div>
+<script>
+"use strict";
+const KEY = "stickyboards-v1";
+const COLORS = ["yellow", "blue", "pink", "green", "purple", "cyan"];
+const CNAMES = {yellow:"黄", blue:"蓝", pink:"粉", green:"绿", purple:"紫", cyan:"青", white:"白"};
+const KINDS = [
+  {k:"note",  label:"文本贴", tip:"标题 + 短句"},
+  {k:"todo",  label:"清单贴", tip:"可勾选事项"},
+  {k:"title", label:"标题卡", tip:"分区大标题"},
+];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const rot = () => +(Math.random() * 4 - 2).toFixed(1);
+const CHECK = '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.5 5.5 4 8l4.5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+
+function mkSticky(color, kind, x, y, title, body, items) {
+  return {id: uid(), color, kind, x, y, rot: rot(), title: title || "",
+    body: body || "", items: items || []};
+}
+function seed() {
+  const welcome = {id: uid(), name: "欢迎使用",
+    view: {x: 300, y: 60, k: 1}, stickies: [
+    mkSticky("yellow", "title", 60, 80, "欢迎来到便利贴白板"),
+    mkSticky("blue", "note", 340, 100, "三步上手",
+      "1. 点顶部 + 便利贴挑选组件\n2. 双击文字直接改\n3. 拖背景平移、滚轮缩放"),
+    mkSticky("pink", "todo", 620, 80, "试试看", "", [
+      {t: "新建一张画板", done: true},
+      {t: "双击改掉这行字", done: false},
+      {t: "把我拖到别处", done: false},
+    ]),
+  ]};
+  const T = [
+    ["blue", "title", "Learn · 学工具", "", 60], ["blue", "note", "Pick ONE stack",
+      "OpenAI + Make + Airtable 跑通即可。", 60],
+    ["pink", "title", "Build · 做作品", "", 330], ["pink", "note", "3 killer demos",
+      "客服、线索、内容流水线，各配 60 秒录屏。", 330],
+    ["green", "title", "Find Clients · 找客户", "", 600], ["green", "note", "20 outreaches / day",
+      "短 DM + 定制 demo 开头 15 秒。", 600],
+    ["yellow", "title", "Deliver · 做交付", "", 870], ["yellow", "note", "SOP everything",
+      "每个交付配 Loom + 文档 + 交接表。", 870],
+    ["purple", "title", "Retain · 做留存", "", 1140], ["purple", "note", "Monthly ROI report",
+      "省了几小时、多回几条线索，算出来。", 1140],
+    ["cyan", "title", "Scale · 做扩张", "", 1410], ["cyan", "note", "Productize one offer",
+      "“7 天上线 AI 客服”代替按小时报价。", 1410],
+  ];
+  const journey = {id: uid(), name: "成长旅程 · 模板",
+    view: {x: 300, y: 40, k: 0.9}, stickies: T.map((r, i) =>
+      mkSticky(r[0], r[1], r[4], i % 2 ? 330 : 80, r[2], r[3]))};
+  return {v: 1, activeId: welcome.id, boards: [welcome, journey]};
+}
+let mem = null;
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.boards)) return d; }
+  } catch (e) {}
+  return mem || (mem = seed());
+}
+let S = load();
+let quotaWarned = false;
+function save() {
+  mem = S;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) {
+    if (!quotaWarned) {
+      quotaWarned = true;
+      alert("本地存储满了：图片太大存不下，最近的改动重启后可能丢失。建议删掉大图或另建画板。");
+    }
+  }
+}
+function board() { return S.boards.find(b => b.id === S.activeId) || S.boards[0]; }
+const viewport = document.getElementById("viewport");
+const world = document.getElementById("world");
+const boardList = document.getElementById("boardList");
+const boardName = document.getElementById("boardName");
+const boardCount = document.getElementById("boardCount");
+const palette = document.getElementById("palette");
+const emptyHint = document.getElementById("empty");
+let Z = 10;
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+/* ---- sidebar ---- */
+function renameBoard(b) {
+  const n = prompt("画板改名", b.name);
+  if (n && n.trim()) { b.name = n.trim().slice(0, 24); save(); renderBoards(); renderAll(); }
+}
+function renderBoards() {
+  boardList.innerHTML = "";
+  S.boards.forEach(b => {
+    const d = el("div", "board" + (b.id === S.activeId ? " active" : ""));
+    d.appendChild(el("span", "nm", b.name));
+    d.appendChild(el("span", "ct", String(b.stickies.length)));
+    const rn = el("button", "bx", "✎");
+    rn.title = "重命名画板";
+    rn.onclick = e => { e.stopPropagation(); renameBoard(b); };
+    d.appendChild(rn);
+    const x = el("button", "bx", "×");
+    x.title = "删除画板";
+    x.onclick = e => {
+      e.stopPropagation();
+      if (b.stickies.length && !confirm(`删除画板「${b.name}」？里面 ${b.stickies.length} 张便利贴会一起删掉。`)) return;
+      if (S.boards.length === 1) { alert("至少保留一张画板"); return; }
+      S.boards = S.boards.filter(o => o.id !== b.id);
+      if (S.activeId === b.id) S.activeId = S.boards[0].id;
+      save(); renderBoards(); renderAll();
+    };
+    d.appendChild(x);
+    d.onclick = () => {
+      if (S.activeId === b.id) return;
+      persistView(); S.activeId = b.id; save(); renderBoards(); renderAll();
+    };
+    d.ondblclick = () => renameBoard(b);
+    boardList.appendChild(d);
+  });
+}
+/* ---- sticky nodes ---- */
+function todoRow(st, it) {
+  const li = el("li", "trow" + (it.done ? " done" : ""));
+  const box = el("span", "tbox");
+  box.innerHTML = CHECK;
+  box.onclick = e => { e.stopPropagation(); it.done = !it.done; save(); li.classList.toggle("done", it.done); };
+  const tx = el("span", "ttext", it.t);
+  tx.ondblclick = e => {
+    e.stopPropagation(); tx.contentEditable = "true"; tx.focus();
+    tx.onblur = () => { tx.contentEditable = "false"; it.t = tx.innerText.trim(); save(); };
+    tx.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); tx.blur(); } };
+  };
+  const rm = el("button", "tx", "×");
+  rm.onclick = e => { e.stopPropagation(); st.items = st.items.filter(o => o !== it); save(); renderAll(); };
+  li.append(box, tx, rm);
+  return li;
+}
+function stickyNode(st) {
+  const a = el("article", `sticky b-${st.color}` + (st.kind === "title" ? " titlekind" : st.kind === "img" ? " imgkind" : ""));
+  a.dataset.id = st.id;
+  a.style.left = st.x + "px"; a.style.top = st.y + "px";
+  if (st.w) a.style.width = st.w + "px";
+  a.style.setProperty("--rot", st.rot + "deg");
+  const del = el("button", "del", "×");
+  del.title = "删除便利贴";
+  del.onclick = e => {
+    e.stopPropagation();
+    const b = board();
+    b.stickies = b.stickies.filter(o => o.id !== st.id);
+    save(); renderAll();
+  };
+  a.appendChild(del);
+  if (st.kind === "img") {
+    const f = el("div", "frame");
+    const im = document.createElement("img");
+    im.src = st.src || ""; im.alt = ""; im.draggable = false;
+    f.appendChild(im);
+    a.appendChild(f);
+    const cap = el("p", "caption", st.title);
+    cap.ondblclick = e => {
+      e.stopPropagation(); cap.contentEditable = "true"; cap.focus();
+      cap.onblur = () => { cap.contentEditable = "false"; st.title = cap.innerText.trim(); save(); };
+      cap.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); cap.blur(); } };
+    };
+    a.appendChild(cap);
+  } else {
+  const h = el("h3", null, st.title || "双击改标题");
+  h.ondblclick = e => {
+    e.stopPropagation(); h.contentEditable = "true"; h.focus();
+    document.execCommand && document.execCommand("selectAll", false, null);
+    h.onblur = () => { h.contentEditable = "false"; st.title = h.innerText.trim(); save(); };
+    h.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); h.blur(); } };
+  };
+  a.appendChild(h);
+  if (st.kind === "note") {
+    const p = el("p", null, st.body);
+    p.ondblclick = e => {
+      e.stopPropagation(); p.contentEditable = "true"; p.focus();
+      p.onblur = () => { p.contentEditable = "false"; st.body = p.innerText.trim(); save(); };
+    };
+    a.appendChild(p);
+  }
+  if (st.kind === "todo") {
+    const ul = el("ul");
+    st.items.forEach(it => ul.appendChild(todoRow(st, it)));
+    a.appendChild(ul);
+    const inp = el("input", "tadd");
+    inp.placeholder = "+ 回车添加事项";
+    inp.onpointerdown = e => e.stopPropagation();
+    inp.onkeydown = e => {
+      e.stopPropagation();
+      if (e.key === "Enter" && inp.value.trim()) {
+        st.items.push({t: inp.value.trim(), done: false});
+        save(); renderAll();
+      }
+    };
+    a.appendChild(inp);
+    }
+  }
+  const dots = el("div", "dots");
+  (st.kind === "img" ? ["white"].concat(COLORS) : COLORS).forEach(c => {
+    const b = el("button");
+    b.style.background = `var(--${c})`;
+    b.title = CNAMES[c];
+    if (c === st.color) b.classList.add("on");
+    b.onclick = e => { e.stopPropagation(); st.color = c; save(); renderAll(); };
+    dots.appendChild(b);
+  });
+  a.appendChild(dots);
+  const rh = el("span", "rh");
+  rh.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 3v4h-4"/></svg>';
+  rh.title = "拖动旋转（按住 Shift 按 15°吸附）";
+  enableRotate(a, st, rh);
+  a.appendChild(rh);
+  if (st.kind === "img") {
+    const rz = el("span", "rsz");
+    rz.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L20 4"/><path d="M14 4h6v6"/><path d="M10 20H4v-6"/></svg>';
+    rz.title = "拖动缩放图片";
+    enableResize(a, st, rz);
+    a.appendChild(rz);
+  }
+  enableDrag(a, st);
+  return a;
+}
+function renderAll() {
+  const b = board();
+  document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
+  world.innerHTML = "";
+  b.stickies.forEach(st => world.appendChild(stickyNode(st)));
+  boardName.textContent = b.name;
+  boardCount.textContent = b.stickies.length + " 张";
+  emptyHint.style.display = b.stickies.length ? "none" : "grid";
+  applyView();
+}
+/* ---- palette ---- */
+function buildPalette() {
+  palette.innerHTML = "";
+  KINDS.forEach(({k, label, tip}) => {
+    palette.appendChild(el("h4", null, `${label} · ${tip}`));
+    const row = el("div", "prow");
+    COLORS.forEach(c => {
+      const cell = el("div", "pcell");
+      const mini = el("div", "mini");
+      mini.style.background = `var(--${c})`;
+      if (k === "note") mini.innerHTML = "标题<i></i><i></i>";
+      else if (k === "todo") mini.innerHTML = "<b></b>事项<i></i><i></i>";
+      else mini.textContent = "大标题";
+      cell.appendChild(mini);
+      cell.appendChild(el("span", null, CNAMES[c]));
+      cell.onclick = () => { addSticky(c, k); palette.classList.remove("open"); };
+      row.appendChild(cell);
+    });
+    palette.appendChild(row);
+  });
+}
+function addSticky(color, kind) {
+  const b = board(), v = b.view;
+  const cx = (viewport.clientWidth / 2 - v.x) / v.k + (Math.random() * 60 - 30);
+  const cy = (viewport.clientHeight / 2 - v.y) / v.k + (Math.random() * 60 - 30);
+  const defaults = {note: ["新便利贴", "双击改内容"], todo: ["新清单", ""], title: ["大标题", ""]};
+  const st = mkSticky(color, kind, Math.round(cx - 110), Math.round(cy - 60),
+    defaults[kind][0], defaults[kind][1]);
+  b.stickies.push(st);
+  save(); renderAll();
+  requestAnimationFrame(() => {
+    const n = world.querySelector(`[data-id="${st.id}"]`);
+    if (n) { n.classList.add("sel"); n.style.zIndex = ++Z; }
+  });
+}
+/* ---- view: pan / zoom (per board) ---- */
+const zLabel = document.getElementById("zLabel");
+function applyView() {
+  const v = board().view;
+  world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.k})`;
+  zLabel.textContent = Math.round(v.k * 100) + "%";
+}
+function persistView() { save(); }
+function zoomBy(f) {
+  const v = board().view;
+  v.k = Math.min(1.6, Math.max(0.4, v.k * f));
+  save(); applyView();
+}
+document.getElementById("zIn").onclick = () => zoomBy(1.12);
+document.getElementById("zOut").onclick = () => zoomBy(0.89);
+let pan = null;
+viewport.addEventListener("pointerdown", e => {
+  if (e.target.closest(".sticky,#sidebar,#toolbar,#palette,.zoom")) return;
+  const v = board().view;
+  pan = {x: e.clientX - v.x, y: e.clientY - v.y};
+  viewport.classList.add("panning");
+  viewport.setPointerCapture(e.pointerId);
+});
+viewport.addEventListener("pointermove", e => {
+  if (!pan) return;
+  const v = board().view;
+  v.x = e.clientX - pan.x; v.y = e.clientY - pan.y;
+  applyView();
+});
+viewport.addEventListener("pointerup", () => {
+  if (pan) { pan = null; viewport.classList.remove("panning"); save(); }
+});
+let viewSaveT = null;
+function saveViewSoon() { // 滚轮高频触发，视角落盘防抖
+  clearTimeout(viewSaveT);
+  viewSaveT = setTimeout(save, 500);
+}
+viewport.addEventListener("wheel", e => {
+  e.preventDefault();
+  let d = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+  d = Math.max(-50, Math.min(50, d)); // 触控板小位移缓行，异常大位移封顶
+  const v = board().view;
+  v.k = Math.min(1.6, Math.max(0.4, v.k * Math.exp(-d * 0.0015)));
+  applyView();
+  saveViewSoon();
+}, {passive: false});
+/* ---- sticky drag + select ---- */
+function enableDrag(node, st) {
+  let sx = 0, sy = 0, ox = 0, oy = 0, moved = false;
+  node.addEventListener("pointerdown", e => {
+    if (e.target.closest("input") || e.target.isContentEditable) return;
+    if (e.target.closest(".tbox,.tx,.del,.dots,.rh,.rsz")) return;
+    e.stopPropagation();
+    const v = board().view;
+    sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; moved = false;
+    node.classList.add("drag");
+    const move = ev => {
+      const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k;
+      if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+      st.x = Math.round(ox + dx); st.y = Math.round(oy + dy);
+      node.style.left = st.x + "px"; node.style.top = st.y + "px";
+    };
+    const up = () => {
+      node.classList.remove("drag");
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      if (moved) save();
+      else {
+        document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
+        node.classList.add("sel");
+        node.style.zIndex = ++Z;
+      }
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  });
+}
+/* ---- rotate handle: drag around center ---- */
+function enableRotate(node, st, handle) {
+  handle.addEventListener("pointerdown", e => {
+    e.stopPropagation();
+    e.preventDefault();
+    const center = () => {
+      const r = node.getBoundingClientRect();
+      return {x: r.left + r.width / 2, y: r.top + r.height / 2};
+    };
+    const ang = ev => {
+      const c = center();
+      return Math.atan2(ev.clientY - c.y, ev.clientX - c.x) * 180 / Math.PI;
+    };
+    const a0 = ang(e), r0 = st.rot;
+    node.classList.add("drag");
+    const move = ev => {
+      let d = ang(ev) - a0 + r0;
+      if (ev.shiftKey) d = Math.round(d / 15) * 15;
+      d = ((d + 180) % 360 + 360) % 360 - 180;
+      st.rot = Math.round(d * 10) / 10;
+      node.style.setProperty("--rot", st.rot + "deg");
+    };
+    const up = () => {
+      node.classList.remove("drag");
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      save();
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  });
+}
+/* ---- resize handle: drag from corner, keep aspect ---- */
+function enableResize(node, st, handle) {
+  handle.addEventListener("pointerdown", e => {
+    e.stopPropagation();
+    e.preventDefault();
+    const v = board().view;
+    const sx = e.clientX, sy = e.clientY;
+    const w0 = st.w || node.offsetWidth;
+    node.classList.add("drag");
+    const move = ev => { // 沿手柄外对角线投影，屏幕位移 1:1 换算成画布宽度
+      const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k;
+      const d = (-dx + dy) * Math.SQRT1_2;
+      const w = Math.min(900, Math.max(120, Math.round(w0 + d)));
+      st.w = w;
+      node.style.width = w + "px";
+    };
+    const up = () => {
+      node.classList.remove("drag");
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      save();
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  });
+}
+/* ---- toolbar / palette / boards ---- */
+document.getElementById("addBtn").onclick = e => {
+  e.stopPropagation();
+  palette.classList.toggle("open");
+};
+/* ---- image upload: downscale then pin with a frame ---- */
+const imgPick = document.getElementById("imgPick");
+document.getElementById("imgBtn").onclick = e => {
+  e.stopPropagation();
+  const h = window.webkit && window.webkit.messageHandlers
+    && window.webkit.messageHandlers.pickImage;
+  if (h) h.postMessage({}); // App 内：原生选图面板
+  else imgPick.click();     // 浏览器里：回退文件框
+};
+window.__nativeImage = b64 => addImage("data:image/jpeg;base64," + b64, "图片");
+imgPick.onchange = () => {
+  const f = imgPick.files && imgPick.files[0];
+  imgPick.value = "";
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => downscaleImage(rd.result, url => addImage(url, f.name));
+  rd.readAsDataURL(f);
+};
+function downscaleImage(dataUrl, done) {
+  const im = new Image();
+  im.onload = () => {
+    const shot = (max, q) => {
+      const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(im.naturalWidth * s));
+      c.height = Math.max(1, Math.round(im.naturalHeight * s));
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      return c.toDataURL("image/jpeg", q);
+    };
+    let out = shot(1000, 0.85);
+    if (out.length > 1200000) out = shot(700, 0.7);
+    done(out);
+  };
+  im.onerror = () => alert("这张图片读不出来，换一张试试");
+  im.src = dataUrl;
+}
+function addImage(dataUrl, name) {
+  const b = board(), v = b.view;
+  const cx = (viewport.clientWidth / 2 - v.x) / v.k;
+  const cy = (viewport.clientHeight / 2 - v.y) / v.k;
+  const st = mkSticky("white", "img", Math.round(cx - 120), Math.round(cy - 100),
+    (name || "图片").replace(/\.[^.]+$/, "").slice(0, 20));
+  st.src = dataUrl;
+  b.stickies.push(st);
+  save(); renderAll();
+  requestAnimationFrame(() => {
+    const n = world.querySelector(`[data-id="${st.id}"]`);
+    if (n) { n.classList.add("sel"); n.style.zIndex = ++Z; }
+  });
+}
+document.addEventListener("pointerdown", e => {
+  if (!e.target.closest("#palette,#addBtn")) palette.classList.remove("open");
+});
+/* ---- dynamic-island new-board dialog ---- */
+const islandWrap = document.getElementById("islandWrap");
+const island = document.getElementById("island");
+const islInput = document.getElementById("islInput");
+let islandOpen = false;
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DUR = f => RM ? 1 : f;
+const WARP = "cubic-bezier(.83,0,.17,1)"; // 慢起 - 快中 - 慢收
+function islAnim(frames, duration, easing) {
+  return island.animate(frames, {
+    duration: DUR(duration),
+    easing: easing || "cubic-bezier(.32,.72,.35,1)",
+    fill: "forwards",
+  }).finished;
+}
+async function openIsland() {
+  if (islandOpen) return;
+  islandOpen = true;
+  islInput.value = "";
+  island.classList.remove("ready");
+  islandWrap.classList.add("show");
+  try {
+    await islAnim([ // 0. 药丸淡入（尺寸不动）
+      {opacity: "0"}, {opacity: "1"},
+    ], 300);
+    await islAnim([ // 1. X 不动，Y 一步拉到最终高度
+      {width: "180px", height: "36px"},
+      {width: "180px", height: "236px"},
+    ], 320, WARP);
+    await islAnim([ // 2. Y 不动，X 一步展到最终宽度
+      {width: "180px", height: "236px"},
+      {width: "360px", height: "236px"},
+    ], 340, WARP);
+  } catch (e) {}
+  island.style.width = "360px"; // 锁定终尺寸，之后不再变化
+  island.style.height = "236px";
+  island.style.borderRadius = "22px";
+  island.getAnimations().forEach(a => a.cancel());
+  island.classList.add("ready");
+  islInput.focus();
+}
+async function closeIsland() {
+  if (!islandOpen) return;
+  island.classList.remove("ready");
+  island.style.width = "";
+  island.style.height = "";
+  island.style.borderRadius = "";
+  try {
+    await islAnim([ // 1. Y 不动，X 收回
+      {width: "360px", height: "236px"},
+      {width: "180px", height: "236px"},
+    ], 260, WARP);
+    await islAnim([ // 2. X 不动，Y 收回
+      {width: "180px", height: "236px"},
+      {width: "180px", height: "36px"},
+    ], 240, WARP);
+    await islAnim([{opacity: "1"}, {opacity: "0"}], 300);
+  } catch (e) {}
+  islandWrap.classList.remove("show");
+  islandOpen = false;
+}
+function confirmIsland() {
+  const n = islInput.value.trim();
+  if (!n) {
+    islInput.focus();
+    island.animate([ // 空输入抖一下
+      {transform: "translateX(0)"}, {transform: "translateX(-7px)"},
+      {transform: "translateX(6px)"}, {transform: "translateX(-3px)"},
+      {transform: "translateX(0)"},
+    ], {duration: DUR(300)});
+    return;
+  }
+  closeIsland().then(() => {
+    persistView();
+    const b = {id: uid(), name: n.slice(0, 24),
+      view: {x: 300, y: 80, k: 1}, stickies: []};
+    S.boards.push(b); S.activeId = b.id;
+    save(); renderBoards(); renderAll();
+  });
+}
+document.getElementById("newBoard").onclick = () => openIsland();
+document.getElementById("islOk").onclick = () => confirmIsland();
+document.getElementById("islCancel").onclick = () => closeIsland();
+islInput.onkeydown = e => {
+  e.stopPropagation();
+  if (e.key === "Enter") confirmIsland();
+};
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { palette.classList.remove("open"); closeIsland(); }
+});
+/* ---- sidebar collapse (persisted) ---- */
+const UIKEY = "stickyboard-ui-v1";
+let ui = {collapsed: false};
+try {
+  const u = JSON.parse(localStorage.getItem(UIKEY));
+  if (u && typeof u.collapsed === "boolean") ui = u;
+} catch (e) {}
+function applySide() {
+  document.body.classList.toggle("side-hidden", ui.collapsed);
+  try { localStorage.setItem(UIKEY, JSON.stringify(ui)); } catch (e) {}
+}
+document.getElementById("collapseBtn").onclick = e => {
+  e.stopPropagation(); ui.collapsed = true; applySide();
+};
+document.getElementById("sideTab").onclick = () => {
+  ui.collapsed = false; applySide();
+};
+/* ---- init ---- */
+if (!board().view) board().view = {x: 300, y: 80, k: 1};
+applySide();
+buildPalette();
+renderBoards();
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+import Cocoa
+import ImageIO
+import UniformTypeIdentifiers
+import WebKit
+
+final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler {
+    var window: NSWindow!
+    var webView: WKWebView!
+
+    // MARK: - Launch
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        buildMenu()
+
+        window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 1280, height: 860),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.center()
+        window.title = "The Journey"
+        window.minSize = NSSize(width: 900, height: 640)
+        window.setFrameAutosaveName("MainWindow")
+
+        let cfg = WKWebViewConfiguration()
+        cfg.userContentController.add(self, name: "pickImage")
+        webView = WKWebView(frame: window.contentView!.bounds, configuration: cfg)
+        webView.autoresizingMask = [.width, .height]
+        webView.uiDelegate = self
+        webView.navigationDelegate = self
+
+        if let url = Bundle.main.url(forResource: "index", withExtension: "html") {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        } else {
+            webView.loadHTMLString("<h1>index.html missing in Resources</h1>", baseURL: nil)
+        }
+
+        window.contentView?.addSubview(webView)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            window.makeKeyAndOrderFront(nil)
+        }
+        return true
+    }
+
+    // MARK: - Menu
+
+    // Standard items keep target == nil so actions travel the responder
+    // chain (NSApp / key window / web view). A fixed target that doesn't
+    // implement the action silently disables the item AND its shortcut.
+    private func stdItem(_ title: String, _ action: Selector, _ key: String,
+                         _ mask: NSEvent.ModifierFlags = .command) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+        item.keyEquivalentModifierMask = mask
+        return item
+    }
+
+    private func ownItem(_ title: String, _ action: Selector, _ key: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+        item.target = self
+        return item
+    }
+
+    private func buildMenu() {
+        let main = NSMenu()
+
+        let appMenu = NSMenu()
+        appMenu.addItem(stdItem("About The Journey", #selector(NSApplication.orderFrontStandardAboutPanel(_:)), ""))
+        appMenu.addItem(.separator())
+        appMenu.addItem(stdItem("Hide The Journey", #selector(NSApplication.hide(_:)), "h"))
+        appMenu.addItem(stdItem("Hide Others", #selector(NSApplication.hideOtherApplications(_:)), "h", [.command, .option]))
+        appMenu.addItem(stdItem("Show All", #selector(NSApplication.unhideAllApplications(_:)), ""))
+        appMenu.addItem(.separator())
+        appMenu.addItem(stdItem("Quit The Journey", #selector(NSApplication.terminate(_:)), "q"))
+        let appEntry = NSMenuItem(); appEntry.submenu = appMenu; main.addItem(appEntry)
+
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(stdItem("Undo", #selector(UndoManager.undo), "z"))
+        editMenu.addItem(stdItem("Redo", #selector(UndoManager.redo), "z", [.command, .shift]))
+        editMenu.addItem(.separator())
+        editMenu.addItem(stdItem("Cut", #selector(NSText.cut(_:)), "x"))
+        editMenu.addItem(stdItem("Copy", #selector(NSText.copy(_:)), "c"))
+        editMenu.addItem(stdItem("Paste", #selector(NSText.paste(_:)), "v"))
+        editMenu.addItem(stdItem("Select All", #selector(NSText.selectAll(_:)), "a"))
+        let editEntry = NSMenuItem(); editEntry.submenu = editMenu; main.addItem(editEntry)
+
+        let viewMenu = NSMenu(title: "View")
+        viewMenu.addItem(ownItem("Reload Page", #selector(reloadPage), "r"))
+        viewMenu.addItem(.separator())
+        viewMenu.addItem(ownItem("Zoom In", #selector(zoomIn), "+"))
+        viewMenu.addItem(ownItem("Zoom Out", #selector(zoomOut), "-"))
+        viewMenu.addItem(ownItem("Actual Size", #selector(zoomReset), "0"))
+        let viewEntry = NSMenuItem(); viewEntry.submenu = viewMenu; main.addItem(viewEntry)
+
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(stdItem("Minimize", #selector(NSWindow.miniaturize(_:)), "m"))
+        windowMenu.addItem(stdItem("Close Window", #selector(NSWindow.performClose(_:)), "w"))
+        windowMenu.addItem(stdItem("Bring All to Front", #selector(NSApplication.arrangeInFront(_:)), ""))
+        let windowEntry = NSMenuItem(); windowEntry.submenu = windowMenu; main.addItem(windowEntry)
+
+        NSApp.mainMenu = main
+    }
+
+    // MARK: - View actions
+
+    @objc private func reloadPage() {
+        webView.reload()
+    }
+
+    @objc private func zoomIn() {
+        webView.magnification = min(webView.magnification + 0.1, 2.0)
+    }
+
+    @objc private func zoomOut() {
+        webView.magnification = max(webView.magnification - 0.1, 0.5)
+    }
+
+    @objc private func zoomReset() {
+        webView.magnification = 1.0
+    }
+
+    // MARK: - Web policy: keep the board in-app, send web links to the browser
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url {
+            NSWorkspace.shared.open(url)
+        }
+        return nil
+    }
+
+    // MARK: - JavaScript dialogs: WKWebView drops these silently without a bridge
+
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        let a = NSAlert()
+        a.messageText = message
+        a.addButton(withTitle: "好")
+        a.runModal()
+        completionHandler()
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        let a = NSAlert()
+        a.messageText = message
+        a.addButton(withTitle: "确定")
+        a.addButton(withTitle: "取消")
+        completionHandler(a.runModal() == .alertFirstButtonReturn)
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String,
+                 defaultText: String?, initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping (String?) -> Void) {
+        let a = NSAlert()
+        a.messageText = prompt
+        a.addButton(withTitle: "确定")
+        a.addButton(withTitle: "取消")
+        let tf = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
+        tf.stringValue = defaultText ?? ""
+        a.accessoryView = tf
+        a.window.initialFirstResponder = tf
+        let ok = a.runModal() == .alertFirstButtonReturn
+        completionHandler(ok ? tf.stringValue : nil)
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+        if url.isFileURL {
+            decisionHandler(.allow)
+        } else if navigationAction.navigationType == .linkActivated {
+            NSWorkspace.shared.open(url)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
+
+    // MARK: - Native image picker (JS file inputs can't pop panels reliably)
+
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard message.name == "pickImage" else { return }
+        let panel = NSOpenPanel()
+        panel.message = "选择一张图片放到画板上"
+        panel.allowedContentTypes = [.image]
+        panel.allowsMultipleSelection = false
+        panel.begin { [weak self] resp in
+            guard resp == .OK, let url = panel.url else { return }
+            self?.deliverImage(url)
+        }
+    }
+
+    private func deliverImage(_ url: URL) {
+        guard let data = downsizedJPEG(url), !data.isEmpty else { return }
+        let js = "window.__nativeImage&&window.__nativeImage(\"\(data.base64EncodedString())\")"
+        DispatchQueue.main.async { [weak self] in
+            self?.webView.evaluateJavaScript(js, completionHandler: nil)
+        }
+    }
+
+    private func downsizedJPEG(_ url: URL, maxDim: CGFloat = 1000) -> Data? {
+        guard let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let thumbOpts = [kCGImageSourceThumbnailMaxPixelSize: maxDim,
+                         kCGImageSourceCreateThumbnailFromImageAlways: true] as CFDictionary
+        guard let thumb = CGImageSourceCreateThumbnailAtIndex(src, 0, thumbOpts) else { return nil }
+        let out = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(out, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(dest, thumb, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
+        guard CGImageDestinationFinalize(dest) else { return nil }
+        return out as Data
+    }
+}
+
+let app = NSApplication.shared
+let delegate = AppDelegate()
+app.delegate = delegate
+app.setActivationPolicy(.regular)
+app.activate(ignoringOtherApps: true)
+app.run()
