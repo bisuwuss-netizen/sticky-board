@@ -1,5 +1,7 @@
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 export const BOARD_SIZE = {width: 2400, height: 1600};
+export const PRIORITIES = ["none", "low", "medium", "high", "urgent"];
+export const STATUSES = ["backlog", "next", "doing", "blocked", "done"];
 export function clampView(view, viewport, scale = view.k || 1) {
   const k = Math.min(1.6, Math.max(0.4, Number(scale) || 1));
   const minX = Math.min(0, viewport.width - BOARD_SIZE.width * k);
@@ -84,6 +86,15 @@ function normalizeSticky(st) {
     rot: Number.isFinite(Number(st.rot)) ? Number(st.rot) : 0,
     ...(st.w ? {w: Math.min(900, Math.max(120, Number(st.w) || 240))} : {}),
     title: String(st.title ?? "").slice(0, 500), body: String(st.body ?? "").slice(0, 10000), items,
+    tags: Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : [],
+    status: STATUSES.includes(st.status) ? st.status : "backlog",
+    priority: PRIORITIES.includes(st.priority) ? st.priority : "none",
+    due: typeof st.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(st.due) ? st.due : "",
+    recurrence: ["none", "daily", "weekly", "monthly"].includes(st.recurrence) ? st.recurrence : "none",
+    parentId: typeof st.parentId === "string" ? st.parentId : "",
+    dependencies: Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string").slice(0, 20) : [],
+    locked: Boolean(st.locked), groupId: typeof st.groupId === "string" ? st.groupId : "",
+    z: Number.isFinite(Number(st.z)) ? Number(st.z) : 0, trashed: Boolean(st.trashed),
     ...(kind === "img" && typeof st.src === "string" ? {src: st.src} : {}),
   };
 }

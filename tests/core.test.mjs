@@ -24,3 +24,13 @@ test('normalizeState repairs missing boards and invalid active board', () => {
   assert.equal(state.activeId, state.boards[0].id);
   assert.ok(Array.isArray(state.boards[0].stickies));
 });
+
+test('normalizeState migrates task metadata with safe defaults', () => {
+  const state = normalizeState({ boards: [{ id: 'b', stickies: [{ id: 's', title: 'Task', tags: [' work '], priority: 'high', status: 'doing', due: '2026-10-01' }] }] });
+  const sticky = state.boards[0].stickies[0];
+  assert.deepEqual(sticky.tags, ['work']);
+  assert.equal(sticky.priority, 'high');
+  assert.equal(sticky.status, 'doing');
+  assert.equal(sticky.due, '2026-10-01');
+  assert.equal(sticky.locked, false);
+});

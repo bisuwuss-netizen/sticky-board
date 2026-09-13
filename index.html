@@ -104,6 +104,12 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .richbody pre{margin:7px 0;padding:9px 10px;overflow:auto;background:rgba(35,39,47,.08);border:1px solid rgba(35,39,47,.14);border-radius:7px;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 .richbody a{color:#225ea8;text-decoration:underline}
 .sticky.search-miss{display:none}
+.meta{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0;font-size:10px;color:rgba(35,39,47,.72)}
+.meta span{padding:2px 6px;border:1px solid rgba(35,39,47,.2);border-radius:999px;background:rgba(255,255,255,.3)}
+.meta .urgent,.meta .high{background:#ffd6d6;border-color:#d66}.meta .done{background:#d8f5df}.meta .blocked{background:#ffe9bd}
+#viewMode,#statusFilter,#priorityFilter{border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 6px;background:#fff;font:12px inherit}
+#overview{position:fixed;inset:90px 24px 24px 280px;z-index:40;background:rgba(255,253,246,.97);border:1px solid rgba(35,39,47,.2);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px;overflow:auto;display:none}
+#overview.open{display:block}.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.ov-card{border:1px solid rgba(35,39,47,.15);border-radius:8px;padding:14px;background:#fff}.ov-card h3{margin:0 0 8px;font-size:14px}.ov-card strong{font-size:28px}.ov-list{display:grid;gap:6px}.ov-item{padding:8px;border-bottom:1px solid #eee;cursor:pointer}
 #addBtn{
   border:0;border-radius:10px;background:#23272f;color:#fff;font-weight:700;
   font-size:13px;padding:9px 16px;cursor:pointer;white-space:nowrap;
@@ -273,7 +279,10 @@ body.side-hidden #sideTab{transform:translateX(0)}
  <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
  <button class="toolBtn" data-action="export" title="导出全部画板">导出</button>
  <button class="toolBtn" data-action="import" title="导入 JSON 数据">导入</button>
- <input type="file" id="importPick" accept="application/json,.json">
+  <input type="file" id="importPick" accept="application/json,.json">
+  <select id="viewMode" title="视图"><option value="board">看板</option><option value="timeline">时间线</option><option value="calendar">日历</option><option value="stats">统计</option></select>
+  <select id="statusFilter" title="状态"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select>
+  <select id="priorityFilter" title="优先级"><option value="all">全部优先级</option><option value="urgent">紧急</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
   <span class="bname" id="boardName"></span>
   <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
 </div>
@@ -285,6 +294,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
 </div></div></div>
 
 <div id="viewport"><div id="world"></div></div>
+<section id="overview"></section>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
@@ -511,6 +521,12 @@ function stickyNode(st) {
     h.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); h.blur(); } };
   };
   a.appendChild(h);
+  const meta = el("div", "meta");
+  if (st.status && st.status !== "backlog") meta.appendChild(el("span", st.status, st.status));
+  if (st.priority && st.priority !== "none") meta.appendChild(el("span", st.priority, "优先级 " + st.priority));
+  if (st.due) meta.appendChild(el("span", null, "截止 " + st.due));
+  (st.tags || []).forEach(tag => meta.appendChild(el("span", null, "#" + tag)));
+  if (meta.childNodes.length) a.appendChild(meta);
   if (st.kind === "note") {
     const p = el("div", "richbody");
     p.innerHTML = richText(st.body);
@@ -567,15 +583,34 @@ function renderAll() {
   document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
   world.innerHTML = "";
   const query = (document.getElementById("searchBox")?.value || "").trim().toLowerCase();
+  const status = document.getElementById("statusFilter")?.value || "all";
+  const priority = document.getElementById("priorityFilter")?.value || "all";
   b.stickies.forEach(st => {
     const node = stickyNode(st);
-    if (query && !(st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ")).toLowerCase().includes(query)) node.classList.add("search-miss");
+    const text = (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ")).toLowerCase();
+    if (st.trashed || (query && !text.includes(query)) || (status !== "all" && st.status !== status) || (priority !== "all" && st.priority !== priority)) node.classList.add("search-miss");
     world.appendChild(node);
   });
   boardName.textContent = b.name;
   boardCount.textContent = b.stickies.length + " 张";
   emptyHint.style.display = b.stickies.length ? "none" : "grid";
   applyView();
+}
+function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
+function openOverview(mode) {
+  const overview = document.getElementById("overview");
+  if (mode === "board") { overview.classList.remove("open"); return; }
+  const rows = allStickies().filter(x => !x.sticky.trashed);
+  if (mode === "stats") {
+    const done = rows.filter(x => x.sticky.status === "done").length;
+    const blocked = rows.filter(x => x.sticky.status === "blocked").length;
+    overview.innerHTML = '<h2>统计</h2><div class="ov-grid"><div class="ov-card"><h3>总任务</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞</h3><strong>' + blocked + '</strong></div></div>';
+  } else {
+    const dated = rows.filter(x => x.sticky.due).sort((a,b) => a.sticky.due.localeCompare(b.sticky.due));
+    overview.innerHTML = '<h2>' + (mode === "calendar" ? '日历视图' : '时间线') + '</h2><div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
+    overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; renderBoards(); renderAll(); overview.classList.remove('open'); });
+  }
+  overview.classList.add("open");
 }
 /* ---- palette ---- */
 function buildPalette() {
@@ -763,6 +798,9 @@ document.getElementById("addBtn").onclick = e => {
   palette.classList.toggle("open");
 };
 document.getElementById("searchBox").oninput = () => renderAll();
+document.getElementById("statusFilter").onchange = () => renderAll();
+document.getElementById("priorityFilter").onchange = () => renderAll();
+document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
 const importPick = document.getElementById("importPick");
 document.querySelectorAll(".toolBtn").forEach(btn => btn.onclick = () => {
   if (btn.dataset.action === "import") { importPick.value = ""; importPick.click(); return; }
