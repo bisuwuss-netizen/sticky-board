@@ -204,21 +204,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
     }
 
     private func deliverImage(_ url: URL) {
-        guard let data = downsizedJPEG(url), !data.isEmpty else { return }
-        let js = "window.__nativeImage&&window.__nativeImage(\"\(data.base64EncodedString())\")"
+        guard let data = downsizedImage(url), !data.isEmpty else { return }
+        let mime = url.pathExtension.lowercased() == "png" ? "image/png" : "image/jpeg"
+        let js = "window.__nativeImage&&window.__nativeImage(\"data:\(mime);base64,\(data.base64EncodedString())\")"
         DispatchQueue.main.async { [weak self] in
             self?.webView.evaluateJavaScript(js, completionHandler: nil)
         }
     }
 
-    private func downsizedJPEG(_ url: URL, maxDim: CGFloat = 1000) -> Data? {
+    private func downsizedImage(_ url: URL, maxDim: CGFloat = 1000) -> Data? {
         guard let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         let thumbOpts = [kCGImageSourceThumbnailMaxPixelSize: maxDim,
                          kCGImageSourceCreateThumbnailFromImageAlways: true] as CFDictionary
         guard let thumb = CGImageSourceCreateThumbnailAtIndex(src, 0, thumbOpts) else { return nil }
         let out = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(out, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
-        CGImageDestinationAddImage(dest, thumb, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
+        let isPNG = url.pathExtension.lowercased() == "png"
+        let type = (isPNG ? UTType.png.identifier : UTType.jpeg.identifier) as CFString
+        guard let dest = CGImageDestinationCreateWithData(out, type, 1, nil) else { return nil }
+        if isPNG {
+            CGImageDestinationAddImage(dest, thumb, nil)
+        } else {
+            CGImageDestinationAddImage(dest, thumb, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
+        }
         guard CGImageDestinationFinalize(dest) else { return nil }
         return out as Data
     }

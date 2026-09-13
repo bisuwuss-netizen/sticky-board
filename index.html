@@ -84,21 +84,30 @@ body.side-hidden #sideTab{transform:translateX(0)}
 }
 #toolbar{
   position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:55;
-  display:flex;align-items:center;gap:8px;
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
   background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
   border:1px solid rgba(35,39,47,.12);border-radius:14px;padding:6px 8px;
-  box-shadow:var(--shadow);max-width:calc(100vw - 600px);
+  box-shadow:var(--shadow);max-width:calc(100vw - 40px);max-height:84px;overflow-y:auto;
 }
 #toolbar .bname{font-family:"Caveat",cursive;font-size:23px;padding:0 8px;
   max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #searchBox{width:150px;border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 10px;font:12px inherit;background:#fff}
-.toolBtn{border:1px solid rgba(35,39,47,.25);border-radius:9px;background:#fff;font-weight:700;font-size:12px;padding:8px 10px;cursor:pointer}
+.toolBtn{border:1px solid rgba(35,39,47,.25);border-radius:9px;background:#fff;font-weight:700;font-size:12px;padding:8px 10px;cursor:pointer;white-space:nowrap;flex:none}
 .toolBtn:hover{background:#f3eee1}
 #importPick{display:none}
 #toolGroup{display:flex;gap:4px;border-left:1px solid #ddd;padding-left:6px}.toolBtn.active{background:#23272f;color:#fff}
-#inspector{position:fixed;right:14px;top:90px;width:250px;z-index:65;background:rgba(255,253,246,.98);border:1px solid rgba(35,39,47,.2);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px;display:none}.ins-title{font-weight:700;font-size:14px;margin-bottom:8px}.ins-grid{display:grid;gap:7px}.ins-grid label{font-size:11px;color:var(--muted)}.ins-grid input,.ins-grid select{width:100%;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;font:12px inherit}.ins-actions{display:flex;gap:5px;margin-top:8px}.ins-actions button{flex:1;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}.ins-actions button:hover{background:#f3eee1}
+#arrangeGroup{display:flex;gap:3px;border-left:1px solid #ddd;padding-left:6px}.arrangeBtn{border:1px solid #ccd1d8;border-radius:7px;background:#fff;font-size:11px;padding:7px 6px;cursor:pointer;white-space:nowrap;flex:none}.arrangeBtn:hover,.arrangeBtn.active{background:#e9f0ff;border-color:#2563eb}.arrangeBtn.active{color:#1d4ed8}
+#inspector{position:fixed;right:14px;top:90px;width:280px;max-height:calc(100vh - 110px);overflow:auto;z-index:65;background:rgba(255,253,246,.98);border:1px solid rgba(35,39,47,.2);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px;display:none}.ins-title{font-weight:700;font-size:14px;margin-bottom:8px}.ins-grid{display:grid;gap:7px}.ins-grid label{font-size:11px;color:var(--muted)}.ins-grid input,.ins-grid select,.ins-grid textarea{width:100%;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;font:12px inherit;box-sizing:border-box}.ins-grid textarea{resize:vertical;min-height:50px}.ins-grid .check-label{display:flex;align-items:center;gap:7px}.ins-grid .check-label input{width:auto}.ins-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}.ins-actions button{flex:1;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer;min-width:62px}.ins-actions button:hover{background:#f3eee1}.subtask-editor,.dependency-editor{display:grid;gap:5px;margin-top:5px}.subtask-row{display:grid;grid-template-columns:18px 1fr 70px 24px;gap:4px;align-items:center}.subtask-row input[type=checkbox]{width:15px;height:15px}.subtask-row input[type=text],.subtask-row select{padding:5px;font-size:11px}.subtask-row button,.dependency-chip button{border:0;background:transparent;color:#777;cursor:pointer;padding:3px}.subtask-row button:hover,.dependency-chip button:hover{color:#b42318}.subtask-add{display:flex;gap:5px;margin-top:5px}.subtask-add input{flex:1}.subtask-add button{border:1px solid #ccd1d8;border-radius:7px;background:#fff;padding:5px 8px;cursor:pointer}.dependency-chip{display:flex;align-items:center;justify-content:space-between;border:1px solid #d8dde4;border-radius:6px;background:#fff;padding:4px 6px;font-size:11px}.dependency-add{width:100%;padding:5px;font-size:11px}
 .shape{position:absolute;border:2px solid #23272f;background:rgba(255,255,255,.35);border-radius:8px}.shape.ellipse{border-radius:50%}.connector{position:absolute;height:3px;background:#23272f;transform-origin:left center}.drawstroke{position:absolute;pointer-events:none}
 .shape table{width:100%;height:100%;border-collapse:collapse;font-size:12px;background:rgba(255,255,255,.65)}.shape td{border:1px solid #777;padding:5px}.shape td[contenteditable=true]{background:#fff}
+.selection-box{position:absolute;border:1px dashed #2563eb;background:rgba(37,99,235,.12);pointer-events:none;z-index:1000}.selected-outline,.shape.sel,.connector.sel,.drawstroke.sel{outline:3px solid #2563eb;outline-offset:3px}.connector .arrowhead{position:absolute;right:-2px;top:-8px;font-size:20px}.crop-preview{max-width:100%;max-height:60vh;object-fit:contain}.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.plan-grid textarea{width:100%;min-height:110px;padding:9px;border:1px solid #ccd1d8;border-radius:8px;font:12px inherit}.goal{border:1px solid #ddd;border-radius:9px;padding:11px;background:#fff;margin:8px 0}.goal .bar{height:7px;background:#eee;border-radius:999px;overflow:hidden}.goal .bar i{display:block;height:100%;background:#4d9f70}.trend{display:flex;align-items:flex-end;gap:5px;height:130px;padding:8px;border-bottom:1px solid #ccc}.trend i{display:block;flex:1;background:#91b8e8;min-height:3px;border-radius:4px 4px 0 0;position:relative}.trend i b{position:absolute;bottom:-18px;left:50%;font-size:9px;transform:translateX(-50%);font-weight:400}
+.goal-head{display:flex;align-items:center;gap:5px;margin-bottom:7px}.goal-head input{flex:1;font-weight:700}.goal-head select{width:auto;padding:5px}.goal label{display:block;margin-top:7px}.goal textarea{width:100%;box-sizing:border-box;resize:vertical;padding:6px;border:1px solid #ccd1d8;border-radius:6px;font:11px inherit}.goal [data-goal-save]{margin-top:7px;padding:6px 9px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));gap:5px}.cal-weekday{text-align:center;font-size:11px;color:var(--muted);padding:5px}.cal-cell{min-height:82px;border:1px solid #ddd;border-radius:7px;background:#fff;padding:6px}.cal-cell.muted{background:transparent;border-color:transparent}.cal-task{display:block;width:100%;margin-top:5px;padding:4px;border:0;border-radius:5px;background:#e9f0ff;color:#1d4ed8;text-align:left;font-size:10px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.muted{color:var(--muted);font-size:11px}
+.frame{position:relative;overflow:hidden}.frame img{object-fit:cover;transform-origin:center}.image-annotation{position:absolute;left:10px;right:10px;bottom:8px;padding:4px 7px;border-radius:5px;background:rgba(255,255,255,.78);font-size:11px;pointer-events:none}
+#mediaPreview{position:fixed;inset:0;z-index:120;background:rgba(20,24,30,.82);display:none;place-items:center;padding:30px}#mediaPreview.open{display:grid}#mediaPreview img{max-width:90vw;max-height:88vh;object-fit:contain}#mediaPreview button{position:absolute;top:20px;right:24px;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+.img-actions{display:none}.img-actions.open{display:grid;gap:6px}.img-actions button{padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}.img-actions input{width:100%;padding:6px}
+.toast{position:fixed;right:20px;bottom:20px;z-index:150;max-width:360px;padding:11px 15px;border-radius:10px;background:#23272f;color:#fff;box-shadow:var(--shadow-lg);opacity:0;transform:translateY(10px);transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
 .richbody{font-size:12.5px;line-height:1.6;color:rgba(35,39,47,.82);margin:0;outline:none;border-radius:4px;min-height:1em;word-break:break-word}
 .richbody:focus{background:rgba(255,255,255,.55)}
 .richbody p{margin:0 0 7px}.richbody p:last-child{margin-bottom:0}
@@ -106,12 +115,13 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .richbody blockquote{margin:5px 0;padding:3px 9px;border-left:3px solid rgba(35,39,47,.35);background:rgba(255,255,255,.28);border-radius:0 5px 5px 0}
 .richbody code{font-family:ui-monospace,monospace;font-size:11px;background:rgba(255,255,255,.5);padding:1px 4px;border-radius:4px}
 .richbody pre{margin:7px 0;padding:9px 10px;overflow:auto;background:rgba(35,39,47,.08);border:1px solid rgba(35,39,47,.14);border-radius:7px;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
+.tok-keyword{color:#7c3aed;font-weight:700}.tok-string{color:#0f766e}.tok-number{color:#b45309}.tok-comment{color:#6b7280;font-style:italic}
 .richbody a{color:#225ea8;text-decoration:underline}
 .sticky.search-miss{display:none}
 .meta{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0;font-size:10px;color:rgba(35,39,47,.72)}
 .meta span{padding:2px 6px;border:1px solid rgba(35,39,47,.2);border-radius:999px;background:rgba(255,255,255,.3)}
 .meta .urgent,.meta .high{background:#ffd6d6;border-color:#d66}.meta .done{background:#d8f5df}.meta .blocked{background:#ffe9bd}
-#viewMode,#statusFilter,#priorityFilter{border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 6px;background:#fff;font:12px inherit}
+#viewMode,#statusFilter,#priorityFilter,#tagFilter{border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 6px;background:#fff;font:12px inherit}
 #overview{position:fixed;inset:90px 24px 24px 280px;z-index:40;background:rgba(255,253,246,.97);border:1px solid rgba(35,39,47,.2);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px;overflow:auto;display:none}
 #overview.open{display:block}.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.ov-card{border:1px solid rgba(35,39,47,.15);border-radius:8px;padding:14px;background:#fff}.ov-card h3{margin:0 0 8px;font-size:14px}.ov-card strong{font-size:28px}.ov-list{display:grid;gap:6px}.ov-item{padding:8px;border-bottom:1px solid #eee;cursor:pointer}
 #addBtn{
@@ -197,6 +207,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .frame{background:#fff;border:1px solid rgba(35,39,47,.4);border-radius:3px;
   padding:10px 10px 8px;box-shadow:inset 0 0 0 1px rgba(35,39,47,.08)}
 .frame img{display:block;width:100%;border-radius:2px;user-select:none;-webkit-user-drag:none}
+.sticky.imgkind .frame{height:160px}.sticky.imgkind .frame img{height:100%;object-fit:cover}
 .caption{font-family:"Caveat",cursive;font-size:19px;text-align:center;margin:7px 0 0;
   outline:none;border-radius:4px;min-height:1em;word-break:break-word}
 .caption:focus{background:rgba(255,255,255,.55)}
@@ -272,7 +283,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
   <div class="sub">便利贴白板 · 自动保存到本地</div>
   <div id="boardList"></div>
   <button id="newBoard">+ 新画板</button>
-  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.9 · 白板版</span></div>
+  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.11 · 工作台版</span></div>
 </aside>
 <button id="sideTab" title="展开侧栏">›</button>
 
@@ -286,9 +297,12 @@ body.side-hidden #sideTab{transform:translateX(0)}
   <button class="toolBtn" data-action="trash" title="回收站">回收站</button>
   <input type="file" id="importPick" accept="application/json,.json">
   <div id="toolGroup"><button class="toolBtn" data-tool="arrow" title="箭头">↗</button><button class="toolBtn" data-tool="line" title="连接线">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button><button class="toolBtn" data-tool="draw" title="手绘">✎</button><button class="toolBtn" data-tool="table" title="表格">▦</button></div>
+  <div id="arrangeGroup"><button class="arrangeBtn" data-op="select">框选</button><button class="arrangeBtn" data-op="left">左对齐</button><button class="arrangeBtn" data-op="right">右对齐</button><button class="arrangeBtn" data-op="centerX">横居中</button><button class="arrangeBtn" data-op="top">顶对齐</button><button class="arrangeBtn" data-op="bottom">底对齐</button><button class="arrangeBtn" data-op="centerY">纵居中</button><button class="arrangeBtn" data-op="distX">横向分布</button><button class="arrangeBtn" data-op="distY">纵向分布</button></div>
+  <button class="toolBtn" data-action="planning" title="计划与复盘">计划</button><button class="toolBtn" data-action="goals" title="目标层级">目标</button>
   <select id="viewMode" title="视图"><option value="board">看板</option><option value="timeline">时间线</option><option value="calendar">日历</option><option value="stats">统计</option></select>
   <select id="statusFilter" title="状态"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select>
   <select id="priorityFilter" title="优先级"><option value="all">全部优先级</option><option value="urgent">紧急</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
+  <select id="tagFilter" title="标签"><option value="all">所有标签</option></select>
   <span class="bname" id="boardName"></span>
   <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
 </div>
@@ -301,7 +315,8 @@ body.side-hidden #sideTab{transform:translateX(0)}
 
 <div id="viewport"><div id="world"></div></div>
 <section id="overview"></section>
-<aside id="inspector"><div class="ins-title">属性</div><div class="ins-grid"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>锁定 <input id="insLocked" type="checkbox"></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<aside id="inspector"><div class="ins-title">属性</div><div class="ins-grid"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>重复<select id="insRecurrence"><option value="none">不重复</option><option value="daily">每天</option><option value="weekly">每周</option><option value="monthly">每月</option></select></label><label>提醒<input id="insReminder" type="time"></label><label>父任务 ID<input id="insParent" list="parentOptions" placeholder="可选"><datalist id="parentOptions"></datalist></label><label>依赖任务<div id="dependencyEditor" class="dependency-editor"></div><input id="insDeps" type="hidden"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div><textarea id="insSubs" rows="3" hidden></textarea></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
@@ -336,7 +351,7 @@ function seed() {
       {t: "双击改掉这行字", done: false},
       {t: "把我拖到别处", done: false},
     ]),
-  ]};
+  ], elements: []};
   const T = [
     ["blue", "title", "Learn · 学工具", "", 60], ["blue", "note", "Pick ONE stack",
       "OpenAI + Make + Airtable 跑通即可。", 60],
@@ -353,7 +368,7 @@ function seed() {
   ];
   const journey = {id: uid(), name: "成长旅程 · 模板",
     view: {x: 300, y: 40, k: 0.9}, stickies: T.map((r, i) =>
-      mkSticky(r[0], r[1], r[4], i % 2 ? 330 : 80, r[2], r[3]))};
+    mkSticky(r[0], r[1], r[4], i % 2 ? 330 : 80, r[2], r[3])), elements: []};
   return {v: 1, activeId: welcome.id, boards: [welcome, journey]};
 }
 let mem = null;
@@ -366,14 +381,17 @@ function normalizeState(input) {
     id: String(b.id || uid()),
     name: String(b.name || "未命名画板").trim().slice(0, 24) || "未命名画板",
     view: { x: Number(b.view?.x) || 300, y: Number(b.view?.y) || 80, k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)) },
-    stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(st => ({ ...st, id: String(st.id || uid()), kind: ["note","todo","title","img"].includes(st.kind) ? st.kind : "note", color: ["yellow","blue","pink","green","purple","cyan","white"].includes(st.color) ? st.color : "yellow", x: Number(st.x) || 0, y: Number(st.y) || 0, rot: Number(st.rot) || 0, title: String(st.title || "").slice(0, 500), body: String(st.body || "").slice(0, 10000), items: Array.isArray(st.items) ? st.items : [] })) : []
+    stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(st => ({ ...st, id: String(st.id || uid()), kind: ["note","todo","title","img"].includes(st.kind) ? st.kind : "note", color: ["yellow","blue","pink","green","purple","cyan","white"].includes(st.color) ? st.color : "yellow", x: Math.min(BOARD.width - 40, Math.max(0, Number(st.x) || 0)), y: Math.min(BOARD.height - 40, Math.max(0, Number(st.y) || 0)), rot: Number(st.rot) || 0, title: String(st.title || "").slice(0, 500), body: String(st.body || "").slice(0, 10000), items: Array.isArray(st.items) ? st.items : [] })) : []
   }));
   if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 300, y: 80, k: 1 }, stickies: [], elements: [] }];
   boards.forEach(b => {
-    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => ({...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Number(elm.x)||0, y:Number(elm.y)||0, w:Math.max(20,Number(elm.w)||120), h:Math.max(20,Number(elm.h)||80), locked:!!elm.locked, z:Number(elm.z)||0})) : [];
-    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; st.priority = ["none","low","medium","high","urgent"].includes(st.priority) ? st.priority : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
+    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => { const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120)), h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80)); return {...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Math.min(BOARD.width - w, Math.max(0, Number(elm.x)||0)), y:Math.min(BOARD.height - h, Math.max(0, Number(elm.y)||0)), w, h, locked:!!elm.locked, z:Number(elm.z)||0}; }) : [];
+    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; st.priority = ["none","low","medium","high","urgent"].includes(st.priority) ? st.priority : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.recurrence = ["none","daily","weekly","monthly"].includes(st.recurrence) ? st.recurrence : "none"; st.recurringCreatedFor = typeof st.recurringCreatedFor === "string" ? st.recurringCreatedFor : ""; st.reminder = typeof st.reminder === "string" ? st.reminder : ""; st.parentId = typeof st.parentId === "string" ? st.parentId : ""; st.dependencies = Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string") : []; st.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string" ? {id:uid(), title:x, status:"backlog"} : {...x, id:String(x.id || uid()), title:String(x.title || x.t || ""), status:["backlog","doing","done"].includes(x.status) ? x.status : "backlog"}) : []; st.goalId = typeof st.goalId === "string" ? st.goalId : ""; st.crop = st.crop && typeof st.crop === "object" ? {x:Number(st.crop.x) || 50, y:Number(st.crop.y) || 50, scale:Math.max(1, Number(st.crop.scale) || 1)} : {x:50,y:50,scale:1}; st.annotation = typeof st.annotation === "string" ? st.annotation : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
   });
-  return { v: 1, activeId: boards.some(b => b.id === raw.activeId) ? raw.activeId : boards[0].id, boards };
+  const plans = raw.plans && typeof raw.plans === "object" ? {daily:String(raw.plans.daily || ""), weekly:String(raw.plans.weekly || ""), review:String(raw.plans.review || ""), habitDates:Array.isArray(raw.plans.habitDates) ? raw.plans.habitDates.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-365) : []} : {daily:"", weekly:"", review:"", habitDates:[]};
+  const goals = Array.isArray(raw.goals) ? raw.goals.filter(Boolean).map(g => ({id:String(g.id || uid()), title:String(g.title || "未命名目标").slice(0,120), type:["goal","stage","milestone"].includes(g.type) ? g.type : "goal", parentId:typeof g.parentId === "string" ? g.parentId : "", playbook:String(g.playbook || ""), reviewTemplate:String(g.reviewTemplate || ""), status:["backlog","doing","done"].includes(g.status) ? g.status : "backlog"})) : [];
+  const activity = Array.isArray(raw.activity) ? raw.activity.filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date)).slice(-90) : [];
+  return { v: 1, activeId: boards.some(b => b.id === raw.activeId) ? raw.activeId : boards[0].id, boards, plans, goals, activity };
 }
 function escapeRich(value) {
   return String(value == null ? "" : value).replace(/[&<>"']/g, ch => {
@@ -384,23 +402,41 @@ function escapeRich(value) {
     return "&#39;";
   });
 }
+function inlineRich(value) {
+  let out = escapeRich(value);
+  out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
+  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, "$1<em>$2</em>");
+  out = out.replace(/(^|\s)(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  return out;
+}
+function highlightCode(source) {
+  const code = String(source == null ? "" : source), token = /\/\/.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b\d+(?:\.\d+)?\b/g;
+  const keywords = /\b(const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|def|print|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|true|false|null|undefined)\b/g;
+  let out = "", last = 0, match;
+  const paint = text => escapeRich(text).replace(keywords, '<span class="tok-keyword">$1</span>');
+  while ((match = token.exec(code))) { out += paint(code.slice(last, match.index)); const value = match[0]; const cls = /^\/\//.test(value) || /^\/\*/.test(value) ? "tok-comment" : /^["'`]/.test(value) ? "tok-string" : "tok-number"; out += '<span class="' + cls + '">' + escapeRich(value) + '</span>'; last = match.index + value.length; }
+  return out + paint(code.slice(last));
+}
 function richText(source) {
   const lines = String(source == null ? "" : source).replace(/\r\n?/g, "\n").split("\n");
+  const codeish = lines.filter(line => /^(\s*(?:const|let|var|function|async\s+function|class|import|export|def|return|SELECT|FROM|WHERE|if\s*\(|for\s*\(|while\s*\())|[{}][;,]?\s*$/.test(line)).length;
+  if (!lines.some(line => line.trim().startsWith("```")) && codeish >= 2 && codeish >= Math.ceil(lines.filter(Boolean).length * 0.25)) return "<pre><code>" + highlightCode(lines.join("\n")) + "</code></pre>";
   const blocks = []; let paragraph = []; let list = null; let code = null;
-  const flushParagraph = () => { if (paragraph.length) { blocks.push("<p>" + paragraph.map(escapeRich).join("<br>") + "</p>"); paragraph = []; } };
-  const flushList = () => { if (list) { blocks.push("<" + list.type + ">" + list.items.map(item => "<li>" + escapeRich(item) + "</li>").join("") + "</" + list.type + ">"); list = null; } };
+  const flushParagraph = () => { if (paragraph.length) { blocks.push("<p>" + paragraph.map(inlineRich).join("<br>") + "</p>"); paragraph = []; } };
+  const flushList = () => { if (list) { blocks.push("<" + list.type + ">" + list.items.map(item => "<li>" + inlineRich(item) + "</li>").join("") + "</" + list.type + ">"); list = null; } };
   lines.forEach(raw => {
     const line = raw.trimEnd();
-    if (line.trim().startsWith("```")) { if (code) { blocks.push("<pre>" + escapeRich(code.join("\n")) + "</pre>"); code = null; } else { flushParagraph(); flushList(); code = []; } return; }
+    if (line.trim().startsWith("```")) { if (code) { blocks.push("<pre><code>" + highlightCode(code.join("\n")) + "</code></pre>"); code = null; } else { flushParagraph(); flushList(); code = []; } return; }
     if (code) { code.push(line); return; }
     if (!line.trim()) { flushParagraph(); flushList(); return; }
-    let m = line.match(/^#{1,3}\s+(.+)$/); if (m) { flushParagraph(); flushList(); blocks.push("<h4>" + escapeRich(m[1]) + "</h4>"); return; }
-    m = line.match(/^>\s?(.*)$/); if (m) { flushParagraph(); flushList(); blocks.push("<blockquote>" + escapeRich(m[1]) + "</blockquote>"); return; }
+    let m = line.match(/^#{1,3}\s+(.+)$/); if (m) { flushParagraph(); flushList(); blocks.push("<h4>" + inlineRich(m[1]) + "</h4>"); return; }
+    m = line.match(/^>\s?(.*)$/); if (m) { flushParagraph(); flushList(); blocks.push("<blockquote>" + inlineRich(m[1]) + "</blockquote>"); return; }
     m = line.match(/^\s*[-*•]\s+(.+)$/); if (m) { flushParagraph(); if (!list || list.type !== "ul") { flushList(); list = {type:"ul", items:[]}; } list.items.push(m[1]); return; }
     m = line.match(/^\s*\d+[.)]\s+(.+)$/); if (m) { flushParagraph(); if (!list || list.type !== "ol") { flushList(); list = {type:"ol", items:[]}; } list.items.push(m[1]); return; }
     flushList(); paragraph.push(line);
   });
-  if (code) blocks.push("<pre>" + escapeRich(code.join("\n")) + "</pre>");
+  if (code) blocks.push("<pre><code>" + highlightCode(code.join("\n")) + "</code></pre>");
   flushParagraph(); flushList(); return blocks.join("");
 }
 function load() {
@@ -411,10 +447,11 @@ function load() {
   return mem || (mem = seed());
 }
 let S = load();
+mem = S;
 let quotaWarned = false;
 function save() {
   if (!historyBusy && mem) { history.push(JSON.stringify(mem)); if (history.length > 50) history.shift(); }
- mem = S;
+  recordActivity(); mem = S;
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) {
     if (!quotaWarned) {
@@ -484,7 +521,7 @@ function todoRow(st, it) {
   const li = el("li", "trow" + (it.done ? " done" : ""));
   const box = el("span", "tbox");
   box.innerHTML = CHECK;
-  box.onclick = e => { e.stopPropagation(); it.done = !it.done; save(); li.classList.toggle("done", it.done); };
+  box.onclick = e => { e.stopPropagation(); it.done = !it.done; if (st.items.length && st.items.every(item => item.done)) { st.status = "done"; maybeCreateRecurring(st); } save(); li.classList.toggle("done", it.done); };
   const tx = el("span", "ttext", it.t);
   tx.ondblclick = e => {
     e.stopPropagation(); tx.contentEditable = "true"; tx.focus();
@@ -512,12 +549,14 @@ function stickyNode(st) {
     save(); renderAll();
   };
   a.appendChild(del);
-  a.addEventListener("click", e => { if (e.target === a || e.target.tagName === "H3") selectSticky(st, e.shiftKey); });
+  a.addEventListener("click", e => { if (!e.target.closest("input,button,.dots,.rh,.rsz,.tbox,.tx,.tadd,[contenteditable=true]")) selectSticky(st, e.shiftKey); });
   if (st.kind === "img") {
     const f = el("div", "frame");
     const im = document.createElement("img");
     im.src = st.src || ""; im.alt = ""; im.draggable = false;
+    const crop = st.crop || {x:50, y:50, scale:1}; im.style.objectPosition = `${crop.x}% ${crop.y}%`; im.style.transform = `scale(${crop.scale || 1})`;
     f.appendChild(im);
+    if (st.annotation) f.appendChild(el("div", "image-annotation", st.annotation));
     a.appendChild(f);
     const cap = el("p", "caption", st.title);
     cap.ondblclick = e => {
@@ -540,6 +579,9 @@ function stickyNode(st) {
   if (st.priority && st.priority !== "none") meta.appendChild(el("span", st.priority, "优先级 " + st.priority));
   if (st.due) meta.appendChild(el("span", null, "截止 " + st.due));
   (st.tags || []).forEach(tag => meta.appendChild(el("span", null, "#" + tag)));
+  if ((st.subtasks || []).length) { const finished = st.subtasks.filter(task => task.status === "done").length; meta.appendChild(el("span", finished === st.subtasks.length ? "done" : null, "子任务 " + finished + "/" + st.subtasks.length)); }
+  const pendingDeps = (st.dependencies || []).map(id => board().stickies.find(item => item.id === id)).filter(item => item && item.status !== "done" && !item.trashed);
+  if (pendingDeps.length) meta.appendChild(el("span", "blocked", "依赖 " + pendingDeps.length + " 项"));
   if (meta.childNodes.length) a.appendChild(meta);
   if (st.kind === "note") {
     const p = el("div", "richbody");
@@ -594,15 +636,18 @@ function stickyNode(st) {
 }
 function renderAll() {
   const b = board();
-  document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
+  refreshTagFilter();
+  document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(n => n.classList.remove("sel"));
   world.innerHTML = "";
   const query = (document.getElementById("searchBox")?.value || "").trim().toLowerCase();
   const status = document.getElementById("statusFilter")?.value || "all";
   const priority = document.getElementById("priorityFilter")?.value || "all";
+  const tag = document.getElementById("tagFilter")?.value || "all";
   b.stickies.forEach(st => {
     const node = stickyNode(st);
     const text = (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ")).toLowerCase();
-    if (st.trashed || (query && !text.includes(query)) || (status !== "all" && st.status !== status) || (priority !== "all" && st.priority !== priority)) node.classList.add("search-miss");
+    if (st.trashed || (query && !text.includes(query)) || (status !== "all" && st.status !== status) || (priority !== "all" && st.priority !== priority) || (tag !== "all" && !(st.tags || []).includes(tag))) node.classList.add("search-miss");
+    if (selectedIds.has(st.id)) node.classList.add("sel", "selected-outline");
     world.appendChild(node);
   });
   (b.elements || []).forEach(elm => renderElement(elm));
@@ -611,38 +656,244 @@ function renderAll() {
   emptyHint.style.display = b.stickies.length ? "none" : "grid";
   applyView();
 }
+function refreshTagFilter() {
+  const select = document.getElementById("tagFilter"); if (!select) return;
+  const current = select.value, tags = [...new Set(allStickies().flatMap(({sticky:st}) => st.tags || []))].sort((a, b) => a.localeCompare(b));
+  select.innerHTML = '<option value="all">所有标签</option>' + tags.map(tag => '<option value="' + escapeRich(tag) + '">#' + escapeRich(tag) + '</option>').join("");
+  select.value = tags.includes(current) ? current : "all";
+}
 let selectedIds = new Set();
+let selectedElementIds = new Set();
 let activeTool = null;
+let selectionMode = false;
+let selectionDrag = null;
 function selectSticky(st, additive) {
-  if (!additive) selectedIds.clear();
-  selectedIds.add(st.id); document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
-  selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel"); });
+  if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
+  selectedIds.add(st.id); document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(n => n.classList.remove("sel"));
+  selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel", "selected-outline"); });
+  selectedElementIds.forEach(id => { const n = world.querySelector(`[data-element-id="${id}"]`); if (n) n.classList.add("sel"); });
   openInspector(st);
 }
-function openInspector(st) { const box = document.getElementById("inspector"); box.style.display = "block"; insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", "); insLocked.checked = !!st.locked; box.dataset.id = st.id; }
+function selectElement(elm, additive) {
+  if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
+  document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(node => node.classList.remove("sel"));
+  selectedElementIds.add(elm.id);
+  selectedIds.forEach(id => { const node = world.querySelector(`[data-id="${id}"]`); if (node) node.classList.add("sel", "selected-outline"); });
+  world.querySelectorAll("[data-element-id]").forEach(node => node.classList.toggle("sel", selectedElementIds.has(node.dataset.elementId)));
+  document.getElementById("inspector").style.display = "none";
+}
+function selectedStickies() { return board().stickies.filter(st => selectedIds.has(st.id) && !st.locked && !st.trashed); }
+function selectedElements() { return (board().elements || []).filter(elm => selectedElementIds.has(elm.id) && !elm.locked); }
+function selectedCanvasItems() { return selectedStickies().concat(selectedElements()); }
+function arrangeSelected(mode) {
+  const items = selectedCanvasItems(); if (items.length < 2) return;
+  const getW = item => item.w || (world.querySelector(`[data-id="${item.id}"],[data-element-id="${item.id}"]`)?.offsetWidth || 220);
+  const getH = item => item.h || (world.querySelector(`[data-id="${item.id}"],[data-element-id="${item.id}"]`)?.offsetHeight || 120);
+  if (mode === "left") { const x = Math.min(...items.map(st => st.x)); items.forEach(st => st.x = x); }
+  if (mode === "right") { const x = Math.max(...items.map(item => item.x + getW(item))); items.forEach(item => item.x = Math.round(x - getW(item))); }
+  if (mode === "top") { const y = Math.min(...items.map(st => st.y)); items.forEach(st => st.y = y); }
+  if (mode === "bottom") { const y = Math.max(...items.map(item => item.y + getH(item))); items.forEach(item => item.y = Math.round(y - getH(item))); }
+  if (mode === "centerX") { const x = items.reduce((sum, st) => sum + st.x + getW(st) / 2, 0) / items.length; items.forEach(st => st.x = Math.round(x - getW(st) / 2)); }
+  if (mode === "centerY") { const y = items.reduce((sum, st) => sum + st.y + getH(st) / 2, 0) / items.length; items.forEach(st => st.y = Math.round(y - getH(st) / 2)); }
+  if (mode === "distX" || mode === "distY") { const axis = mode === "distX" ? "x" : "y", size = axis === "x" ? getW : getH; const ordered = items.slice().sort((a,b) => a[axis] - b[axis]); const start = ordered[0][axis], end = ordered[ordered.length - 1][axis] + size(ordered[ordered.length - 1]); const total = ordered.reduce((sum, item) => sum + size(item), 0); const gap = (end - start - total) / (ordered.length - 1); let cursor = start; ordered.forEach(item => { item[axis] = Math.round(cursor); cursor += size(item) + gap; }); }
+  save(); renderAll();
+}
+function appendSubtaskRow(task) {
+  const row = el("div", "subtask-row");
+  row.dataset.id = task.id || uid();
+  const check = document.createElement("input"); check.type = "checkbox"; check.checked = task.status === "done";
+  const title = document.createElement("input"); title.type = "text"; title.value = task.title || ""; title.placeholder = "子任务名称";
+  const status = document.createElement("select");
+  [["backlog", "待办"], ["doing", "进行中"], ["done", "完成"]].forEach(([value, label]) => status.appendChild(new Option(label, value)));
+  status.value = ["backlog", "doing", "done"].includes(task.status) ? task.status : "backlog";
+  check.onchange = () => { status.value = check.checked ? "done" : "backlog"; };
+  status.onchange = () => { check.checked = status.value === "done"; };
+  const remove = el("button", null, "×"); remove.type = "button"; remove.title = "删除子任务"; remove.onclick = () => row.remove();
+  row.append(check, title, status, remove); subtaskEditor.appendChild(row);
+}
+function renderSubtaskEditor(st) {
+  subtaskEditor.innerHTML = "";
+  const tasks = Array.isArray(st.subtasks) ? st.subtasks : [];
+  if (!tasks.length) subtaskEditor.appendChild(el("small", null, "暂无子任务"));
+  tasks.forEach(appendSubtaskRow);
+  insSubs.value = tasks.map(task => task.title || "").filter(Boolean).join("\n");
+}
+function readSubtasks() {
+  return Array.from(subtaskEditor.querySelectorAll(".subtask-row")).map(row => ({
+    id: row.dataset.id || uid(),
+    title: row.querySelector('input[type="text"]')?.value.trim() || "",
+    status: row.querySelector("select")?.value || "backlog",
+  })).filter(task => task.title);
+}
+function renderDependencyEditor(st) {
+  const current = (st.dependencies || []).filter(id => id && id !== st.id && board().stickies.some(item => item.id === id && !item.trashed));
+  dependencyEditor.innerHTML = "";
+  dependencyEditor.dataset.ids = current.join(",");
+  if (!current.length) dependencyEditor.appendChild(el("small", null, "暂无依赖"));
+  current.forEach(id => {
+    const target = board().stickies.find(item => item.id === id);
+    const chip = el("div", "dependency-chip"); chip.dataset.dependencyId = id;
+    chip.appendChild(el("span", null, (target?.title || "未命名") + " · " + (target?.status || "backlog")));
+    const remove = el("button", null, "×"); remove.type = "button"; remove.title = "移除依赖"; remove.onclick = () => { const next = current.filter(value => value !== id); renderDependencyEditor({...st, dependencies: next}); };
+    chip.appendChild(remove); dependencyEditor.appendChild(chip);
+  });
+  const add = document.createElement("select"); add.className = "dependency-add"; add.innerHTML = '<option value="">添加依赖任务…</option>' + board().stickies.filter(item => item.id !== st.id && !item.trashed && !current.includes(item.id)).map(item => '<option value="' + escapeRich(item.id) + '">' + escapeRich(item.title || "未命名") + ' · ' + escapeRich(item.status || "backlog") + '</option>').join("");
+  add.onchange = () => { if (add.value) renderDependencyEditor({...st, dependencies: current.concat(add.value)}); };
+  dependencyEditor.appendChild(add); insDeps.value = current.join(",");
+}
+function readDependencies(st) {
+  const values = Array.from(dependencyEditor.querySelectorAll("[data-dependency-id]"), node => node.dataset.dependencyId);
+  const allowed = new Set(board().stickies.filter(item => item.id !== st.id && !item.trashed).map(item => item.id));
+  const deps = values.filter(id => allowed.has(id));
+  const allIds = new Set(board().stickies.filter(item => !item.trashed).map(item => item.id));
+  const graph = new Map(board().stickies.map(item => [item.id, (item.dependencies || []).filter(id => allIds.has(id))]));
+  graph.set(st.id, deps);
+  const createsCycle = dep => { const seen = new Set(); const visit = id => { if (id === st.id) return true; if (seen.has(id)) return false; seen.add(id); return (graph.get(id) || []).some(visit); }; return visit(dep); };
+  const safe = deps.filter(dep => !createsCycle(dep));
+  if (safe.length !== deps.length) showToast("检测到循环依赖，已忽略冲突项");
+  return safe;
+}
+function validParentId(st, candidate) {
+  if (!candidate || candidate === st.id) return "";
+  const byId = new Map(board().stickies.map(item => [item.id, item])); let current = candidate, seen = new Set();
+  while (current && !seen.has(current)) { if (current === st.id) return ""; seen.add(current); current = byId.get(current)?.parentId || ""; }
+  return byId.has(candidate) ? candidate : "";
+}
+function openInspector(st) {
+  const box = document.getElementById("inspector"); box.style.display = "block"; box.dataset.id = st.id;
+  insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", "); insRecurrence.value = st.recurrence || "none"; insReminder.value = st.reminder || ""; insParent.value = st.parentId || "";
+  parentOptions.innerHTML = board().stickies.filter(item => item.id !== st.id && !item.trashed).map(item => '<option value="' + escapeRich(item.id) + '">' + escapeRich(item.title || "未命名") + '</option>').join("");
+  insGoal.innerHTML = '<option value="">无</option>' + (S.goals || []).map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join(""); insGoal.value = st.goalId || ""; insLocked.checked = !!st.locked;
+  renderSubtaskEditor(st); renderDependencyEditor(st); imageActions.classList.toggle("open", st.kind === "img");
+  if (st.kind === "img") { const crop = st.crop || {x:50,y:50,scale:1}; imgCropX.value = crop.x; imgCropY.value = crop.y; imgCropScale.value = crop.scale; imgAnnotation.value = st.annotation || ""; }
+}
+function nextTaskDate(date, recurrence) { const d = new Date(date + "T00:00:00Z"); if (recurrence === "daily") d.setUTCDate(d.getUTCDate() + 1); else if (recurrence === "weekly") d.setUTCDate(d.getUTCDate() + 7); else if (recurrence === "monthly") d.setUTCMonth(d.getUTCMonth() + 1); else return date; return d.toISOString().slice(0, 10); }
+function maybeCreateRecurring(st) { if (st.status !== "done" || !st.due || !st.recurrence || st.recurrence === "none" || st.recurringCreatedFor === st.due) return; const next = nextTaskDate(st.due, st.recurrence); if (next === st.due) return; const copy = {...st, id:uid(), status:"backlog", due:next, recurringCreatedFor:"", subtasks:(st.subtasks || []).map(x => ({...x, id:uid(), status:"backlog"}))}; delete copy.recurringCreatedFor; board().stickies.push(copy); st.recurringCreatedFor = st.due; }
+function stickySize(st) {
+  const node = world.querySelector(`[data-id="${st.id}"]`);
+  return {w: node?.offsetWidth || st.w || (st.kind === "title" ? 240 : 320), h: node?.offsetHeight || (st.kind === "img" ? 220 : 120)};
+}
+function stickyCenter(st) { const size = stickySize(st); return {x: st.x + size.w / 2, y: st.y + size.h / 2}; }
+function stickyEdge(st, target) {
+  const size = stickySize(st), center = {x: st.x + size.w / 2, y: st.y + size.h / 2};
+  const dx = target.x - center.x, dy = target.y - center.y;
+  if (!dx && !dy) return center;
+  const scale = 1 / Math.max(Math.abs(dx) / Math.max(1, size.w / 2), Math.abs(dy) / Math.max(1, size.h / 2));
+  return {x: center.x + dx * scale, y: center.y + dy * scale};
+}
+function positionConnector(node, elm) {
+  const from = elm.fromId ? board().stickies.find(st => st.id === elm.fromId && !st.trashed) : null, to = elm.toId ? board().stickies.find(st => st.id === elm.toId && !st.trashed) : null;
+  const rawStart = from ? stickyCenter(from) : {x: elm.x, y: elm.y};
+  const rawEnd = to ? stickyCenter(to) : {x: elm.x2 ?? elm.x + elm.w, y: elm.y2 ?? elm.y};
+  const start = from ? stickyEdge(from, rawEnd) : rawStart, end = to ? stickyEdge(to, rawStart) : rawEnd;
+  const dx = end.x - start.x, dy = end.y - start.y, length = Math.max(4, Math.hypot(dx, dy));
+  node.style.left = start.x + "px"; node.style.top = start.y + "px"; node.style.width = length + "px"; node.style.height = "3px"; node.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`; node.style.color = "#23272f";
+  const arrow = node.querySelector(".arrowhead"); if (arrow) arrow.style.display = elm.arrow ? "block" : "none";
+}
+function refreshConnectors() { (board().elements || []).filter(elm => elm.type === "connector").forEach(elm => { const node = world.querySelector(`[data-element-id="${elm.id}"]`); if (node) positionConnector(node, elm); }); }
 function renderElement(elm) {
   const n = el("div", elm.type === "shape" ? "shape " + (elm.shape || "rect") : elm.type === "connector" ? "connector" : elm.type === "stroke" ? "drawstroke" : "shape");
   n.dataset.elementId = elm.id; n.style.left = elm.x + "px"; n.style.top = elm.y + "px"; n.style.width = elm.w + "px"; n.style.height = elm.h + "px"; n.style.zIndex = elm.z || 1;
-  if (elm.type === "connector") { n.style.transform = `rotate(${elm.angle || 0}deg)`; n.textContent = elm.arrow ? "➜" : ""; n.style.color = "#23272f"; }
+  n.style.pointerEvents = "auto";
+  if (selectedElementIds.has(elm.id)) n.classList.add("sel");
+  n.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    if (e.target.closest("td[contenteditable=true]")) return;
+    e.stopPropagation(); selectElement(elm, e.shiftKey);
+  });
+  if (elm.type === "connector") {
+    if (elm.arrow) { const arrow = el("span", "arrowhead", "➜"); n.appendChild(arrow); }
+    positionConnector(n, elm);
+  }
   if (elm.type === "stroke" && Array.isArray(elm.points) && elm.points.length) { const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("width", elm.w); svg.setAttribute("height", elm.h); const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline"); path.setAttribute("points", elm.points.map(p => `${p.x - elm.x},${p.y - elm.y}`).join(" ")); path.setAttribute("fill", "none"); path.setAttribute("stroke", "#23272f"); path.setAttribute("stroke-width", "3"); svg.appendChild(path); n.appendChild(svg); }
-  if (elm.type === "table") { n.className = "shape"; n.innerHTML = "<table><tr><td>字段</td><td>内容</td></tr><tr><td>项目</td><td>双击编辑</td></tr></table>"; }
+  if (elm.type === "table") {
+    n.className = "shape" + (selectedElementIds.has(elm.id) ? " sel" : "");
+    const cells = Array.isArray(elm.cells) && elm.cells.length ? elm.cells : [["字段", "内容"], ["项目", "双击编辑"]];
+    n.innerHTML = "<table>" + cells.map(row => "<tr>" + row.map(value => "<td>" + escapeRich(value) + "</td>").join("") + "</tr>").join("") + "</table>";
+    n.querySelectorAll("td").forEach((td, index) => { td.ondblclick = e => { e.stopPropagation(); td.contentEditable = "true"; td.focus(); td.onblur = () => { const tr = td.parentElement, row = Array.from(tr.parentElement.children).indexOf(tr), col = Array.from(tr.children).indexOf(td); elm.cells = elm.cells || cells.map(r => r.slice()); elm.cells[row] = elm.cells[row] || []; elm.cells[row][col] = td.innerText.trim(); td.contentEditable = "false"; save(); }; }; });
+  }
+  if (elm.type !== "connector" && elm.type !== "stroke") enableElementDrag(n, elm);
   world.appendChild(n);
 }
+function enableElementDrag(node, elm) {
+  if (elm.locked) return;
+  node.addEventListener("pointerdown", e => {
+    if (e.target.closest("td[contenteditable=true]")) return;
+    e.stopPropagation();
+    const v = board().view, sx = e.clientX, sy = e.clientY, ox = elm.x, oy = elm.y;
+    let moved = false;
+    const move = ev => { const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k; moved = moved || Math.abs(dx) + Math.abs(dy) > 3; elm.x = Math.round(Math.max(0, Math.min(BOARD.width - elm.w, ox + dx))); elm.y = Math.round(Math.max(0, Math.min(BOARD.height - elm.h, oy + dy))); node.style.left = elm.x + "px"; node.style.top = elm.y + "px"; };
+    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); if (moved) save(); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+  });
+}
+function snapAnchor(x, y) {
+  let best = null, distance = 52;
+  board().stickies.filter(st => !st.trashed).forEach(st => { const size = stickySize(st), center = {x:st.x + size.w / 2, y:st.y + size.h / 2}, dx = Math.max(Math.abs(x - center.x) - size.w / 2, 0), dy = Math.max(Math.abs(y - center.y) - size.h / 2, 0), d = Math.hypot(dx, dy); if (d < distance) { best = {id:st.id, x:center.x, y:center.y}; distance = d; } });
+  return best;
+}
 function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
+function dateKey(date = new Date()) { const pad = value => String(value).padStart(2, "0"); return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()); }
+function streakCount(dates) { const set = new Set(dates || []); let d = new Date(); let count = 0; while (set.has(dateKey(d))) { count += 1; d.setDate(d.getDate() - 1); } return count; }
+function recordActivity() { S.activity = Array.isArray(S.activity) ? S.activity : []; const date = dateKey(); const rows = allStickies().filter(x => !x.sticky.trashed); const entry = {date, total:rows.length, done:rows.filter(x => x.sticky.status === "done").length}; const old = S.activity.find(x => x.date === date); if (old) Object.assign(old, entry); else S.activity.push(entry); S.activity = S.activity.slice(-90); }
+function showToast(message) { let toast = document.getElementById("toast"); if (!toast) { toast = el("div", "toast"); toast.id = "toast"; document.body.appendChild(toast); } toast.textContent = message; toast.classList.add("show"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 5000); }
+const reminderKeys = new Set();
+function checkReminders() { const now = new Date(), today = dateKey(now), current = now.toTimeString().slice(0, 5); allStickies().forEach(({sticky:st}) => { if (st.trashed || st.status === "done" || !st.due || !st.reminder || st.due !== today || st.reminder > current) return; const key = st.id + ":" + today + ":" + st.reminder; if (reminderKeys.has(key)) return; reminderKeys.add(key); const message = "提醒：" + (st.title || "未命名任务"); showToast(message); if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("The Journey", {body:message}); }); }
+setInterval(checkReminders, 30000);
+function goalProgress(goalId, seen = new Set()) { if (seen.has(goalId)) return 0; seen.add(goalId); const goals = S.goals || [], children = goals.filter(g => g.parentId === goalId), tasks = allStickies().filter(x => x.sticky.goalId === goalId && !x.sticky.trashed); const values = children.map(g => goalProgress(g.id, new Set(seen))); tasks.forEach(x => values.push(x.sticky.status === "done" ? 100 : x.sticky.status === "doing" ? 50 : 0)); if (!values.length) return (goals.find(g => g.id === goalId)?.status === "done") ? 100 : 0; return Math.round(values.reduce((a,b) => a + b, 0) / values.length); }
+function renderDashboard() { const overview = document.getElementById("overview"), rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>习惯 streak</h3><strong>' + streakCount(S.plans?.habitDates) + ' 天</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div><h3>目标进度</h3><div class="ov-list">' + ((S.goals || []).length ? S.goals.map(g => '<div class="goal"><b>' + escapeRich(g.title) + '</b><small> · ' + escapeRich(g.type) + '</small><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>' + goalProgress(g.id) + '%</small></div>').join('') : '<p>还没有目标，点击“目标”创建。</p>') + '</div>'; overview.classList.add("open"); }
+function openPlanning() {
+  const overview = document.getElementById("overview"), p = S.plans || {daily:"", weekly:"", review:"", habitDates:[]};
+  const now = new Date(), monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); const weekStart = dateKey(monday), rows = allStickies().filter(x => !x.sticky.trashed), completed = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length;
+  overview.dataset.mode = "planning";
+  overview.innerHTML = '<h2>计划与复盘</h2><div class="ov-grid"><div class="ov-card"><h3>当前 streak</h3><strong>' + streakCount(p.habitDates) + ' 天</strong></div><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>已完成</h3><strong>' + completed + '</strong></div><div class="ov-card"><h3>阻塞</h3><strong>' + blocked + '</strong></div></div><p class="muted">本周从 ' + weekStart + ' 开始。习惯按天记录，计划保存在本机。</p><div class="plan-grid"><label>今日计划<textarea id="planDaily">' + escapeRich(p.daily) + '</textarea></label><label>本周计划<textarea id="planWeekly">' + escapeRich(p.weekly) + '</textarea></label><label>周复盘<textarea id="planReview" placeholder="本周完成了什么？哪里受阻？下周只做哪三件事？">' + escapeRich(p.review) + '</textarea></label></div><div class="ins-actions"><button id="savePlans">保存计划</button><button id="markHabit">完成今日习惯</button><button id="fillReview">填入复盘模板</button></div>';
+  overview.classList.add("open");
+  document.getElementById("savePlans").onclick = () => { const habitDates = [...new Set(p.habitDates || [])].slice(-365); S.plans = {daily:document.getElementById("planDaily").value, weekly:document.getElementById("planWeekly").value, review:document.getElementById("planReview").value, habitDates}; save(); showToast("计划已保存"); };
+  document.getElementById("markHabit").onclick = () => { S.plans = S.plans || p; S.plans.habitDates = [...new Set([...(S.plans.habitDates || []), dateKey()])].slice(-365); save(); openPlanning(); };
+  document.getElementById("fillReview").onclick = () => { document.getElementById("planReview").value = "本周完成：" + completed + " 项\n\n有效做法：\n\n遇到阻塞：" + blocked + " 项\n\n下周三件事：\n1. \n2. \n3. "; };
+}
+function openGoals() {
+  const overview = document.getElementById("overview"), goals = S.goals || [];
+  const statusOptions = value => [["backlog", "待办"], ["doing", "进行中"], ["done", "完成"]].map(([key, label]) => '<option value="' + key + '"' + (value === key ? ' selected' : '') + '>' + label + '</option>').join("");
+  overview.dataset.mode = "goals";
+  overview.innerHTML = '<h2>目标层级</h2><div class="ins-grid"><input id="goalTitle" placeholder="目标 / 阶段 / 里程碑名称"><select id="goalType"><option value="goal">目标</option><option value="stage">阶段</option><option value="milestone">里程碑</option></select><select id="goalParent"><option value="">顶层</option>' + goals.map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join('') + '</select><textarea id="goalPlaybook" rows="2" placeholder="Playbook：标准步骤、检查清单"></textarea><textarea id="goalReview" rows="2" placeholder="复盘模板：结果、问题、下一步"></textarea><button id="goalAdd">新增层级</button></div><div class="ov-list">' + (goals.length ? goals.map(g => '<div class="goal" data-goal-id="' + escapeRich(g.id) + '"><div class="goal-head"><input data-goal-title value="' + escapeRich(g.title) + '"><select data-goal-status>' + statusOptions(g.status) + '</select><small> · ' + escapeRich(g.type) + '</small></div><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>自动汇总进度：' + goalProgress(g.id) + '%</small><label>Playbook<textarea data-goal-playbook rows="2">' + escapeRich(g.playbook || '') + '</textarea></label><label>复盘模板<textarea data-goal-review rows="2">' + escapeRich(g.reviewTemplate || '') + '</textarea></label><button data-goal-save>保存层级</button></div>').join('') : '<p>从一个目标开始，再添加阶段和里程碑。</p>') + '</div>';
+  overview.classList.add("open");
+  document.getElementById("goalAdd").onclick = () => { const title = document.getElementById("goalTitle").value.trim(); if (!title) return; S.goals = S.goals || []; S.goals.push({id:uid(), title, type:document.getElementById("goalType").value, parentId:document.getElementById("goalParent").value, playbook:document.getElementById("goalPlaybook").value, reviewTemplate:document.getElementById("goalReview").value, status:"backlog"}); save(); openGoals(); };
+  overview.querySelectorAll("[data-goal-save]").forEach(button => button.onclick = () => { const card = button.closest("[data-goal-id]"), goal = S.goals.find(item => item.id === card.dataset.goalId); if (!goal) return; goal.title = card.querySelector("[data-goal-title]").value.trim() || goal.title; goal.status = card.querySelector("[data-goal-status]").value; goal.playbook = card.querySelector("[data-goal-playbook]").value; goal.reviewTemplate = card.querySelector("[data-goal-review]").value; save(); openGoals(); showToast("目标层级已保存"); });
+}
 function openOverview(mode) {
   const overview = document.getElementById("overview");
-  if (mode === "board") { overview.classList.remove("open"); return; }
-  const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed);
+  if (mode === "board") { overview.dataset.mode = "board"; overview.classList.remove("open"); return; }
+  if (mode === "search") { renderSearchResults(document.getElementById("searchBox").value); return; }
+  const status = document.getElementById("statusFilter")?.value || "all", priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
+  const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed && (status === "all" || x.sticky.status === status) && (priority === "all" || x.sticky.priority === priority) && (tag === "all" || (x.sticky.tags || []).includes(tag)));
   if (mode === "trash") { overview.innerHTML = '<h2>回收站</h2><div class="ov-list">' + (rows.length ? rows.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + x.sticky.id + '">恢复</button></div>').join('') : '<p>回收站为空。</p>') + '</div>'; overview.querySelectorAll('[data-restore]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const st = rows.find(x => x.sticky.id === btn.dataset.restore)?.sticky; if (st) { st.trashed = false; save(); openOverview('trash'); renderAll(); } }); overview.classList.add('open'); return; }
   if (mode === "stats") {
-    const done = rows.filter(x => x.sticky.status === "done").length;
-    const blocked = rows.filter(x => x.sticky.status === "blocked").length;
-    overview.innerHTML = '<h2>统计</h2><div class="ov-grid"><div class="ov-card"><h3>总任务</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞</h3><strong>' + blocked + '</strong></div></div>';
+    renderDashboard(); return;
   } else {
     const dated = rows.filter(x => x.sticky.due).sort((a,b) => a.sticky.due.localeCompare(b.sticky.due));
-    overview.innerHTML = '<h2>' + (mode === "calendar" ? '日历视图' : '时间线') + '</h2><div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
-    overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; renderBoards(); renderAll(); overview.classList.remove('open'); });
+    if (mode === "calendar") {
+      const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), 1), days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), cells = [];
+      for (let i = 0; i < first.getDay(); i += 1) cells.push('<div class="cal-cell muted"></div>');
+      for (let day = 1; day <= days; day += 1) { const date = dateKey(new Date(now.getFullYear(), now.getMonth(), day)), items = dated.filter(row => row.sticky.due === date); cells.push('<div class="cal-cell"><b>' + day + '</b>' + items.map(row => '<button class="cal-task" data-board="' + escapeRich(row.board.id) + '" data-sticky="' + escapeRich(row.sticky.id) + '">' + escapeRich(row.sticky.title || "未命名") + '</button>').join('') + '</div>'); }
+      while (cells.length % 7) cells.push('<div class="cal-cell muted"></div>');
+      overview.innerHTML = '<h2>日历视图 · ' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, "0") + '</h2><div class="calendar-grid">' + ["日", "一", "二", "三", "四", "五", "六"].map(day => '<div class="cal-weekday">' + day + '</div>').join('') + cells.join('') + '</div>';
+      overview.querySelectorAll('.cal-task').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
+    } else {
+      overview.innerHTML = '<h2>时间线</h2><div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
+      overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
+    }
   }
+  overview.classList.add("open");
+}
+function renderSearchResults(value) {
+  const query = String(value || "").trim().toLowerCase(), overview = document.getElementById("overview");
+  if (!query) { if (overview.dataset.mode === "search") overview.classList.remove("open"); return; }
+  const status = document.getElementById("statusFilter")?.value || "all", priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
+  const rows = allStickies().filter(({sticky: st}) => !st.trashed && (status === "all" || st.status === status) && (priority === "all" || st.priority === priority) && (tag === "all" || (st.tags || []).includes(tag)) && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ")).toLowerCase().includes(query));
+  overview.dataset.mode = "search";
+  overview.innerHTML = '<h2>全局搜索</h2><p>找到 ' + rows.length + ' 张便利贴 · 点击结果跳转</p><div class="ov-list">' + (rows.length ? rows.map(({board:b, sticky:st}) => '<div class="ov-item" data-board="' + escapeRich(b.id) + '" data-sticky="' + escapeRich(st.id) + '"><b>' + escapeRich(st.title || "未命名") + '</b><small> · ' + escapeRich(b.name) + ' · ' + escapeRich(st.status || "backlog") + '</small><div>' + escapeRich((st.tags || []).map(tag => "#" + tag).join(" ")) + '</div></div>').join("") : '<p>没有匹配内容。</p>') + '</div>';
+  overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; selectedIds.clear(); selectedElementIds.clear(); renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
   overview.classList.add("open");
 }
 /* ---- palette ---- */
@@ -677,7 +928,7 @@ function addSticky(color, kind) {
   save(); renderAll();
   requestAnimationFrame(() => {
     const n = world.querySelector(`[data-id="${st.id}"]`);
-    if (n) { n.classList.add("sel"); n.style.zIndex = ++Z; }
+    if (n) { selectedIds.clear(); selectedElementIds.clear(); selectedIds.add(st.id); n.classList.add("sel", "selected-outline"); n.style.zIndex = ++Z; openInspector(st); }
   });
 }
 /* ---- view: pan / zoom (per board) ---- */
@@ -701,13 +952,31 @@ document.getElementById("zIn").onclick = () => zoomBy(1.12);
 document.getElementById("zOut").onclick = () => zoomBy(0.89);
 let pan = null;
 viewport.addEventListener("pointerdown", e => {
+  if (selectionMode && !e.target.closest(".sticky,.shape,.connector,.drawstroke,#sidebar,#toolbar,#palette,.zoom,#overview,#inspector")) {
+    const v = board().view;
+    selectionDrag = {sx: (e.clientX - v.x) / v.k, sy: (e.clientY - v.y) / v.k, box: el("div", "selection-box"), additive: e.shiftKey};
+    world.appendChild(selectionDrag.box); viewport.setPointerCapture?.(e.pointerId); e.preventDefault(); return;
+  }
   if (activeTool) {
     e.preventDefault();
     const v = board().view, x = Math.max(0, Math.min(BOARD.width - 80, (e.clientX - v.x) / v.k)), y = Math.max(0, Math.min(BOARD.height - 80, (e.clientY - v.y) / v.k));
-    if (activeTool === "draw") { const pts = []; const move = ev => pts.push({x:(ev.clientX-v.x)/v.k,y:(ev.clientY-v.y)/v.k}); const up = () => { board().elements.push({id:uid(),type:"stroke",x,y,w:120,h:80,points:pts}); save(); renderAll(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); }; window.addEventListener("pointermove",move); window.addEventListener("pointerup",up); return; }
-    const type = activeTool === "arrow" || activeTool === "line" ? "connector" : activeTool === "table" ? "table" : "shape";
-    board().elements.push({id:uid(), type, shape:activeTool === "ellipse" ? "ellipse" : "rect", x, y, w:activeTool === "table" ? 280 : 180, h:activeTool === "table" ? 140 : 100, angle:activeTool === "arrow" ? -25 : 0});
-    activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); return;
+    if (activeTool === "arrow" || activeTool === "line") {
+      const start = {x, y}, state = {x, y}, preview = el("div", "connector"); world.appendChild(preview);
+      const updatePreview = () => { const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y); const p1 = from ? stickyEdge(board().stickies.find(st => st.id === from.id), to || state) : start; const p2 = to ? stickyEdge(board().stickies.find(st => st.id === to.id), from || start) : state; const dx = p2.x - p1.x, dy = p2.y - p1.y; preview.style.left = p1.x + "px"; preview.style.top = p1.y + "px"; preview.style.width = Math.max(4, Math.hypot(dx, dy)) + "px"; preview.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`; preview.style.opacity = ".55"; };
+      const move = ev => { state.x = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)); state.y = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); updatePreview(); };
+      const up = () => {
+        const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y);
+        preview.remove();
+        const element = {id:uid(), type:"connector", x:start.x, y:start.y, x2:state.x, y2:state.y, w:Math.max(4, Math.hypot(state.x - start.x, state.y - start.y)), h:3, arrow:activeTool === "arrow", fromId:from?.id || "", toId:to?.id || ""};
+        board().elements.push(element); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); return;
+    }
+    if (activeTool === "draw") { const pts = [{x, y}]; const move = ev => pts.push({x:(ev.clientX-v.x)/v.k,y:(ev.clientY-v.y)/v.k}); const up = () => { const xs = pts.map(point => point.x), ys = pts.map(point => point.y), px = Math.min(...xs), py = Math.min(...ys), pw = Math.max(20, Math.max(...xs) - px), ph = Math.max(20, Math.max(...ys) - py); board().elements.push({id:uid(),type:"stroke",x:px,y:py,w:pw,h:ph,points:pts}); activeTool = null; document.querySelectorAll("[data-tool]").forEach(button => button.classList.remove("active")); save(); renderAll(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); window.removeEventListener("pointercancel",up); }; window.addEventListener("pointermove",move); window.addEventListener("pointerup",up); window.addEventListener("pointercancel",up); return; }
+    const type = activeTool === "table" ? "table" : "shape", shape = activeTool === "ellipse" ? "ellipse" : "rect", start = {x, y}, preview = el("div", type === "table" ? "shape" : "shape " + shape); preview.style.left = x + "px"; preview.style.top = y + "px"; preview.style.width = (type === "table" ? 280 : 180) + "px"; preview.style.height = (type === "table" ? 140 : 100) + "px"; preview.style.opacity = ".55"; world.appendChild(preview);
+    const move = ev => { const ex = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)), ey = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); const px = Math.min(start.x, ex), py = Math.min(start.y, ey), pw = Math.max(type === "table" ? 120 : 40, Math.abs(ex - start.x)), ph = Math.max(type === "table" ? 80 : 30, Math.abs(ey - start.y)); Object.assign(preview.style, {left:px + "px", top:py + "px", width:pw + "px", height:ph + "px"}); };
+    const up = ev => { const ex = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)), ey = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); const px = Math.min(start.x, ex), py = Math.min(start.y, ey), pw = Math.max(type === "table" ? 120 : 40, Math.abs(ex - start.x)), ph = Math.max(type === "table" ? 80 : 30, Math.abs(ey - start.y)); preview.remove(); board().elements.push({id:uid(), type, shape, x:px, y:py, w:pw, h:ph, ...(type === "table" ? {cells:[["字段", "内容"], ["项目", "双击编辑"]]} : {})}); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up); return;
   }
   if (e.target.closest(".sticky,#sidebar,#toolbar,#palette,.zoom")) return;
   const v = board().view;
@@ -716,12 +985,25 @@ viewport.addEventListener("pointerdown", e => {
   viewport.setPointerCapture(e.pointerId);
 });
 viewport.addEventListener("pointermove", e => {
+  if (selectionDrag) {
+    const v = board().view, ex = (e.clientX - v.x) / v.k, ey = (e.clientY - v.y) / v.k;
+    const x = Math.min(selectionDrag.sx, ex), y = Math.min(selectionDrag.sy, ey), w = Math.abs(ex - selectionDrag.sx), h = Math.abs(ey - selectionDrag.sy);
+    Object.assign(selectionDrag.box.style, {left:x + "px", top:y + "px", width:w + "px", height:h + "px"}); return;
+  }
   if (!pan) return;
   const v = board().view;
   v.x = e.clientX - pan.x; v.y = e.clientY - pan.y;
   applyView();
 });
-viewport.addEventListener("pointerup", () => {
+viewport.addEventListener("pointerup", e => {
+  if (selectionDrag) {
+    const v = board().view, ex = (e.clientX - v.x) / v.k, ey = (e.clientY - v.y) / v.k;
+    const rect = {x:Math.min(selectionDrag.sx, ex), y:Math.min(selectionDrag.sy, ey), w:Math.abs(ex - selectionDrag.sx), h:Math.abs(ey - selectionDrag.sy)};
+    const additive = selectionDrag.additive; selectionDrag.box.remove(); selectionDrag = null; if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
+    board().stickies.forEach(st => { const n = world.querySelector(`[data-id="${st.id}"]`), w = n?.offsetWidth || 220, h = n?.offsetHeight || 120; if (!st.trashed && !n?.classList.contains("search-miss") && st.x < rect.x + rect.w && st.x + w > rect.x && st.y < rect.y + rect.h && st.y + h > rect.y) selectedIds.add(st.id); });
+    board().elements.filter(elm => !elm.locked).forEach(elm => { if (elm.x < rect.x + rect.w && elm.x + elm.w > rect.x && elm.y < rect.y + rect.h && elm.y + elm.h > rect.y) selectedElementIds.add(elm.id); });
+    renderAll(); if (selectedIds.size === 1) openInspector(board().stickies.find(st => selectedIds.has(st.id))); else if (!selectedIds.size) document.getElementById("inspector").style.display = "none"; return;
+  }
   if (pan) { pan = null; viewport.classList.remove("panning"); save(); }
 });
 let viewSaveT = null;
@@ -744,15 +1026,18 @@ function enableDrag(node, st) {
   node.addEventListener("pointerdown", e => {
     if (e.target.closest("input") || e.target.isContentEditable) return;
     if (e.target.closest(".tbox,.tx,.del,.dots,.rh,.rsz")) return;
+    if (st.locked) { selectSticky(st, e.shiftKey); return; }
     e.stopPropagation();
     const v = board().view;
     sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; moved = false;
+    const grouped = st.groupId ? board().stickies.filter(item => item.groupId === st.groupId && !item.locked && !item.trashed) : [st];
+    const origins = new Map(grouped.map(item => [item.id, {x:item.x, y:item.y}]));
     node.classList.add("drag");
     const move = ev => {
       const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k;
       if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
-      st.x = Math.round(ox + dx); st.y = Math.round(oy + dy);
-      node.style.left = st.x + "px"; node.style.top = st.y + "px";
+      grouped.forEach(item => { const origin = origins.get(item.id), size = stickySize(item); item.x = Math.round(Math.max(0, Math.min(BOARD.width - size.w, origin.x + dx))); item.y = Math.round(Math.max(0, Math.min(BOARD.height - size.h, origin.y + dy))); const itemNode = world.querySelector(`[data-id="${item.id}"]`); if (itemNode) { itemNode.style.left = item.x + "px"; itemNode.style.top = item.y + "px"; } });
+      refreshConnectors();
     };
     const up = () => {
       node.classList.remove("drag");
@@ -760,11 +1045,7 @@ function enableDrag(node, st) {
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
       if (moved) save();
-      else {
-        document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
-        node.classList.add("sel");
-        node.style.zIndex = ++Z;
-      }
+      else selectSticky(st, e.shiftKey);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -838,21 +1119,31 @@ document.getElementById("addBtn").onclick = e => {
   e.stopPropagation();
   palette.classList.toggle("open");
 };
-document.getElementById("searchBox").oninput = () => renderAll();
-document.getElementById("statusFilter").onchange = () => renderAll();
-document.getElementById("priorityFilter").onchange = () => renderAll();
+document.getElementById("searchBox").oninput = () => { renderAll(); renderSearchResults(document.getElementById("searchBox").value); };
+document.getElementById("statusFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
+document.getElementById("priorityFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
+document.getElementById("tagFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
 document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
 const importPick = document.getElementById("importPick");
-const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insLocked = document.getElementById("insLocked");
-document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean); st.locked = insLocked.checked; save(); renderAll(); selectSticky(st, false); };
+const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insRecurrence = document.getElementById("insRecurrence"), insReminder = document.getElementById("insReminder"), insParent = document.getElementById("insParent"), parentOptions = document.getElementById("parentOptions"), insDeps = document.getElementById("insDeps"), insSubs = document.getElementById("insSubs"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), dependencyEditor = document.getElementById("dependencyEditor"), insGoal = document.getElementById("insGoal"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation");
+insSubAdd.onclick = () => { const value = insSubNew.value.trim(); if (!value) return; appendSubtaskRow({id:uid(), title:value, status:"backlog"}); insSubNew.value = ""; insSubNew.focus(); };
+insSubNew.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); insSubAdd.click(); } };
+document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20); st.recurrence = insRecurrence.value; st.reminder = insReminder.value; st.parentId = validParentId(st, insParent.value.trim()); st.dependencies = readDependencies(st); st.subtasks = readSubtasks(); st.goalId = insGoal.value.trim(); st.locked = insLocked.checked; if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); } maybeCreateRecurring(st); save(); if (st.reminder && typeof Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission().catch(() => {}); renderAll(); selectSticky(st, false); };
 document.getElementById("insTrash").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (st) { st.trashed = true; save(); renderAll(); document.getElementById("inspector").style.display = "none"; } };
 document.getElementById("insClose").onclick = () => document.getElementById("inspector").style.display = "none";
 document.getElementById("insGroup").onclick = () => { const gid = uid(); selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.groupId = gid; }); save(); };
 document.getElementById("insFront").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = ++Z; }); save(); renderAll(); };
 document.getElementById("insBack").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = 0; }); save(); renderAll(); };
 document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { activeTool = btn.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x => x.classList.toggle("active", x === btn)); });
-document.querySelectorAll(".toolBtn").forEach(btn => btn.onclick = () => {
+document.querySelectorAll("[data-op]").forEach(btn => btn.onclick = () => {
+  const op = btn.dataset.op;
+  if (op === "select") { selectionMode = !selectionMode; btn.classList.toggle("active", selectionMode); return; }
+  arrangeSelected(op === "distX" || op === "distY" ? op : op === "left" ? "left" : op === "top" ? "top" : op);
+});
+document.querySelectorAll(".toolBtn[data-action]").forEach(btn => btn.onclick = () => {
   if (btn.dataset.action === "trash") { openOverview("trash"); return; }
+  if (btn.dataset.action === "planning") { openPlanning(); return; }
+  if (btn.dataset.action === "goals") { openGoals(); return; }
   if (btn.dataset.action === "import") { importPick.value = ""; importPick.click(); return; }
   const blob = new Blob([JSON.stringify(S, null, 2)], {type: "application/json"});
   const url = URL.createObjectURL(blob);
@@ -874,6 +1165,7 @@ importPick.onchange = () => {
 };
 /* ---- image upload: downscale then pin with a frame ---- */
 const imgPick = document.getElementById("imgPick");
+let replaceTarget = null;
 document.getElementById("imgBtn").onclick = e => {
   e.stopPropagation();
   const h = window.webkit && window.webkit.messageHandlers
@@ -881,20 +1173,25 @@ document.getElementById("imgBtn").onclick = e => {
   if (h) h.postMessage({}); // App 内：原生选图面板
   else imgPick.click();     // 浏览器里：回退文件框
 };
-window.__nativeImage = b64 => addImage("data:image/jpeg;base64," + b64, "图片");
+window.__nativeImage = b64 => { const url = String(b64).startsWith("data:") ? b64 : "data:image/jpeg;base64," + b64; if (replaceTarget) { replaceTarget.src = url; replaceTarget = null; save(); renderAll(); } else addImage(url, "图片"); };
 imgPick.onchange = () => {
   const f = imgPick.files && imgPick.files[0];
   imgPick.value = "";
   if (!f) return;
   const rd = new FileReader();
-  rd.onload = () => downscaleImage(rd.result, url => addImage(url, f.name));
+  rd.onload = () => downscaleImage(rd.result, url => { if (replaceTarget) { replaceTarget.src = url; replaceTarget = null; save(); renderAll(); } else addImage(url, f.name); });
   rd.readAsDataURL(f);
 };
+document.getElementById("imgReplace").onclick = () => { const id = document.getElementById("inspector").dataset.id; replaceTarget = board().stickies.find(st => st.id === id && st.kind === "img") || null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
+document.getElementById("imgPreview").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); };
+document.getElementById("mediaClose").onclick = () => document.getElementById("mediaPreview").classList.remove("open");
+function refreshImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; save(); renderAll(); }
+imgCropScale.oninput = refreshImageCrop; imgCropX.oninput = refreshImageCrop; imgCropY.oninput = refreshImageCrop;
 document.addEventListener("paste", e => {
   const item = Array.from(e.clipboardData?.items || []).find(x => x.type.startsWith("image/"));
   if (!item) return;
   const file = item.getAsFile(); if (!file) return;
-  const rd = new FileReader(); rd.onload = () => addImage(rd.result, "剪贴板图片"); rd.readAsDataURL(file);
+  const rd = new FileReader(); rd.onload = () => downscaleImage(rd.result, url => addImage(url, "剪贴板图片")); rd.readAsDataURL(file);
 });
 function downscaleImage(dataUrl, done) {
   const im = new Image();
@@ -909,7 +1206,7 @@ function downscaleImage(dataUrl, done) {
     };
     const preservePng = /^data:image\/png/i.test(dataUrl);
     let out = shot(1000, 0.85, preservePng ? "image/png" : "image/jpeg");
-    if (out.length > 1200000) out = shot(700, 0.7);
+    if (out.length > 1200000) out = shot(700, preservePng ? 1 : 0.7, preservePng ? "image/png" : "image/jpeg");
     done(out);
   };
   im.onerror = () => alert("这张图片读不出来，换一张试试");
@@ -922,11 +1219,12 @@ function addImage(dataUrl, name) {
   const st = mkSticky("white", "img", Math.round(cx - 120), Math.round(cy - 100),
     (name || "图片").replace(/\.[^.]+$/, "").slice(0, 20));
   st.src = dataUrl;
+  st.crop = {x:50,y:50,scale:1}; st.annotation = "";
   b.stickies.push(st);
   save(); renderAll();
   requestAnimationFrame(() => {
     const n = world.querySelector(`[data-id="${st.id}"]`);
-    if (n) { n.classList.add("sel"); n.style.zIndex = ++Z; }
+    if (n) { selectedIds.clear(); selectedElementIds.clear(); selectedIds.add(st.id); n.classList.add("sel", "selected-outline"); n.style.zIndex = ++Z; openInspector(st); }
   });
 }
 document.addEventListener("pointerdown", e => {
@@ -1007,7 +1305,7 @@ function confirmIsland() {
   closeIsland().then(() => {
     persistView();
     const b = {id: uid(), name: n.slice(0, 24),
-      view: {x: 300, y: 80, k: 1}, stickies: []};
+      view: {x: 300, y: 80, k: 1}, stickies: [], elements: []};
     S.boards.push(b); S.activeId = b.id;
     save(); renderBoards(); renderAll();
   });
@@ -1020,7 +1318,8 @@ islInput.onkeydown = e => {
   if (e.key === "Enter") confirmIsland();
 };
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { palette.classList.remove("open"); closeIsland(); }
+  if (e.key === "Escape") { palette.classList.remove("open"); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],#arrangeGroup [data-op=select]").forEach(button => button.classList.remove("active")); }
+  if ((e.key === "Delete" || e.key === "Backspace") && !e.target.isContentEditable && !["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName) && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); board().elements = (board().elements || []).filter(elm => !selectedElementIds.has(elm.id)); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !e.target.isContentEditable && e.target.tagName !== "INPUT") { e.preventDefault(); undo(); }
 });
 /* ---- sidebar collapse (persisted) ---- */
@@ -1046,6 +1345,7 @@ applySide();
 buildPalette();
 renderBoards();
 renderAll();
+checkReminders();
 </script>
 </body>
 </html>
