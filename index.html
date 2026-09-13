@@ -95,6 +95,10 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .toolBtn{border:1px solid rgba(35,39,47,.25);border-radius:9px;background:#fff;font-weight:700;font-size:12px;padding:8px 10px;cursor:pointer}
 .toolBtn:hover{background:#f3eee1}
 #importPick{display:none}
+#toolGroup{display:flex;gap:4px;border-left:1px solid #ddd;padding-left:6px}.toolBtn.active{background:#23272f;color:#fff}
+#inspector{position:fixed;right:14px;top:90px;width:250px;z-index:65;background:rgba(255,253,246,.98);border:1px solid rgba(35,39,47,.2);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px;display:none}.ins-title{font-weight:700;font-size:14px;margin-bottom:8px}.ins-grid{display:grid;gap:7px}.ins-grid label{font-size:11px;color:var(--muted)}.ins-grid input,.ins-grid select{width:100%;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;font:12px inherit}.ins-actions{display:flex;gap:5px;margin-top:8px}.ins-actions button{flex:1;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}.ins-actions button:hover{background:#f3eee1}
+.shape{position:absolute;border:2px solid #23272f;background:rgba(255,255,255,.35);border-radius:8px}.shape.ellipse{border-radius:50%}.connector{position:absolute;height:3px;background:#23272f;transform-origin:left center}.drawstroke{position:absolute;pointer-events:none}
+.shape table{width:100%;height:100%;border-collapse:collapse;font-size:12px;background:rgba(255,255,255,.65)}.shape td{border:1px solid #777;padding:5px}.shape td[contenteditable=true]{background:#fff}
 .richbody{font-size:12.5px;line-height:1.6;color:rgba(35,39,47,.82);margin:0;outline:none;border-radius:4px;min-height:1em;word-break:break-word}
 .richbody:focus{background:rgba(255,255,255,.55)}
 .richbody p{margin:0 0 7px}.richbody p:last-child{margin-bottom:0}
@@ -278,8 +282,10 @@ body.side-hidden #sideTab{transform:translateX(0)}
   <input type="file" id="imgPick" accept="image/*">
  <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
  <button class="toolBtn" data-action="export" title="导出全部画板">导出</button>
- <button class="toolBtn" data-action="import" title="导入 JSON 数据">导入</button>
+  <button class="toolBtn" data-action="import" title="导入 JSON 数据">导入</button>
+  <button class="toolBtn" data-action="trash" title="回收站">回收站</button>
   <input type="file" id="importPick" accept="application/json,.json">
+  <div id="toolGroup"><button class="toolBtn" data-tool="arrow" title="箭头">↗</button><button class="toolBtn" data-tool="line" title="连接线">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button><button class="toolBtn" data-tool="draw" title="手绘">✎</button><button class="toolBtn" data-tool="table" title="表格">▦</button></div>
   <select id="viewMode" title="视图"><option value="board">看板</option><option value="timeline">时间线</option><option value="calendar">日历</option><option value="stats">统计</option></select>
   <select id="statusFilter" title="状态"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select>
   <select id="priorityFilter" title="优先级"><option value="all">全部优先级</option><option value="urgent">紧急</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
@@ -295,6 +301,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
 
 <div id="viewport"><div id="world"></div></div>
 <section id="overview"></section>
+<aside id="inspector"><div class="ins-title">属性</div><div class="ins-grid"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>锁定 <input id="insLocked" type="checkbox"></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
@@ -361,7 +368,11 @@ function normalizeState(input) {
     view: { x: Number(b.view?.x) || 300, y: Number(b.view?.y) || 80, k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)) },
     stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(st => ({ ...st, id: String(st.id || uid()), kind: ["note","todo","title","img"].includes(st.kind) ? st.kind : "note", color: ["yellow","blue","pink","green","purple","cyan","white"].includes(st.color) ? st.color : "yellow", x: Number(st.x) || 0, y: Number(st.y) || 0, rot: Number(st.rot) || 0, title: String(st.title || "").slice(0, 500), body: String(st.body || "").slice(0, 10000), items: Array.isArray(st.items) ? st.items : [] })) : []
   }));
-  if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 300, y: 80, k: 1 }, stickies: [] }];
+  if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 300, y: 80, k: 1 }, stickies: [], elements: [] }];
+  boards.forEach(b => {
+    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => ({...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Number(elm.x)||0, y:Number(elm.y)||0, w:Math.max(20,Number(elm.w)||120), h:Math.max(20,Number(elm.h)||80), locked:!!elm.locked, z:Number(elm.z)||0})) : [];
+    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; st.priority = ["none","low","medium","high","urgent"].includes(st.priority) ? st.priority : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
+  });
   return { v: 1, activeId: boards.some(b => b.id === raw.activeId) ? raw.activeId : boards[0].id, boards };
 }
 function escapeRich(value) {
@@ -411,6 +422,7 @@ function save() {
       alert("本地存储满了：图片太大存不下，最近的改动重启后可能丢失。建议删掉大图或另建画板。");
     }
   }
+  try { localStorage.setItem(KEY + "-backup", JSON.stringify({savedAt: new Date().toISOString(), state: S})); } catch (e) {}
 }
 function undo() {
   const raw = history.pop();
@@ -487,6 +499,7 @@ function todoRow(st, it) {
 function stickyNode(st) {
   const a = el("article", `sticky b-${st.color}` + (st.kind === "title" ? " titlekind" : st.kind === "img" ? " imgkind" : ""));
   a.dataset.id = st.id;
+  a.style.zIndex = st.z || 1;
   a.style.left = st.x + "px"; a.style.top = st.y + "px";
   if (st.w) a.style.width = st.w + "px";
   a.style.setProperty("--rot", st.rot + "deg");
@@ -499,6 +512,7 @@ function stickyNode(st) {
     save(); renderAll();
   };
   a.appendChild(del);
+  a.addEventListener("click", e => { if (e.target === a || e.target.tagName === "H3") selectSticky(st, e.shiftKey); });
   if (st.kind === "img") {
     const f = el("div", "frame");
     const im = document.createElement("img");
@@ -591,16 +605,35 @@ function renderAll() {
     if (st.trashed || (query && !text.includes(query)) || (status !== "all" && st.status !== status) || (priority !== "all" && st.priority !== priority)) node.classList.add("search-miss");
     world.appendChild(node);
   });
+  (b.elements || []).forEach(elm => renderElement(elm));
   boardName.textContent = b.name;
   boardCount.textContent = b.stickies.length + " 张";
   emptyHint.style.display = b.stickies.length ? "none" : "grid";
   applyView();
 }
+let selectedIds = new Set();
+let activeTool = null;
+function selectSticky(st, additive) {
+  if (!additive) selectedIds.clear();
+  selectedIds.add(st.id); document.querySelectorAll(".sticky.sel").forEach(n => n.classList.remove("sel"));
+  selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel"); });
+  openInspector(st);
+}
+function openInspector(st) { const box = document.getElementById("inspector"); box.style.display = "block"; insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", "); insLocked.checked = !!st.locked; box.dataset.id = st.id; }
+function renderElement(elm) {
+  const n = el("div", elm.type === "shape" ? "shape " + (elm.shape || "rect") : elm.type === "connector" ? "connector" : elm.type === "stroke" ? "drawstroke" : "shape");
+  n.dataset.elementId = elm.id; n.style.left = elm.x + "px"; n.style.top = elm.y + "px"; n.style.width = elm.w + "px"; n.style.height = elm.h + "px"; n.style.zIndex = elm.z || 1;
+  if (elm.type === "connector") { n.style.transform = `rotate(${elm.angle || 0}deg)`; n.textContent = elm.arrow ? "➜" : ""; n.style.color = "#23272f"; }
+  if (elm.type === "stroke" && Array.isArray(elm.points) && elm.points.length) { const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("width", elm.w); svg.setAttribute("height", elm.h); const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline"); path.setAttribute("points", elm.points.map(p => `${p.x - elm.x},${p.y - elm.y}`).join(" ")); path.setAttribute("fill", "none"); path.setAttribute("stroke", "#23272f"); path.setAttribute("stroke-width", "3"); svg.appendChild(path); n.appendChild(svg); }
+  if (elm.type === "table") { n.className = "shape"; n.innerHTML = "<table><tr><td>字段</td><td>内容</td></tr><tr><td>项目</td><td>双击编辑</td></tr></table>"; }
+  world.appendChild(n);
+}
 function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
 function openOverview(mode) {
   const overview = document.getElementById("overview");
   if (mode === "board") { overview.classList.remove("open"); return; }
-  const rows = allStickies().filter(x => !x.sticky.trashed);
+  const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed);
+  if (mode === "trash") { overview.innerHTML = '<h2>回收站</h2><div class="ov-list">' + (rows.length ? rows.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + x.sticky.id + '">恢复</button></div>').join('') : '<p>回收站为空。</p>') + '</div>'; overview.querySelectorAll('[data-restore]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const st = rows.find(x => x.sticky.id === btn.dataset.restore)?.sticky; if (st) { st.trashed = false; save(); openOverview('trash'); renderAll(); } }); overview.classList.add('open'); return; }
   if (mode === "stats") {
     const done = rows.filter(x => x.sticky.status === "done").length;
     const blocked = rows.filter(x => x.sticky.status === "blocked").length;
@@ -668,6 +701,14 @@ document.getElementById("zIn").onclick = () => zoomBy(1.12);
 document.getElementById("zOut").onclick = () => zoomBy(0.89);
 let pan = null;
 viewport.addEventListener("pointerdown", e => {
+  if (activeTool) {
+    e.preventDefault();
+    const v = board().view, x = Math.max(0, Math.min(BOARD.width - 80, (e.clientX - v.x) / v.k)), y = Math.max(0, Math.min(BOARD.height - 80, (e.clientY - v.y) / v.k));
+    if (activeTool === "draw") { const pts = []; const move = ev => pts.push({x:(ev.clientX-v.x)/v.k,y:(ev.clientY-v.y)/v.k}); const up = () => { board().elements.push({id:uid(),type:"stroke",x,y,w:120,h:80,points:pts}); save(); renderAll(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); }; window.addEventListener("pointermove",move); window.addEventListener("pointerup",up); return; }
+    const type = activeTool === "arrow" || activeTool === "line" ? "connector" : activeTool === "table" ? "table" : "shape";
+    board().elements.push({id:uid(), type, shape:activeTool === "ellipse" ? "ellipse" : "rect", x, y, w:activeTool === "table" ? 280 : 180, h:activeTool === "table" ? 140 : 100, angle:activeTool === "arrow" ? -25 : 0});
+    activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); return;
+  }
   if (e.target.closest(".sticky,#sidebar,#toolbar,#palette,.zoom")) return;
   const v = board().view;
   pan = {x: e.clientX - v.x, y: e.clientY - v.y};
@@ -802,7 +843,16 @@ document.getElementById("statusFilter").onchange = () => renderAll();
 document.getElementById("priorityFilter").onchange = () => renderAll();
 document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
 const importPick = document.getElementById("importPick");
+const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insLocked = document.getElementById("insLocked");
+document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean); st.locked = insLocked.checked; save(); renderAll(); selectSticky(st, false); };
+document.getElementById("insTrash").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (st) { st.trashed = true; save(); renderAll(); document.getElementById("inspector").style.display = "none"; } };
+document.getElementById("insClose").onclick = () => document.getElementById("inspector").style.display = "none";
+document.getElementById("insGroup").onclick = () => { const gid = uid(); selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.groupId = gid; }); save(); };
+document.getElementById("insFront").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = ++Z; }); save(); renderAll(); };
+document.getElementById("insBack").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = 0; }); save(); renderAll(); };
+document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { activeTool = btn.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x => x.classList.toggle("active", x === btn)); });
 document.querySelectorAll(".toolBtn").forEach(btn => btn.onclick = () => {
+  if (btn.dataset.action === "trash") { openOverview("trash"); return; }
   if (btn.dataset.action === "import") { importPick.value = ""; importPick.click(); return; }
   const blob = new Blob([JSON.stringify(S, null, 2)], {type: "application/json"});
   const url = URL.createObjectURL(blob);
@@ -840,18 +890,25 @@ imgPick.onchange = () => {
   rd.onload = () => downscaleImage(rd.result, url => addImage(url, f.name));
   rd.readAsDataURL(f);
 };
+document.addEventListener("paste", e => {
+  const item = Array.from(e.clipboardData?.items || []).find(x => x.type.startsWith("image/"));
+  if (!item) return;
+  const file = item.getAsFile(); if (!file) return;
+  const rd = new FileReader(); rd.onload = () => addImage(rd.result, "剪贴板图片"); rd.readAsDataURL(file);
+});
 function downscaleImage(dataUrl, done) {
   const im = new Image();
   im.onload = () => {
-    const shot = (max, q) => {
+    const shot = (max, q, type) => {
       const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
       const c = document.createElement("canvas");
       c.width = Math.max(1, Math.round(im.naturalWidth * s));
       c.height = Math.max(1, Math.round(im.naturalHeight * s));
       c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
-      return c.toDataURL("image/jpeg", q);
+      return c.toDataURL(type || "image/jpeg", q);
     };
-    let out = shot(1000, 0.85);
+    const preservePng = /^data:image\/png/i.test(dataUrl);
+    let out = shot(1000, 0.85, preservePng ? "image/png" : "image/jpeg");
     if (out.length > 1200000) out = shot(700, 0.7);
     done(out);
   };

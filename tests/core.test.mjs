@@ -34,3 +34,9 @@ test('normalizeState migrates task metadata with safe defaults', () => {
   assert.equal(sticky.due, '2026-10-01');
   assert.equal(sticky.locked, false);
 });
+
+test('normalizeState preserves drawable board elements', () => {
+  const state = normalizeState({ boards: [{ id: 'b', elements: [{ type: 'shape', shape: 'rect', x: 4, y: 5, w: 0 }] }] });
+  assert.equal(state.boards[0].elements[0].type, 'shape');
+  assert.equal(state.boards[0].elements[0].w, 120);
+});

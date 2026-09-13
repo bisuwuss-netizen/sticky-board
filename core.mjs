@@ -2,6 +2,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 export const BOARD_SIZE = {width: 2400, height: 1600};
 export const PRIORITIES = ["none", "low", "medium", "high", "urgent"];
 export const STATUSES = ["backlog", "next", "doing", "blocked", "done"];
+export const ELEMENT_TYPES = ["shape", "connector", "stroke", "table"];
 export function clampView(view, viewport, scale = view.k || 1) {
   const k = Math.min(1.6, Math.max(0.4, Number(scale) || 1));
   const minX = Math.min(0, viewport.width - BOARD_SIZE.width * k);
@@ -98,6 +99,10 @@ function normalizeSticky(st) {
     ...(kind === "img" && typeof st.src === "string" ? {src: st.src} : {}),
   };
 }
+function normalizeElement(el) {
+  if (!el || typeof el !== "object" || !ELEMENT_TYPES.includes(el.type)) return null;
+  return {...el, id: String(el.id || uid()), x: Number(el.x) || 0, y: Number(el.y) || 0, w: Math.max(20, Number(el.w) || 120), h: Math.max(20, Number(el.h) || 80), locked: Boolean(el.locked), z: Number(el.z) || 0};
+}
 
 export function normalizeState(input) {
   const raw = input && typeof input === "object" ? input : {};
@@ -109,8 +114,9 @@ export function normalizeState(input) {
       k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)),
     },
     stickies: Array.isArray(b.stickies) ? b.stickies.map(normalizeSticky).filter(Boolean) : [],
+    elements: Array.isArray(b.elements) ? b.elements.map(normalizeElement).filter(Boolean) : [],
   })) : [];
-  if (!boards.length) boards.push({id: uid(), name: "我的画板", view: {x: 300, y: 80, k: 1}, stickies: []});
+  if (!boards.length) boards.push({id: uid(), name: "我的画板", view: {x: 300, y: 80, k: 1}, stickies: [], elements: []});
   const activeId = boards.some(b => b.id === raw.activeId) ? raw.activeId : boards[0].id;
   return {v: 1, activeId, boards};
 }
