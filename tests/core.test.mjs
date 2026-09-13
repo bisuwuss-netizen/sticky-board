@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { formatRichText, normalizeState } from '../core.mjs';
+import { BOARD_SIZE, clampPoint, clampView, formatRichText, normalizeState } from '../core.mjs';
+
+test('clampPoint keeps new sticky positions inside the fixed board', () => {
+  assert.deepEqual(clampPoint({x: -20, y: 2000}), {x: 0, y: BOARD_SIZE.height - 40});
+});
+
+test('clampView keeps panning inside the fixed board bounds', () => {
+  const view = clampView({x: 900, y: -3000, k: 1}, {width: 1200, height: 800});
+  assert.deepEqual(view, {x: 0, y: -800, k: 1});
+});
 
 test('formatRichText turns paragraphs and list markers into semantic HTML', () => {
   const html = formatRichText('项目计划\n\n- 先调研\n- 再实现\n\n1. 发布\n2. 复盘');

@@ -1,4 +1,14 @@
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+export const BOARD_SIZE = {width: 2400, height: 1600};
+export function clampView(view, viewport, scale = view.k || 1) {
+  const k = Math.min(1.6, Math.max(0.4, Number(scale) || 1));
+  const minX = Math.min(0, viewport.width - BOARD_SIZE.width * k);
+  const minY = Math.min(0, viewport.height - BOARD_SIZE.height * k);
+  return {x: Math.min(0, Math.max(minX, Number(view.x) || 0)), y: Math.min(0, Math.max(minY, Number(view.y) || 0)), k};
+}
+export function clampPoint(point, size = BOARD_SIZE) {
+  return {x: Math.min(size.width - 40, Math.max(0, Number(point.x) || 0)), y: Math.min(size.height - 40, Math.max(0, Number(point.y) || 0))};
+}
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>\"']/g, ch => ({
