@@ -97,3 +97,36 @@ test('normalizeState clamps imported cards and elements to the fixed board', () 
   assert.equal(state.boards[0].elements[0].x, BOARD_SIZE.width - 400);
   assert.equal(state.boards[0].elements[0].y, BOARD_SIZE.height - 300);
 });
+
+test('formatRichText renders fenced code blocks with highlighting', () => {
+  const html = formatRichText('说明文字\n\n```\nconst x = 1;\n```\n\n结尾');
+  assert.match(html, /<p>说明文字<\/p>/);
+  assert.match(html, /<pre><code>[\s\S]*tok-keyword[\s\S]*<\/code><\/pre>/);
+  assert.match(html, /<p>结尾<\/p>/);
+  assert.ok(!html.includes('```'));
+});
+
+test('normalizeState keeps crop position 0 instead of resetting to 50', () => {
+  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', kind: 'img', src: 'data:image/png;base64,x', crop: {x: 0, y: 0, scale: 2}}]}]});
+  assert.deepEqual(state.boards[0].stickies[0].crop, {x: 0, y: 0, scale: 2});
+});
+
+test('streakFromDates counts local calendar days regardless of timezone', () => {
+  const today = new Date(2026, 8, 14, 1, 0, 0); // 本地时间 9-14 凌晨 1 点
+  const yesterday = new Date(2026, 8, 13, 12, 0, 0);
+  const fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  assert.equal(streakFromDates([fmt(today), fmt(yesterday)], today), 2);
+  assert.equal(streakFromDates([fmt(yesterday)], today), 0);
+});
+
+test('snapConnector tolerates a connector without width', () => {
+  const snapped = snapConnector({id: 'l', x: 20, y: 20}, [{id: 'a', x: 0, y: 0, w: 40, h: 40}]);
+  assert.equal(snapped.fromId, 'a');
+});
+
+test('normalizeState defaults view to the clamped origin 0,0', () => {
+  const state = normalizeState({boards: [{id: 'b'}]});
+  assert.deepEqual(state.boards[0].view, {x: 0, y: 0, k: 1});
+  const zeroKept = normalizeState({boards: [{id: 'b', view: {x: 0, y: 0, k: 1}}]});
+  assert.equal(zeroKept.boards[0].view.x, 0);
+});

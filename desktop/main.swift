@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
 
         let cfg = WKWebViewConfiguration()
         cfg.userContentController.add(self, name: "pickImage")
+        cfg.userContentController.add(self, name: "backup")
         webView = WKWebView(frame: window.contentView!.bounds, configuration: cfg)
         webView.autoresizingMask = [.width, .height]
         webView.uiDelegate = self
@@ -192,6 +193,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
+        if message.name == "backup" {
+            if let json = message.body as? String { writeBackup(json) }
+            return
+        }
         guard message.name == "pickImage" else { return }
         let panel = NSOpenPanel()
         panel.message = "选择一张图片放到画板上"
@@ -200,6 +205,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
         panel.begin { [weak self] resp in
             guard resp == .OK, let url = panel.url else { return }
             self?.deliverImage(url)
+        }
+    }
+
+    // MARK: - File backups
+
+    /// 把网页层发来的完整状态 JSON 写到 Application Support，保留最近 10 份
+    private func writeBackup(_ json: String) {
+        DispatchQueue.global(qos: .utility).async {
+            let fm = FileManager.default
+            guard let support = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
+            let dir = support.appendingPathComponent("TheJourney/backups", isDirectory: true)
+            do {
+                try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+                let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+                try json.write(to: dir.appendingPathComponent("backup-\(stamp).json"), atomically: true, encoding: .utf8)
+                let files = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles])
+                    .filter { $0.lastPathComponent.hasPrefix("backup-") }
+                    .sorted { ($0.pathComponents.last ?? "") > ($1.pathComponents.last ?? "") }
+                for old in files.dropFirst(10) { try? fm.removeItem(at: old) }
+            } catch {
+                NSLog("TheJourney backup failed: \(error.localizedDescription)")
+            }
         }
     }
 

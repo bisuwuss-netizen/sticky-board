@@ -30,7 +30,7 @@ export function distributeItems(items, axis) {
   return copy;
 }
 export function snapConnector(connector, items, radius = 42) {
-  const points = [{key: "from", x: connector.x, y: connector.y}, {key: "to", x: connector.x2 ?? connector.x + connector.w, y: connector.y2 ?? connector.y}];
+  const points = [{key: "from", x: connector.x, y: connector.y}, {key: "to", x: connector.x2 ?? connector.x + (connector.w || 0), y: connector.y2 ?? connector.y}];
   const snapped = {...connector};
   points.forEach(point => {
     let best = null, distance = radius;
@@ -71,8 +71,10 @@ export function progressTree(nodes) {
   return nodes.map(node => ({...node, progress: Math.round(walk(node) * 100)}));
 }
 export function streakFromDates(dates, today = new Date()) {
-  const set = new Set(dates); let cursor = new Date(today); let streak = 0;
-  while (set.has(cursor.toISOString().slice(0, 10))) { streak += 1; cursor.setUTCDate(cursor.getUTCDate() - 1); }
+  const set = new Set(dates);
+  const key = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  let cursor = new Date(today); let streak = 0;
+  while (set.has(key(cursor))) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
   return streak;
 }
 export function clampView(view, viewport, scale = view.k || 1) {
@@ -108,6 +110,7 @@ export function formatRichText(source) {
   const blocks = [];
   let paragraph = [];
   let list = null;
+  let code = null;
   const flushParagraph = () => {
     if (paragraph.length) {
       blocks.push(`<p>${paragraph.map(inlineMarkup).join("<br>")}</p>`);
@@ -121,6 +124,12 @@ export function formatRichText(source) {
   };
   for (const raw of lines) {
     const line = raw.trimEnd();
+    if (line.trim().startsWith("```")) {
+      if (code) { blocks.push(`<pre><code>${highlightCode(code.join("\n"))}</code></pre>`); code = null; }
+      else { flushParagraph(); flushList(); code = []; }
+      continue;
+    }
+    if (code) { code.push(line); continue; }
     if (!line.trim()) { flushParagraph(); flushList(); continue; }
     const heading = line.match(/^#{1,3}\s+(.+)$/);
     if (heading) { flushParagraph(); flushList(); blocks.push(`<h4>${inlineMarkup(heading[1])}</h4>`); continue; }
@@ -144,6 +153,7 @@ export function formatRichText(source) {
     flushList();
     paragraph.push(line);
   }
+  if (code) blocks.push(`<pre><code>${highlightCode(code.join("\n"))}</code></pre>`);
   flushParagraph(); flushList();
   return blocks.join("");
 }
@@ -167,7 +177,6 @@ function normalizeSticky(st) {
     due: typeof st.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(st.due) ? st.due : "",
     recurrence: ["none", "daily", "weekly", "monthly"].includes(st.recurrence) ? st.recurrence : "none",
     recurringCreatedFor: typeof st.recurringCreatedFor === "string" ? st.recurringCreatedFor : "",
-    parentId: typeof st.parentId === "string" ? st.parentId : "",
     dependencies: Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string").slice(0, 20) : [],
     locked: Boolean(st.locked), groupId: typeof st.groupId === "string" ? st.groupId : "",
     z: Number.isFinite(Number(st.z)) ? Number(st.z) : 0, trashed: Boolean(st.trashed),
@@ -175,7 +184,7 @@ function normalizeSticky(st) {
     subtasks: Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(item => ({id: String(item.id || uid()), title: String(item.title || item.t || "").slice(0, 500), status: STATUSES.includes(item.status) ? item.status : "backlog"})) : [],
     goalId: typeof st.goalId === "string" ? st.goalId : "",
     reminder: typeof st.reminder === "string" ? st.reminder : "",
-    crop: st.crop && typeof st.crop === "object" ? {x: Number(st.crop.x) || 50, y: Number(st.crop.y) || 50, scale: Math.max(1, Number(st.crop.scale) || 1)} : {x: 50, y: 50, scale: 1},
+    crop: st.crop && typeof st.crop === "object" ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)} : {x: 50, y: 50, scale: 1},
     annotation: typeof st.annotation === "string" ? st.annotation.slice(0, 1000) : "",
   };
 }
@@ -190,14 +199,14 @@ export function normalizeState(input) {
   const boards = Array.isArray(raw.boards) ? raw.boards.filter(Boolean).map(b => ({
     id: String(b.id || uid()), name: String(b.name || "未命名画板").trim().slice(0, 24) || "未命名画板",
     view: {
-      x: Number.isFinite(Number(b.view?.x)) ? Number(b.view.x) : 300,
-      y: Number.isFinite(Number(b.view?.y)) ? Number(b.view.y) : 80,
+      x: Number.isFinite(Number(b.view?.x)) ? Number(b.view.x) : 0,
+      y: Number.isFinite(Number(b.view?.y)) ? Number(b.view.y) : 0,
       k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)),
     },
     stickies: Array.isArray(b.stickies) ? b.stickies.map(normalizeSticky).filter(Boolean) : [],
     elements: Array.isArray(b.elements) ? b.elements.map(normalizeElement).filter(Boolean) : [],
   })) : [];
-  if (!boards.length) boards.push({id: uid(), name: "我的画板", view: {x: 300, y: 80, k: 1}, stickies: [], elements: []});
+  if (!boards.length) boards.push({id: uid(), name: "我的画板", view: {x: 0, y: 0, k: 1}, stickies: [], elements: []});
   const plans = raw.plans && typeof raw.plans === "object" ? {daily: String(raw.plans.daily || ""), weekly: String(raw.plans.weekly || ""), review: String(raw.plans.review || ""), habitDates: Array.isArray(raw.plans.habitDates) ? raw.plans.habitDates.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-365) : []} : {daily:"", weekly:"", review:"", habitDates:[]};
   const goals = Array.isArray(raw.goals) ? raw.goals.filter(Boolean).map(g => ({id: String(g.id || uid()), title: String(g.title || "未命名目标").slice(0, 120), type: ["goal","stage","milestone"].includes(g.type) ? g.type : "goal", parentId: typeof g.parentId === "string" ? g.parentId : "", playbook: String(g.playbook || ""), reviewTemplate: String(g.reviewTemplate || ""), status: ["backlog","doing","done"].includes(g.status) ? g.status : "backlog"})) : [];
   const activity = Array.isArray(raw.activity) ? raw.activity.filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date)).slice(-90) : [];
