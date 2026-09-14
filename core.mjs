@@ -1,6 +1,6 @@
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 export const BOARD_SIZE = {width: 2400, height: 1600};
-export const PRIORITIES = ["none", "low", "medium", "high", "urgent"];
+export const PRIORITIES = ["none", "low", "medium", "high"];
 export const STATUSES = ["backlog", "next", "doing", "blocked", "done"];
 export const ELEMENT_TYPES = ["shape", "connector", "stroke", "table"];
 export function selectInRect(items, rect) {
@@ -42,14 +42,6 @@ export function snapConnector(connector, items, radius = 42) {
     if (best) { snapped[point.key + "Id"] = best.id; snapped[point.key + "X"] = best.x; snapped[point.key + "Y"] = best.y; }
   });
   return snapped;
-}
-export function nextOccurrence(date, recurrence) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || recurrence === "none") return date;
-  const d = new Date(date + "T00:00:00Z");
-  if (recurrence === "daily") d.setUTCDate(d.getUTCDate() + 1);
-  if (recurrence === "weekly") d.setUTCDate(d.getUTCDate() + 7);
-  if (recurrence === "monthly") d.setUTCMonth(d.getUTCMonth() + 1);
-  return d.toISOString().slice(0, 10);
 }
 export function highlightCode(source, language = "text") {
   const escape = value => String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
@@ -173,17 +165,13 @@ function normalizeSticky(st) {
     title: String(st.title ?? "").slice(0, 500), body: String(st.body ?? "").slice(0, 10000), items,
     tags: Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : [],
     status: STATUSES.includes(st.status) ? st.status : "backlog",
-    priority: PRIORITIES.includes(st.priority) ? st.priority : "none",
+    priority: PRIORITIES.includes(st.priority === "urgent" ? "high" : st.priority) ? (st.priority === "urgent" ? "high" : st.priority) : "none",
     due: typeof st.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(st.due) ? st.due : "",
-    recurrence: ["none", "daily", "weekly", "monthly"].includes(st.recurrence) ? st.recurrence : "none",
-    recurringCreatedFor: typeof st.recurringCreatedFor === "string" ? st.recurringCreatedFor : "",
-    dependencies: Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string").slice(0, 20) : [],
     locked: Boolean(st.locked), groupId: typeof st.groupId === "string" ? st.groupId : "",
     z: Number.isFinite(Number(st.z)) ? Number(st.z) : 0, trashed: Boolean(st.trashed),
     ...(kind === "img" && typeof st.src === "string" ? {src: st.src} : {}),
     subtasks: Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(item => ({id: String(item.id || uid()), title: String(item.title || item.t || "").slice(0, 500), status: STATUSES.includes(item.status) ? item.status : "backlog"})) : [],
     goalId: typeof st.goalId === "string" ? st.goalId : "",
-    reminder: typeof st.reminder === "string" ? st.reminder : "",
     crop: st.crop && typeof st.crop === "object" ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)} : {x: 50, y: 50, scale: 1},
     annotation: typeof st.annotation === "string" ? st.annotation.slice(0, 1000) : "",
   };

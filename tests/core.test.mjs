@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { BOARD_SIZE, alignItems, clampPoint, clampView, distributeItems, formatRichText, highlightCode, nextOccurrence, normalizeState, progressTree, selectInRect, snapConnector, streakFromDates } from '../core.mjs';
+import { BOARD_SIZE, alignItems, clampPoint, clampView, distributeItems, formatRichText, highlightCode, normalizeState, progressTree, selectInRect, snapConnector, streakFromDates } from '../core.mjs';
 
 test('selection and alignment operate on overlapping cards', () => {
   const items = [{id:'a',x:10,y:10,w:50,h:50},{id:'b',x:90,y:30,w:40,h:40},{id:'c',x:180,y:80,w:20,h:20}];
@@ -9,10 +9,9 @@ test('selection and alignment operate on overlapping cards', () => {
   assert.deepEqual(distributeItems(items, 'x').map(x => x.x), [10, 100, 180]);
 });
 
-test('connectors snap endpoints to nearby cards and recurrence advances dates', () => {
+test('connectors snap endpoints to nearby cards', () => {
   const snapped = snapConnector({id:'l',x:20,y:20,x2:190,y2:90,w:170,h:70}, [{id:'a',x:0,y:0,w:40,h:40},{id:'b',x:180,y:80,w:40,h:40}]);
   assert.equal(snapped.fromId, 'a'); assert.equal(snapped.toId, 'b');
-  assert.equal(nextOccurrence('2026-09-13', 'weekly'), '2026-09-20');
 });
 
 test('hierarchy progress and habit streak are derived from task state', () => {
@@ -74,11 +73,14 @@ test('normalizeState migrates task metadata with safe defaults', () => {
   assert.equal(sticky.locked, false);
 });
 
-test('normalizeState keeps recurrence, subtasks, image crop, and annotation', () => {
-  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', recurrence: 'weekly', recurringCreatedFor: '2026-09-13', subtasks: [{title: 'Ship', status: 'done'}], crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>'}]}]});
+test('normalizeState drops retired fields, migrates urgent priority, keeps subtasks/crop/annotation', () => {
+  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', priority: 'urgent', recurrence: 'weekly', recurringCreatedFor: '2026-09-13', reminder: '12:30', dependencies: ['x'], subtasks: [{title: 'Ship', status: 'done'}], crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>'}]}]});
   const sticky = state.boards[0].stickies[0];
-  assert.equal(sticky.recurrence, 'weekly');
-  assert.equal(sticky.recurringCreatedFor, '2026-09-13');
+  assert.equal(sticky.priority, 'high'); // urgent 已并入 high
+  assert.equal('recurrence' in sticky, false);
+  assert.equal('recurringCreatedFor' in sticky, false);
+  assert.equal('reminder' in sticky, false);
+  assert.equal('dependencies' in sticky, false);
   assert.equal(sticky.subtasks[0].status, 'done');
   assert.deepEqual(sticky.crop, {x: 20, y: 80, scale: 1.5});
   assert.equal(sticky.annotation, '<note>');
