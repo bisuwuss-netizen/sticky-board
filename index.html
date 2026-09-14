@@ -269,10 +269,38 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 .zoom button:hover{background:#f1ede2}
 .hint{
   position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:45;
-  background:rgba(35,39,47,.86);color:#fff;font-size:12px;padding:8px 14px;border-radius:999px;
-  white-space:nowrap;
+  background:rgba(35,39,47,.86);color:#fff;font-size:12px;padding:8px 34px 8px 14px;border-radius:999px;
+  white-space:nowrap;display:none;
 }
+.hint.show{display:block}
 .hint b{color:#fde68a}
+#hintClose{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#fff;
+  font-size:14px;cursor:pointer;opacity:.7;padding:2px 5px}
+#hintClose:hover{opacity:1}
+#helpBtn{
+  position:fixed;right:16px;bottom:16px;z-index:55;width:34px;height:34px;border-radius:50%;
+  border:1px solid rgba(35,39,47,.2);background:rgba(255,255,255,.94);box-shadow:var(--shadow);
+  cursor:pointer;font-weight:700;font-size:15px;color:var(--ink);
+}
+#helpBtn:hover{background:#f3eee1}
+.pop{
+  position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:75;display:none;
+  background:rgba(255,253,246,.98);border:1px solid rgba(35,39,47,.2);border-radius:12px;
+  box-shadow:var(--shadow-lg);padding:10px;gap:6px;
+}
+.pop.open{display:grid}
+#toolPop{grid-auto-flow:column;align-items:center}
+#toolPop #toolGroup{border-left:0;padding-left:0}
+#filterPop label{font-size:11px;color:var(--muted);display:grid;gap:3px}
+#filterPop select{border:1px solid rgba(35,39,47,.2);border-radius:8px;padding:7px 6px;background:#fff;font:12px inherit;min-width:150px}
+#filterBtn.on{background:#23272f;color:#fff}
+#moreMenu{min-width:150px}
+#moreMenu .toolBtn{text-align:left;border-color:transparent}
+#moreMenu .toolBtn:hover{border-color:rgba(35,39,47,.25)}
+.ins-more{display:grid;gap:7px}
+.ins-more-btn{padding:6px;border:1px dashed rgba(35,39,47,.35);border-radius:7px;background:transparent;
+  cursor:pointer;font-size:11px;color:var(--muted)}
+.ins-more-btn:hover{background:#f3eee1}
 #empty{
   position:fixed;inset:0;display:none;place-items:center;pointer-events:none;z-index:5;
   font-family:"Caveat",cursive;font-size:34px;color:#a8a29e;transform:rotate(-3deg);
@@ -295,7 +323,7 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
   <div class="sub">便利贴白板 · 自动保存到本地</div>
   <div id="boardList"></div>
   <button id="newBoard">+ 新画板</button>
-  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.11 · 工作台版</span></div>
+  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.12 · 专注今天</span></div>
 </aside>
 <button id="sideTab" title="展开侧栏">›</button>
 
@@ -303,21 +331,33 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
   <button id="addBtn">+ 便利贴</button>
   <button id="imgBtn">+ 图片</button>
   <input type="file" id="imgPick" accept="image/*">
- <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
- <button class="toolBtn" data-action="export" title="导出全部画板">导出</button>
-  <button class="toolBtn" data-action="import" title="导入 JSON 数据">导入</button>
-  <button class="toolBtn" data-action="trash" title="回收站">回收站</button>
+  <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
+  <button class="toolBtn" id="toolBtn" title="绘图与排列工具">工具 ▾</button>
+  <select id="viewMode" title="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
+  <button class="toolBtn" id="filterBtn" title="按状态 / 优先级 / 标签筛选">筛选 ▾</button>
+  <button class="toolBtn" id="moreBtn" title="计划、目标、数据与帮助">⋯</button>
   <input type="file" id="importPick" accept="application/json,.json">
+  <span class="bname" id="boardName"></span>
+  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
+</div>
+<div id="toolPop" class="pop">
   <div id="toolGroup"><button class="toolBtn" data-tool="line" title="连接线（箭头在属性面板开关）">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button></div>
   <button class="toolBtn" data-op="select" title="框选多选">框选</button>
   <select id="alignPick" title="对齐与分布"><option value="">对齐 · 分布</option><option value="left">左对齐</option><option value="right">右对齐</option><option value="centerX">横居中</option><option value="top">顶对齐</option><option value="bottom">底对齐</option><option value="centerY">纵居中</option><option value="distX">横向分布</option><option value="distY">纵向分布</option></select>
-  <button class="toolBtn" data-action="planning" title="计划与复盘">计划</button><button class="toolBtn" data-action="goals" title="目标层级">目标</button>
-  <select id="viewMode" title="视图"><option value="board">画布</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
-  <select id="statusFilter" title="状态"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select>
-  <select id="priorityFilter" title="优先级"><option value="all">全部优先级</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
-  <select id="tagFilter" title="标签"><option value="all">所有标签</option></select>
-  <span class="bname" id="boardName"></span>
-  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
+</div>
+<div id="filterPop" class="pop">
+  <label>状态<select id="statusFilter"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label>
+  <label>优先级<select id="priorityFilter"><option value="all">全部优先级</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></label>
+  <label>标签<select id="tagFilter"><option value="all">所有标签</option></select></label>
+  <button class="toolBtn" id="filterClear">清除筛选</button>
+</div>
+<div id="moreMenu" class="pop">
+  <button class="toolBtn" data-action="planning">计划与复盘</button>
+  <button class="toolBtn" data-action="goals">目标层级</button>
+  <button class="toolBtn" data-action="trash">回收站</button>
+  <button class="toolBtn" data-action="export">导出备份</button>
+  <button class="toolBtn" data-action="import">导入数据</button>
+  <button class="toolBtn" data-action="help">快捷键帮助</button>
 </div>
 <div id="palette"></div>
 <div id="islandWrap"><div id="island"><div class="island-inner">
@@ -328,12 +368,13 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 
 <div id="viewport"><div id="world"></div></div>
 <section id="overview"></section>
-<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>移动到画板<select id="insMoveBoard"><option value="">—</option></select></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
 <div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
-<div class="hint">拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具</div>
+<div class="hint" id="hint"><button id="hintClose" title="关闭">×</button>拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具 / 关闭面板</div>
+<button id="helpBtn" title="快捷键帮助">?</button>
 <script>
 "use strict";
 const KEY = "stickyboards-v1";
@@ -761,6 +802,11 @@ function readSubtasks() {
     status: row.querySelector("select")?.value || "backlog",
   })).filter(task => task.title);
 }
+let insMoreOpen = false; // 渐进披露：记住用户是否展开过高级属性
+function syncInsMore() {
+  document.getElementById("insMore").style.display = insMoreOpen ? "grid" : "none";
+  document.getElementById("insMoreBtn").textContent = insMoreOpen ? "收起属性 ▾" : "更多属性 ▸";
+}
 function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "none"
   const box = document.getElementById("inspector");
   box.style.display = mode === "none" ? "none" : "block";
@@ -774,8 +820,8 @@ function openInspector(st) {
   const box = document.getElementById("inspector"); box.dataset.id = st.id;
   setInspectorMode("sticky");
   insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", ");
-  insMoveBoard.innerHTML = '<option value="">—</option>' + S.boards.filter(b => b.id !== S.activeId).map(b => '<option value="' + escapeRich(b.id) + '">' + escapeRich(b.name) + '</option>').join("");
   insGoal.innerHTML = '<option value="">无</option>' + (S.goals || []).map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join(""); insGoal.value = st.goalId || ""; insLocked.checked = !!st.locked;
+  syncInsMore();
   renderSubtaskEditor(st); imageActions.classList.toggle("open", st.kind === "img");
   if (st.kind === "img") { const crop = st.crop || {x:50,y:50,scale:1}; imgCropX.value = crop.x; imgCropY.value = crop.y; imgCropScale.value = crop.scale; imgAnnotation.value = st.annotation || ""; }
 }
@@ -906,10 +952,45 @@ function jumpToSticky(boardId, stickyId) {
   if (st) { centerOnSticky(st); selectSticky(st, false); }
   document.getElementById("overview").classList.remove("open");
 }
+function renderToday() { // 「今天」页：到期/逾期 + 进行中 + 习惯打卡 + 今日计划，一个入口开始一天
+  const overview = document.getElementById("overview"), today = dateKey();
+  const rows = allStickies().filter(x => !x.sticky.trashed);
+  const dueRows = rows.filter(x => x.sticky.due && x.sticky.due <= today && x.sticky.status !== "done").sort((a, b) => a.sticky.due.localeCompare(b.sticky.due));
+  const doing = rows.filter(x => x.sticky.status === "doing");
+  const p = S.plans || {daily: "", habitDates: []};
+  const habitDone = (p.habitDates || []).includes(today);
+  const dueItem = x => {
+    const overdue = x.sticky.due < today;
+    return '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.title || "未命名") + '</b><small> · ' + escapeRich(x.board.name) + (overdue ? ' · <span style="color:#b42318">逾期 ' + escapeRich(x.sticky.due) + '</span>' : ' · 今日到期') + '</small> <button data-done="' + escapeRich(x.board.id) + '|' + escapeRich(x.sticky.id) + '">完成</button></div>';
+  };
+  const doingItem = x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.title || "未命名") + '</b><small> · ' + escapeRich(x.board.name) + (x.sticky.due ? ' · 截止 ' + escapeRich(x.sticky.due) : "") + '</small></div>';
+  overview.dataset.mode = "today";
+  overview.innerHTML = '<h2>今天 · ' + today + '</h2>'
+    + '<div class="ov-grid">'
+    + '<div class="ov-card"><h3>到期 / 逾期</h3><strong>' + dueRows.length + '</strong></div>'
+    + '<div class="ov-card"><h3>进行中</h3><strong>' + doing.length + '</strong></div>'
+    + '<div class="ov-card"><h3>习惯 streak</h3><strong>' + streakCount(p.habitDates) + ' 天</strong></div>'
+    + '</div>'
+    + '<div class="ins-actions"><button id="todayHabit">' + (habitDone ? "今日习惯已打卡 ✓" : "完成今日习惯") + '</button></div>'
+    + '<h3>今日到期与逾期</h3><div class="ov-list">' + (dueRows.length ? dueRows.map(dueItem).join("") : '<p class="muted">今天没有到期任务，去画布上挑一张开始吧。</p>') + '</div>'
+    + '<h3>进行中</h3><div class="ov-list">' + (doing.length ? doing.map(doingItem).join("") : '<p class="muted">没有进行中的任务。</p>') + '</div>'
+    + '<h3>今日计划</h3><textarea id="todayPlan" placeholder="今天最重要的三件事…" style="width:100%;min-height:90px;padding:9px;border:1px solid #ccd1d8;border-radius:8px;font:12px inherit;box-sizing:border-box">' + escapeRich(p.daily || "") + '</textarea>'
+    + '<div class="ins-actions"><button id="todaySave">保存今日计划</button></div>';
+  overview.classList.add("open");
+  overview.querySelectorAll(".ov-item[data-sticky]").forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
+  overview.querySelectorAll("[data-done]").forEach(btn => btn.onclick = e => {
+    e.stopPropagation();
+    const parts = btn.dataset.done.split("|"), b = S.boards.find(x => x.id === parts[0]), st = b && b.stickies.find(x => x.id === parts[1]);
+    if (st) { st.status = "done"; save(); renderAll(); renderToday(); showToast("已完成「" + (st.title || "未命名") + "」"); }
+  });
+  document.getElementById("todayHabit").onclick = () => { S.plans = S.plans || p; S.plans.habitDates = [...new Set([...(S.plans.habitDates || []), today])].slice(-365); save(); renderToday(); };
+  document.getElementById("todaySave").onclick = () => { S.plans = S.plans || p; S.plans.daily = document.getElementById("todayPlan").value; save(); showToast("今日计划已保存"); };
+}
 function openOverview(mode) {
   const overview = document.getElementById("overview");
   if (mode === "board") { overview.dataset.mode = "board"; overview.classList.remove("open"); return; }
   if (mode === "search") { renderSearchResults(document.getElementById("searchBox").value); return; }
+  if (mode === "today") { renderToday(); return; }
   const status = document.getElementById("statusFilter")?.value || "all", priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
   const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed && (status === "all" || x.sticky.status === status) && (priority === "all" || x.sticky.priority === priority) && (tag === "all" || (x.sticky.tags || []).includes(tag)));
   if (mode === "trash") {
@@ -1207,13 +1288,25 @@ document.getElementById("addBtn").onclick = e => {
   palette.classList.toggle("open");
 };
 document.getElementById("searchBox").oninput = () => { renderAll(); renderSearchResults(document.getElementById("searchBox").value); };
-document.getElementById("statusFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
-document.getElementById("priorityFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
-document.getElementById("tagFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
+function syncFilterBtn() { // 任一筛选生效时高亮「筛选」按钮，避免藏在弹出层里看不见状态
+  const on = ["statusFilter", "priorityFilter", "tagFilter"].some(id => (document.getElementById(id)?.value || "all") !== "all");
+  document.getElementById("filterBtn").classList.toggle("on", on);
+}
+const onFilterChange = () => { renderAll(); syncFilterBtn(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
+document.getElementById("statusFilter").onchange = onFilterChange;
+document.getElementById("priorityFilter").onchange = onFilterChange;
+document.getElementById("tagFilter").onchange = onFilterChange;
+document.getElementById("filterClear").onclick = () => { ["statusFilter", "priorityFilter", "tagFilter"].forEach(id => document.getElementById(id).value = "all"); onFilterChange(); };
 document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
+/* ---- 弹出层：工具 / 筛选 / 更多，同一时刻只开一个 ---- */
+function closePops(except) { ["toolPop", "filterPop", "moreMenu"].forEach(id => { if (id !== except) document.getElementById(id).classList.remove("open"); }); }
+function togglePop(id) { const p = document.getElementById(id), was = p.classList.contains("open"); closePops(); p.classList.toggle("open", !was); }
+document.getElementById("toolBtn").onclick = e => { e.stopPropagation(); togglePop("toolPop"); };
+document.getElementById("filterBtn").onclick = e => { e.stopPropagation(); togglePop("filterPop"); };
+document.getElementById("moreBtn").onclick = e => { e.stopPropagation(); togglePop("moreMenu"); };
 const importPick = document.getElementById("importPick");
-const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insMoveBoard = document.getElementById("insMoveBoard"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), insGoal = document.getElementById("insGoal"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), elmArrow = document.getElementById("elmArrow"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
-insMoveBoard.onchange = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id), target = S.boards.find(b => b.id === insMoveBoard.value); if (!st || !target) return; board().stickies = board().stickies.filter(x => x.id !== id); target.stickies.push(st); selectedIds.clear(); save(); renderBoards(); renderAll(); setInspectorMode("none"); showToast("已移到「" + target.name + "」"); };
+const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), insGoal = document.getElementById("insGoal"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), elmArrow = document.getElementById("elmArrow"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
+document.getElementById("insMoreBtn").onclick = () => { insMoreOpen = !insMoreOpen; syncInsMore(); };
 elmText.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.text = elmText.value.trim().slice(0, 200); save(); renderAll(); };
 elmColor.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.color = elmColor.value; save(); renderAll(); };
 elmArrow.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm || elm.type !== "connector") return; elm.arrow = elmArrow.checked; save(); renderAll(); };
@@ -1240,10 +1333,12 @@ document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { ac
 document.querySelectorAll('[data-op="select"]').forEach(btn => btn.onclick = () => { selectionMode = !selectionMode; btn.classList.toggle("active", selectionMode); });
 document.getElementById("alignPick").onchange = e => { if (!e.target.value) return; arrangeSelected(e.target.value); e.target.value = ""; };
 document.querySelectorAll(".toolBtn[data-action]").forEach(btn => btn.onclick = () => {
+  closePops();
   if (btn.dataset.action === "trash") { openOverview("trash"); return; }
   if (btn.dataset.action === "planning") { openPlanning(); return; }
   if (btn.dataset.action === "goals") { openGoals(); return; }
   if (btn.dataset.action === "import") { importPick.value = ""; importPick.click(); return; }
+  if (btn.dataset.action === "help") { toggleHelp(true); return; }
   const blob = new Blob([JSON.stringify(S, null, 2)], {type: "application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url; a.download = "sticky-board-backup.json"; a.click();
@@ -1330,6 +1425,7 @@ function addImage(dataUrl, name) {
 }
 document.addEventListener("pointerdown", e => {
   if (!e.target.closest("#palette,#addBtn")) palette.classList.remove("open");
+  if (!e.target.closest(".pop,#toolBtn,#filterBtn,#moreBtn")) closePops();
 });
 /* ---- dynamic-island new-board dialog ---- */
 const islandWrap = document.getElementById("islandWrap");
@@ -1435,7 +1531,7 @@ function nudgeSelected(dx, dy) {
 }
 document.addEventListener("keydown", e => {
   const inInput = e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
-  if (e.key === "Escape") { palette.classList.remove("open"); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); }
+  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); }
   if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !inInput) { e.preventDefault(); undo(); }
   if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "z" || (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") && !inInput) { e.preventDefault(); redo(); }
@@ -1445,14 +1541,15 @@ document.addEventListener("keydown", e => {
 });
 /* ---- sidebar collapse (persisted) ---- */
 const UIKEY = "stickyboard-ui-v1";
-let ui = {collapsed: false};
+let ui = {collapsed: false, hintBoots: 0};
 try {
   const u = JSON.parse(localStorage.getItem(UIKEY));
-  if (u && typeof u.collapsed === "boolean") ui = u;
+  if (u && typeof u === "object") ui = {collapsed: !!u.collapsed, hintBoots: Number(u.hintBoots) || 0};
 } catch (e) {}
+function persistUi() { try { localStorage.setItem(UIKEY, JSON.stringify(ui)); } catch (e) {} }
 function applySide() {
   document.body.classList.toggle("side-hidden", ui.collapsed);
-  try { localStorage.setItem(UIKEY, JSON.stringify(ui)); } catch (e) {}
+  persistUi();
 }
 document.getElementById("collapseBtn").onclick = e => {
   e.stopPropagation(); ui.collapsed = true; applySide();
@@ -1460,6 +1557,15 @@ document.getElementById("collapseBtn").onclick = e => {
 document.getElementById("sideTab").onclick = () => {
   ui.collapsed = false; applySide();
 };
+/* ---- 快捷键帮助：? 按钮常驻，前 3 次启动自动展示 ---- */
+function toggleHelp(show) {
+  const hint = document.getElementById("hint");
+  const open = typeof show === "boolean" ? show : !hint.classList.contains("show");
+  hint.classList.toggle("show", open);
+}
+document.getElementById("helpBtn").onclick = () => toggleHelp();
+document.getElementById("hintClose").onclick = () => toggleHelp(false);
+if (ui.hintBoots < 3) { ui.hintBoots += 1; persistUi(); toggleHelp(true); }
 /* ---- init ---- */
 if (!board().view) board().view = {x: 0, y: 0, k: 1};
 applySide();
