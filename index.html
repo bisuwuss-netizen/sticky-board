@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>便利贴白板</title>
+<title>The Journey · 便利贴白板</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -104,6 +104,15 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .goal-head{display:flex;align-items:center;gap:5px;margin-bottom:7px}.goal-head input{flex:1;font-weight:700}.goal-head select{width:auto;padding:5px}.goal label{display:block;margin-top:7px}.goal textarea{width:100%;box-sizing:border-box;resize:vertical;padding:6px;border:1px solid #ccd1d8;border-radius:6px;font:11px inherit}.goal [data-goal-save]{margin-top:7px;padding:6px 9px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}
 .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));gap:5px}.cal-weekday{text-align:center;font-size:11px;color:var(--muted);padding:5px}.cal-cell{min-height:82px;border:1px solid #ddd;border-radius:7px;background:#fff;padding:6px}.cal-cell.muted{background:transparent;border-color:transparent}.cal-task{display:block;width:100%;margin-top:5px;padding:4px;border:0;border-radius:5px;background:#e9f0ff;color:#1d4ed8;text-align:left;font-size:10px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .muted{color:var(--muted);font-size:11px}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(170px,1fr));gap:10px;align-items:start}
+.kan-col{background:rgba(35,39,47,.055);border-radius:10px;padding:8px;min-height:220px}
+.kan-col.over{outline:2px dashed #2563eb;outline-offset:-2px}
+.kan-col h4{margin:2px 2px 8px;font-size:12px;color:var(--muted)}
+.kan-card{border-radius:8px;padding:8px 9px;margin-bottom:6px;font-size:12px;font-weight:600;cursor:grab;border:1px solid rgba(35,39,47,.15)}
+.kan-card small{display:block;font-weight:400;color:rgba(35,39,47,.6);margin-top:2px}
+.goal-tree-child{border-left:2px solid rgba(35,39,47,.18);margin-left:10px;padding-left:10px}
+.shape-label{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:600;padding:6px;text-align:center;pointer-events:none;overflow:hidden}
+.cal-toggle{display:flex;gap:6px;margin:0 0 10px}.cal-toggle button{border:1px solid #ccd1d8;border-radius:7px;background:#fff;padding:6px 12px;cursor:pointer;font-size:12px}.cal-toggle button.on{background:#23272f;color:#fff}
 .frame{position:relative;overflow:hidden}.frame img{object-fit:cover;transform-origin:center}.image-annotation{position:absolute;left:10px;right:10px;bottom:8px;padding:4px 7px;border-radius:5px;background:rgba(255,255,255,.78);font-size:11px;pointer-events:none}
 #mediaPreview{position:fixed;inset:0;z-index:120;background:rgba(20,24,30,.82);display:none;place-items:center;padding:30px}#mediaPreview.open{display:grid}#mediaPreview img{max-width:90vw;max-height:88vh;object-fit:contain}#mediaPreview button{position:absolute;top:20px;right:24px;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
 .img-actions{display:none}.img-actions.open{display:grid;gap:6px}.img-actions button{padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}.img-actions input{width:100%;padding:6px}
@@ -120,10 +129,14 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .sticky.search-miss{display:none}
 .meta{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0;font-size:10px;color:rgba(35,39,47,.72)}
 .meta span{padding:2px 6px;border:1px solid rgba(35,39,47,.2);border-radius:999px;background:rgba(255,255,255,.3)}
-.meta .urgent,.meta .high{background:#ffd6d6;border-color:#d66}.meta .done{background:#d8f5df}.meta .blocked{background:#ffe9bd}
+.meta .urgent,.meta .high{background:#ffd6d6;border-color:#d66}.meta .done{background:#d8f5df}.meta .blocked{background:#ffe9bd}.meta .next{background:#dbeafe}.meta .doing{background:#fef3c7}
+::selection{background:rgba(255,243,163,.85)} /* 便利贴黄作为选区色，呼应主视觉 */
+button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[contenteditable=true]:focus-visible{outline:2.5px solid #2563eb;outline-offset:2px}
 #viewMode,#statusFilter,#priorityFilter,#tagFilter{border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 6px;background:#fff;font:12px inherit}
 #overview{position:fixed;inset:90px 24px 24px 280px;z-index:40;background:rgba(255,253,246,.97);border:1px solid rgba(35,39,47,.2);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px;overflow:auto;display:none}
-#overview.open{display:block}.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.ov-card{border:1px solid rgba(35,39,47,.15);border-radius:8px;padding:14px;background:#fff}.ov-card h3{margin:0 0 8px;font-size:14px}.ov-card strong{font-size:28px}.ov-list{display:grid;gap:6px}.ov-item{padding:8px;border-bottom:1px solid #eee;cursor:pointer}
+#overview.open{display:block}.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.ov-card{border:1px solid rgba(35,39,47,.15);border-radius:8px;padding:14px;background:#fff}.ov-card h3{margin:0 0 8px;font-size:14px}.ov-card strong{font-size:28px}.ov-list{display:grid;gap:6px}.ov-item{padding:8px;border-bottom:1px solid #eee;cursor:pointer;border-radius:7px;transition:background .12s}
+.ov-item:hover{background:rgba(37,99,235,.07)}
+.cal-task:hover{filter:brightness(.94)}
 #addBtn{
   border:0;border-radius:10px;background:#23272f;color:#fff;font-weight:700;
   font-size:13px;padding:9px 16px;cursor:pointer;white-space:nowrap;
@@ -156,9 +169,9 @@ body.side-hidden #sideTab{transform:translateX(0)}
   box-shadow:0 10px 18px -10px rgba(35,39,47,.35);
   border:1px solid rgba(35,39,47,.12);cursor:grab;
 }
-.sticky.sel{box-shadow:0 22px 36px -12px rgba(35,39,47,.45);z-index:50;
+.sticky.sel{box-shadow:0 22px 36px -12px rgba(35,39,47,.45);z-index:50 !important;
   transform:rotate(var(--rot,0deg)) scale(1.03)}
-.sticky.drag{cursor:grabbing;box-shadow:0 28px 44px -14px rgba(35,39,47,.5);z-index:100}
+.sticky.drag{cursor:grabbing;box-shadow:0 28px 44px -14px rgba(35,39,47,.5);z-index:100 !important}
 .sticky::before{
   content:"";position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-3deg);
   width:74px;height:24px;background:rgba(255,255,255,.62);
@@ -299,7 +312,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
   <div id="toolGroup"><button class="toolBtn" data-tool="arrow" title="箭头">↗</button><button class="toolBtn" data-tool="line" title="连接线">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button><button class="toolBtn" data-tool="draw" title="手绘">✎</button><button class="toolBtn" data-tool="table" title="表格">▦</button></div>
   <div id="arrangeGroup"><button class="arrangeBtn" data-op="select">框选</button><button class="arrangeBtn" data-op="left">左对齐</button><button class="arrangeBtn" data-op="right">右对齐</button><button class="arrangeBtn" data-op="centerX">横居中</button><button class="arrangeBtn" data-op="top">顶对齐</button><button class="arrangeBtn" data-op="bottom">底对齐</button><button class="arrangeBtn" data-op="centerY">纵居中</button><button class="arrangeBtn" data-op="distX">横向分布</button><button class="arrangeBtn" data-op="distY">纵向分布</button></div>
   <button class="toolBtn" data-action="planning" title="计划与复盘">计划</button><button class="toolBtn" data-action="goals" title="目标层级">目标</button>
-  <select id="viewMode" title="视图"><option value="board">看板</option><option value="timeline">时间线</option><option value="calendar">日历</option><option value="stats">统计</option></select>
+  <select id="viewMode" title="视图"><option value="board">画布</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
   <select id="statusFilter" title="状态"><option value="all">全部状态</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select>
   <select id="priorityFilter" title="优先级"><option value="all">全部优先级</option><option value="urgent">紧急</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
   <select id="tagFilter" title="标签"><option value="all">所有标签</option></select>
@@ -315,18 +328,19 @@ body.side-hidden #sideTab{transform:translateX(0)}
 
 <div id="viewport"><div id="world"></div></div>
 <section id="overview"></section>
-<aside id="inspector"><div class="ins-title">属性</div><div class="ins-grid"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>重复<select id="insRecurrence"><option value="none">不重复</option><option value="daily">每天</option><option value="weekly">每周</option><option value="monthly">每月</option></select></label><label>提醒<input id="insReminder" type="time"></label><label>父任务 ID<input id="insParent" list="parentOptions" placeholder="可选"><datalist id="parentOptions"></datalist></label><label>依赖任务<div id="dependencyEditor" class="dependency-editor"></div><input id="insDeps" type="hidden"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div><textarea id="insSubs" rows="3" hidden></textarea></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="urgent">紧急</option></select></label><label>截止日期<input id="insDue" type="date"></label><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>重复<select id="insRecurrence"><option value="none">不重复</option><option value="daily">每天</option><option value="weekly">每周</option><option value="monthly">每月</option></select></label><label>提醒<input id="insReminder" type="time"></label><label>移动到画板<select id="insMoveBoard"><option value="">—</option></select></label><label>依赖任务<div id="dependencyEditor" class="dependency-editor"></div><input id="insDeps" type="hidden"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label>文字<input id="elmText" placeholder="图形上的文字"></label><label>填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
 <div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
-<div class="hint">拖背景平移 · 滚轮缩放 · 拖便利贴移动 · <b>双击改字</b> · 右下角旋转 · 图片左下角缩放</div>
+<div class="hint">拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具</div>
 <script>
 "use strict";
 const KEY = "stickyboards-v1";
 const COLORS = ["yellow", "blue", "pink", "green", "purple", "cyan"];
 const BOARD = {width: 2400, height: 1600};
 const CNAMES = {yellow:"黄", blue:"蓝", pink:"粉", green:"绿", purple:"紫", cyan:"青", white:"白"};
+const STATUS_LABELS = {backlog:"待办", next:"下一步", doing:"进行中", blocked:"阻塞", done:"完成"}; // 全站统一中文，避免与看板/筛选器双语混杂
 const KINDS = [
   {k:"note",  label:"文本贴", tip:"标题 + 短句"},
   {k:"todo",  label:"清单贴", tip:"可勾选事项"},
@@ -342,7 +356,7 @@ function mkSticky(color, kind, x, y, title, body, items) {
 }
 function seed() {
   const welcome = {id: uid(), name: "欢迎使用",
-    view: {x: 300, y: 60, k: 1}, stickies: [
+    view: {x: 0, y: 0, k: 1}, stickies: [
     mkSticky("yellow", "title", 60, 80, "欢迎来到便利贴白板"),
     mkSticky("blue", "note", 340, 100, "三步上手",
       "1. 点顶部 + 便利贴挑选组件\n2. 双击文字直接改\n3. 拖背景平移、滚轮缩放"),
@@ -367,12 +381,13 @@ function seed() {
       "“7 天上线 AI 客服”代替按小时报价。", 1410],
   ];
   const journey = {id: uid(), name: "成长旅程 · 模板",
-    view: {x: 300, y: 40, k: 0.9}, stickies: T.map((r, i) =>
+    view: {x: 0, y: 0, k: 0.9}, stickies: T.map((r, i) =>
     mkSticky(r[0], r[1], r[4], i % 2 ? 330 : 80, r[2], r[3])), elements: []};
-  return {v: 1, activeId: welcome.id, boards: [welcome, journey]};
+  return {v: 1, activeId: welcome.id, boards: [welcome, journey], plans: {daily: "", weekly: "", review: "", habitDates: []}, goals: [], activity: []};
 }
 let mem = null;
 let history = [];
+let redoStack = [];
 let historyBusy = false;
 function normalizeState(input) {
   const raw = input && typeof input === "object" ? input : {};
@@ -380,13 +395,13 @@ function normalizeState(input) {
   boards = boards.map(b => ({
     id: String(b.id || uid()),
     name: String(b.name || "未命名画板").trim().slice(0, 24) || "未命名画板",
-    view: { x: Number(b.view?.x) || 300, y: Number(b.view?.y) || 80, k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)) },
+    view: { x: Number.isFinite(Number(b.view?.x)) ? Number(b.view.x) : 0, y: Number.isFinite(Number(b.view?.y)) ? Number(b.view.y) : 0, k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)) },
     stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(st => ({ ...st, id: String(st.id || uid()), kind: ["note","todo","title","img"].includes(st.kind) ? st.kind : "note", color: ["yellow","blue","pink","green","purple","cyan","white"].includes(st.color) ? st.color : "yellow", x: Math.min(BOARD.width - 40, Math.max(0, Number(st.x) || 0)), y: Math.min(BOARD.height - 40, Math.max(0, Number(st.y) || 0)), rot: Number(st.rot) || 0, title: String(st.title || "").slice(0, 500), body: String(st.body || "").slice(0, 10000), items: Array.isArray(st.items) ? st.items : [] })) : []
   }));
-  if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 300, y: 80, k: 1 }, stickies: [], elements: [] }];
+  if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 0, y: 0, k: 1 }, stickies: [], elements: [] }];
   boards.forEach(b => {
-    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => { const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120)), h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80)); return {...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Math.min(BOARD.width - w, Math.max(0, Number(elm.x)||0)), y:Math.min(BOARD.height - h, Math.max(0, Number(elm.y)||0)), w, h, locked:!!elm.locked, z:Number(elm.z)||0}; }) : [];
-    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; st.priority = ["none","low","medium","high","urgent"].includes(st.priority) ? st.priority : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.recurrence = ["none","daily","weekly","monthly"].includes(st.recurrence) ? st.recurrence : "none"; st.recurringCreatedFor = typeof st.recurringCreatedFor === "string" ? st.recurringCreatedFor : ""; st.reminder = typeof st.reminder === "string" ? st.reminder : ""; st.parentId = typeof st.parentId === "string" ? st.parentId : ""; st.dependencies = Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string") : []; st.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string" ? {id:uid(), title:x, status:"backlog"} : {...x, id:String(x.id || uid()), title:String(x.title || x.t || ""), status:["backlog","doing","done"].includes(x.status) ? x.status : "backlog"}) : []; st.goalId = typeof st.goalId === "string" ? st.goalId : ""; st.crop = st.crop && typeof st.crop === "object" ? {x:Number(st.crop.x) || 50, y:Number(st.crop.y) || 50, scale:Math.max(1, Number(st.crop.scale) || 1)} : {x:50,y:50,scale:1}; st.annotation = typeof st.annotation === "string" ? st.annotation : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
+    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => { const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120)), h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80)); return {...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Math.min(BOARD.width - w, Math.max(0, Number(elm.x)||0)), y:Math.min(BOARD.height - h, Math.max(0, Number(elm.y)||0)), w, h, locked:!!elm.locked, trashed:!!elm.trashed, z:Number(elm.z)||0}; }) : [];
+    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; st.priority = ["none","low","medium","high","urgent"].includes(st.priority) ? st.priority : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.recurrence = ["none","daily","weekly","monthly"].includes(st.recurrence) ? st.recurrence : "none"; st.recurringCreatedFor = typeof st.recurringCreatedFor === "string" ? st.recurringCreatedFor : ""; st.reminder = typeof st.reminder === "string" ? st.reminder : ""; st.dependencies = Array.isArray(st.dependencies) ? st.dependencies.filter(x => typeof x === "string") : []; st.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string" ? {id:uid(), title:x, status:"backlog"} : {...x, id:String(x.id || uid()), title:String(x.title || x.t || ""), status:["backlog","doing","done"].includes(x.status) ? x.status : "backlog"}) : []; st.goalId = typeof st.goalId === "string" ? st.goalId : ""; st.crop = st.crop && typeof st.crop === "object" ? {x:Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y:Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale:Math.max(1, Number(st.crop.scale) || 1)} : {x:50,y:50,scale:1}; st.annotation = typeof st.annotation === "string" ? st.annotation : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
   });
   const plans = raw.plans && typeof raw.plans === "object" ? {daily:String(raw.plans.daily || ""), weekly:String(raw.plans.weekly || ""), review:String(raw.plans.review || ""), habitDates:Array.isArray(raw.plans.habitDates) ? raw.plans.habitDates.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-365) : []} : {daily:"", weekly:"", review:"", habitDates:[]};
   const goals = Array.isArray(raw.goals) ? raw.goals.filter(Boolean).map(g => ({id:String(g.id || uid()), title:String(g.title || "未命名目标").slice(0,120), type:["goal","stage","milestone"].includes(g.type) ? g.type : "goal", parentId:typeof g.parentId === "string" ? g.parentId : "", playbook:String(g.playbook || ""), reviewTemplate:String(g.reviewTemplate || ""), status:["backlog","doing","done"].includes(g.status) ? g.status : "backlog"})) : [];
@@ -449,10 +464,12 @@ function load() {
 let S = load();
 mem = S;
 let quotaWarned = false;
+let lastSnapshot = null; // 上一次落盘的快照；history 存"修改前"状态，撤销才有意义
 function save() {
-  if (!historyBusy && mem) { history.push(JSON.stringify(mem)); if (history.length > 50) history.shift(); }
+  if (!historyBusy && lastSnapshot != null) { history.push(lastSnapshot); if (history.length > 50) history.shift(); redoStack = []; }
   recordActivity(); mem = S;
-  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  lastSnapshot = JSON.stringify(S);
+  try { localStorage.setItem(KEY, lastSnapshot); }
   catch (e) {
     if (!quotaWarned) {
       quotaWarned = true;
@@ -460,12 +477,33 @@ function save() {
     }
   }
   try { localStorage.setItem(KEY + "-backup", JSON.stringify({savedAt: new Date().toISOString(), state: S})); } catch (e) {}
+  backupToDiskSoon();
+}
+let backupTimer = null;
+function backupToDiskSoon() { // 桌面壳内：防抖 3 秒，让原生层写文件级备份
+  const handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.backup;
+  if (!handler) return;
+  clearTimeout(backupTimer);
+  backupTimer = setTimeout(() => { try { handler.postMessage(JSON.stringify(S)); } catch (e) {} }, 3000);
+}
+function restoreSnapshot(raw) {
+  S = normalizeState(JSON.parse(raw)); mem = S;
+  lastSnapshot = JSON.stringify(S);
+  localStorage.setItem(KEY, lastSnapshot);
+  selectedIds.clear(); selectedElementIds.clear();
+  renderBoards(); renderAll();
 }
 function undo() {
   const raw = history.pop();
   if (!raw) return;
-  try { historyBusy = true; S = normalizeState(JSON.parse(raw)); mem = S; localStorage.setItem(KEY, JSON.stringify(S)); renderBoards(); renderAll(); } catch (e) {} finally { historyBusy = false; }
+  try { historyBusy = true; redoStack.push(lastSnapshot); if (redoStack.length > 50) redoStack.shift(); restoreSnapshot(raw); } catch (e) {} finally { historyBusy = false; }
 }
+function redo() {
+  const raw = redoStack.pop();
+  if (!raw) return;
+  try { historyBusy = true; history.push(lastSnapshot); if (history.length > 50) history.shift(); restoreSnapshot(raw); } catch (e) {} finally { historyBusy = false; }
+}
+lastSnapshot = JSON.stringify(S);
 function board() { return S.boards.find(b => b.id === S.activeId) || S.boards[0]; }
 const viewport = document.getElementById("viewport");
 const world = document.getElementById("world");
@@ -492,7 +530,7 @@ function renderBoards() {
   S.boards.forEach(b => {
     const d = el("div", "board" + (b.id === S.activeId ? " active" : ""));
     d.appendChild(el("span", "nm", b.name));
-    d.appendChild(el("span", "ct", String(b.stickies.length)));
+    d.appendChild(el("span", "ct", String(b.stickies.filter(s => !s.trashed).length)));
     const rn = el("button", "bx", "✎");
     rn.title = "重命名画板";
     rn.onclick = e => { e.stopPropagation(); renameBoard(b); };
@@ -501,7 +539,7 @@ function renderBoards() {
     x.title = "删除画板";
     x.onclick = e => {
       e.stopPropagation();
-      if (b.stickies.length && !confirm(`删除画板「${b.name}」？里面 ${b.stickies.length} 张便利贴会一起删掉。`)) return;
+      if (b.stickies.length && !confirm(`删除画板「${b.name}」？其中 ${b.stickies.filter(s => !s.trashed).length} 张便利贴（含回收站内容）会一起删掉。`)) return;
       if (S.boards.length === 1) { alert("至少保留一张画板"); return; }
       S.boards = S.boards.filter(o => o.id !== b.id);
       if (S.activeId === b.id) S.activeId = S.boards[0].id;
@@ -536,7 +574,7 @@ function todoRow(st, it) {
 function stickyNode(st) {
   const a = el("article", `sticky b-${st.color}` + (st.kind === "title" ? " titlekind" : st.kind === "img" ? " imgkind" : ""));
   a.dataset.id = st.id;
-  a.style.zIndex = st.z || 1;
+  a.style.zIndex = st.z ?? 1;
   a.style.left = st.x + "px"; a.style.top = st.y + "px";
   if (st.w) a.style.width = st.w + "px";
   a.style.setProperty("--rot", st.rot + "deg");
@@ -575,7 +613,7 @@ function stickyNode(st) {
   };
   a.appendChild(h);
   const meta = el("div", "meta");
-  if (st.status && st.status !== "backlog") meta.appendChild(el("span", st.status, st.status));
+  if (st.status && st.status !== "backlog") meta.appendChild(el("span", st.status, STATUS_LABELS[st.status] || st.status));
   if (st.priority && st.priority !== "none") meta.appendChild(el("span", st.priority, "优先级 " + st.priority));
   if (st.due) meta.appendChild(el("span", null, "截止 " + st.due));
   (st.tags || []).forEach(tag => meta.appendChild(el("span", null, "#" + tag)));
@@ -645,15 +683,15 @@ function renderAll() {
   const tag = document.getElementById("tagFilter")?.value || "all";
   b.stickies.forEach(st => {
     const node = stickyNode(st);
-    const text = (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ")).toLowerCase();
+    const text = (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase();
     if (st.trashed || (query && !text.includes(query)) || (status !== "all" && st.status !== status) || (priority !== "all" && st.priority !== priority) || (tag !== "all" && !(st.tags || []).includes(tag))) node.classList.add("search-miss");
     if (selectedIds.has(st.id)) node.classList.add("sel", "selected-outline");
     world.appendChild(node);
   });
-  (b.elements || []).forEach(elm => renderElement(elm));
+  (b.elements || []).filter(elm => !elm.trashed).forEach(elm => renderElement(elm));
   boardName.textContent = b.name;
-  boardCount.textContent = b.stickies.length + " 张";
-  emptyHint.style.display = b.stickies.length ? "none" : "grid";
+  boardCount.textContent = b.stickies.filter(s => !s.trashed).length + " 张";
+  emptyHint.style.display = b.stickies.some(s => !s.trashed) ? "none" : "grid";
   applyView();
 }
 function refreshTagFilter() {
@@ -672,7 +710,7 @@ function selectSticky(st, additive) {
   selectedIds.add(st.id); document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(n => n.classList.remove("sel"));
   selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel", "selected-outline"); });
   selectedElementIds.forEach(id => { const n = world.querySelector(`[data-element-id="${id}"]`); if (n) n.classList.add("sel"); });
-  openInspector(st);
+  syncInspector();
 }
 function selectElement(elm, additive) {
   if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
@@ -680,10 +718,10 @@ function selectElement(elm, additive) {
   selectedElementIds.add(elm.id);
   selectedIds.forEach(id => { const node = world.querySelector(`[data-id="${id}"]`); if (node) node.classList.add("sel", "selected-outline"); });
   world.querySelectorAll("[data-element-id]").forEach(node => node.classList.toggle("sel", selectedElementIds.has(node.dataset.elementId)));
-  document.getElementById("inspector").style.display = "none";
+  syncInspector();
 }
 function selectedStickies() { return board().stickies.filter(st => selectedIds.has(st.id) && !st.locked && !st.trashed); }
-function selectedElements() { return (board().elements || []).filter(elm => selectedElementIds.has(elm.id) && !elm.locked); }
+function selectedElements() { return (board().elements || []).filter(elm => selectedElementIds.has(elm.id) && !elm.locked && !elm.trashed); }
 function selectedCanvasItems() { return selectedStickies().concat(selectedElements()); }
 function arrangeSelected(mode) {
   const items = selectedCanvasItems(); if (items.length < 2) return;
@@ -716,7 +754,6 @@ function renderSubtaskEditor(st) {
   const tasks = Array.isArray(st.subtasks) ? st.subtasks : [];
   if (!tasks.length) subtaskEditor.appendChild(el("small", null, "暂无子任务"));
   tasks.forEach(appendSubtaskRow);
-  insSubs.value = tasks.map(task => task.title || "").filter(Boolean).join("\n");
 }
 function readSubtasks() {
   return Array.from(subtaskEditor.querySelectorAll(".subtask-row")).map(row => ({
@@ -733,7 +770,7 @@ function renderDependencyEditor(st) {
   current.forEach(id => {
     const target = board().stickies.find(item => item.id === id);
     const chip = el("div", "dependency-chip"); chip.dataset.dependencyId = id;
-    chip.appendChild(el("span", null, (target?.title || "未命名") + " · " + (target?.status || "backlog")));
+    chip.appendChild(el("span", null, (target?.title || "未命名") + " · " + (STATUS_LABELS[target?.status] || "待办")));
     const remove = el("button", null, "×"); remove.type = "button"; remove.title = "移除依赖"; remove.onclick = () => { const next = current.filter(value => value !== id); renderDependencyEditor({...st, dependencies: next}); };
     chip.appendChild(remove); dependencyEditor.appendChild(chip);
   });
@@ -753,22 +790,38 @@ function readDependencies(st) {
   if (safe.length !== deps.length) showToast("检测到循环依赖，已忽略冲突项");
   return safe;
 }
-function validParentId(st, candidate) {
-  if (!candidate || candidate === st.id) return "";
-  const byId = new Map(board().stickies.map(item => [item.id, item])); let current = candidate, seen = new Set();
-  while (current && !seen.has(current)) { if (current === st.id) return ""; seen.add(current); current = byId.get(current)?.parentId || ""; }
-  return byId.has(candidate) ? candidate : "";
+function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "none"
+  const box = document.getElementById("inspector");
+  box.style.display = mode === "none" ? "none" : "block";
+  document.getElementById("stickyFields").style.display = mode === "sticky" ? "grid" : "none";
+  document.getElementById("batchActions").style.display = mode === "batch" ? "block" : "none";
+  document.getElementById("elementActions").classList.toggle("open", mode === "element");
+  document.querySelector("#inspector .ins-actions").style.display = mode === "element" || mode === "batch" ? "none" : "flex";
+  if (mode !== "sticky") imageActions.classList.remove("open");
 }
 function openInspector(st) {
-  const box = document.getElementById("inspector"); box.style.display = "block"; box.dataset.id = st.id;
-  insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", "); insRecurrence.value = st.recurrence || "none"; insReminder.value = st.reminder || ""; insParent.value = st.parentId || "";
-  parentOptions.innerHTML = board().stickies.filter(item => item.id !== st.id && !item.trashed).map(item => '<option value="' + escapeRich(item.id) + '">' + escapeRich(item.title || "未命名") + '</option>').join("");
+  const box = document.getElementById("inspector"); box.dataset.id = st.id;
+  setInspectorMode("sticky");
+  insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", "); insRecurrence.value = st.recurrence || "none"; insReminder.value = st.reminder || "";
+  insMoveBoard.innerHTML = '<option value="">—</option>' + S.boards.filter(b => b.id !== S.activeId).map(b => '<option value="' + escapeRich(b.id) + '">' + escapeRich(b.name) + '</option>').join("");
   insGoal.innerHTML = '<option value="">无</option>' + (S.goals || []).map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join(""); insGoal.value = st.goalId || ""; insLocked.checked = !!st.locked;
   renderSubtaskEditor(st); renderDependencyEditor(st); imageActions.classList.toggle("open", st.kind === "img");
   if (st.kind === "img") { const crop = st.crop || {x:50,y:50,scale:1}; imgCropX.value = crop.x; imgCropY.value = crop.y; imgCropScale.value = crop.scale; imgAnnotation.value = st.annotation || ""; }
 }
+function openElementInspector(elm) {
+  const box = document.getElementById("inspector"); box.dataset.elementId = elm.id; box.dataset.id = "";
+  setInspectorMode("element");
+  elmText.value = elm.text || ""; elmColor.value = elm.color || "";
+}
+function syncInspector() { // 选择变化后面板跟随：单个便利贴→属性，单个图形→图形，多选→批量
+  const stickySel = selectedStickies(), elmSel = selectedElements();
+  if (stickySel.length === 1 && !elmSel.length) openInspector(stickySel[0]);
+  else if (elmSel.length === 1 && !stickySel.length) openElementInspector(elmSel[0]);
+  else if (stickySel.length + elmSel.length > 1) setInspectorMode("batch");
+  else setInspectorMode("none");
+}
 function nextTaskDate(date, recurrence) { const d = new Date(date + "T00:00:00Z"); if (recurrence === "daily") d.setUTCDate(d.getUTCDate() + 1); else if (recurrence === "weekly") d.setUTCDate(d.getUTCDate() + 7); else if (recurrence === "monthly") d.setUTCMonth(d.getUTCMonth() + 1); else return date; return d.toISOString().slice(0, 10); }
-function maybeCreateRecurring(st) { if (st.status !== "done" || !st.due || !st.recurrence || st.recurrence === "none" || st.recurringCreatedFor === st.due) return; const next = nextTaskDate(st.due, st.recurrence); if (next === st.due) return; const copy = {...st, id:uid(), status:"backlog", due:next, recurringCreatedFor:"", subtasks:(st.subtasks || []).map(x => ({...x, id:uid(), status:"backlog"}))}; delete copy.recurringCreatedFor; board().stickies.push(copy); st.recurringCreatedFor = st.due; }
+function maybeCreateRecurring(st) { if (st.status !== "done" || !st.due || !st.recurrence || st.recurrence === "none" || st.recurringCreatedFor === st.due) return; const next = nextTaskDate(st.due, st.recurrence); if (next === st.due) return; const copy = {...st, id:uid(), status:"backlog", due:next, recurringCreatedFor:"", items:(st.items || []).map(it => ({...it, done:false})), tags:[...(st.tags || [])], dependencies:[...(st.dependencies || [])], subtasks:(st.subtasks || []).map(x => ({...x, id:uid(), status:"backlog"}))}; board().stickies.push(copy); st.recurringCreatedFor = st.due; }
 function stickySize(st) {
   const node = world.querySelector(`[data-id="${st.id}"]`);
   return {w: node?.offsetWidth || st.w || (st.kind === "title" ? 240 : 320), h: node?.offsetHeight || (st.kind === "img" ? 220 : 120)};
@@ -793,8 +846,12 @@ function positionConnector(node, elm) {
 function refreshConnectors() { (board().elements || []).filter(elm => elm.type === "connector").forEach(elm => { const node = world.querySelector(`[data-element-id="${elm.id}"]`); if (node) positionConnector(node, elm); }); }
 function renderElement(elm) {
   const n = el("div", elm.type === "shape" ? "shape " + (elm.shape || "rect") : elm.type === "connector" ? "connector" : elm.type === "stroke" ? "drawstroke" : "shape");
-  n.dataset.elementId = elm.id; n.style.left = elm.x + "px"; n.style.top = elm.y + "px"; n.style.width = elm.w + "px"; n.style.height = elm.h + "px"; n.style.zIndex = elm.z || 1;
+  n.dataset.elementId = elm.id; n.style.left = elm.x + "px"; n.style.top = elm.y + "px"; n.style.width = elm.w + "px"; n.style.height = elm.h + "px"; n.style.zIndex = elm.z ?? 1;
   n.style.pointerEvents = "auto";
+  if (elm.type === "shape") {
+    if (elm.color) n.style.background = elm.color === "white" ? "#fdfdf8" : "var(--" + elm.color + ")";
+    if (elm.text) n.appendChild(el("div", "shape-label", elm.text));
+  }
   if (selectedElementIds.has(elm.id)) n.classList.add("sel");
   n.addEventListener("pointerdown", e => {
     if (e.button !== 0) return;
@@ -841,7 +898,7 @@ const reminderKeys = new Set();
 function checkReminders() { const now = new Date(), today = dateKey(now), current = now.toTimeString().slice(0, 5); allStickies().forEach(({sticky:st}) => { if (st.trashed || st.status === "done" || !st.due || !st.reminder || st.due !== today || st.reminder > current) return; const key = st.id + ":" + today + ":" + st.reminder; if (reminderKeys.has(key)) return; reminderKeys.add(key); const message = "提醒：" + (st.title || "未命名任务"); showToast(message); if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("The Journey", {body:message}); }); }
 setInterval(checkReminders, 30000);
 function goalProgress(goalId, seen = new Set()) { if (seen.has(goalId)) return 0; seen.add(goalId); const goals = S.goals || [], children = goals.filter(g => g.parentId === goalId), tasks = allStickies().filter(x => x.sticky.goalId === goalId && !x.sticky.trashed); const values = children.map(g => goalProgress(g.id, new Set(seen))); tasks.forEach(x => values.push(x.sticky.status === "done" ? 100 : x.sticky.status === "doing" ? 50 : 0)); if (!values.length) return (goals.find(g => g.id === goalId)?.status === "done") ? 100 : 0; return Math.round(values.reduce((a,b) => a + b, 0) / values.length); }
-function renderDashboard() { const overview = document.getElementById("overview"), rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>习惯 streak</h3><strong>' + streakCount(S.plans?.habitDates) + ' 天</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div><h3>目标进度</h3><div class="ov-list">' + ((S.goals || []).length ? S.goals.map(g => '<div class="goal"><b>' + escapeRich(g.title) + '</b><small> · ' + escapeRich(g.type) + '</small><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>' + goalProgress(g.id) + '%</small></div>').join('') : '<p>还没有目标，点击“目标”创建。</p>') + '</div>'; overview.classList.add("open"); }
+function renderDashboard() { const overview = document.getElementById("overview"), rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const subAll = rows.flatMap(x => [...(x.sticky.items || []).map(it => !!it.done), ...(x.sticky.subtasks || []).map(t => t.status === "done")]), subDone = subAll.filter(Boolean).length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>子项完成</h3><strong>' + subDone + '/' + subAll.length + '</strong></div><div class="ov-card"><h3>习惯 streak</h3><strong>' + streakCount(S.plans?.habitDates) + ' 天</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div><h3>目标进度</h3><div class="ov-list">' + ((S.goals || []).length ? S.goals.map(g => '<div class="goal"><b>' + escapeRich(g.title) + '</b><small> · ' + escapeRich(g.type) + '</small><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>' + goalProgress(g.id) + '%</small></div>').join('') : '<p>还没有目标，点击“目标”创建。</p>') + '</div>'; overview.classList.add("open"); }
 function openPlanning() {
   const overview = document.getElementById("overview"), p = S.plans || {daily:"", weekly:"", review:"", habitDates:[]};
   const now = new Date(), monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); const weekStart = dateKey(monday), rows = allStickies().filter(x => !x.sticky.trashed), completed = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length;
@@ -855,11 +912,29 @@ function openPlanning() {
 function openGoals() {
   const overview = document.getElementById("overview"), goals = S.goals || [];
   const statusOptions = value => [["backlog", "待办"], ["doing", "进行中"], ["done", "完成"]].map(([key, label]) => '<option value="' + key + '"' + (value === key ? ' selected' : '') + '>' + label + '</option>').join("");
+  const goalCard = (g, depth) => '<div class="goal' + (depth ? " goal-tree-child" : "") + '" data-goal-id="' + escapeRich(g.id) + '"><div class="goal-head"><input data-goal-title value="' + escapeRich(g.title) + '"><select data-goal-status>' + statusOptions(g.status) + '</select><small> · ' + escapeRich(g.type) + '</small></div><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>自动汇总进度：' + goalProgress(g.id) + '%</small><label>Playbook<textarea data-goal-playbook rows="2">' + escapeRich(g.playbook || '') + '</textarea></label><label>复盘模板<textarea data-goal-review rows="2">' + escapeRich(g.reviewTemplate || '') + '</textarea></label><button data-goal-save>保存层级</button></div>';
+  const seen = new Set();
+  const renderTree = (parentId, depth) => goals.filter(g => (g.parentId || "") === parentId && !seen.has(g.id)).map(g => { seen.add(g.id); return goalCard(g, depth) + renderTree(g.id, depth + 1); }).join("");
+  const tree = renderTree("", 0) + goals.filter(g => !seen.has(g.id)).map(g => goalCard(g, 0)).join(""); // 循环/孤儿节点兜底平铺
   overview.dataset.mode = "goals";
-  overview.innerHTML = '<h2>目标层级</h2><div class="ins-grid"><input id="goalTitle" placeholder="目标 / 阶段 / 里程碑名称"><select id="goalType"><option value="goal">目标</option><option value="stage">阶段</option><option value="milestone">里程碑</option></select><select id="goalParent"><option value="">顶层</option>' + goals.map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join('') + '</select><textarea id="goalPlaybook" rows="2" placeholder="Playbook：标准步骤、检查清单"></textarea><textarea id="goalReview" rows="2" placeholder="复盘模板：结果、问题、下一步"></textarea><button id="goalAdd">新增层级</button></div><div class="ov-list">' + (goals.length ? goals.map(g => '<div class="goal" data-goal-id="' + escapeRich(g.id) + '"><div class="goal-head"><input data-goal-title value="' + escapeRich(g.title) + '"><select data-goal-status>' + statusOptions(g.status) + '</select><small> · ' + escapeRich(g.type) + '</small></div><div class="bar"><i style="width:' + goalProgress(g.id) + '%"></i></div><small>自动汇总进度：' + goalProgress(g.id) + '%</small><label>Playbook<textarea data-goal-playbook rows="2">' + escapeRich(g.playbook || '') + '</textarea></label><label>复盘模板<textarea data-goal-review rows="2">' + escapeRich(g.reviewTemplate || '') + '</textarea></label><button data-goal-save>保存层级</button></div>').join('') : '<p>从一个目标开始，再添加阶段和里程碑。</p>') + '</div>';
+  overview.innerHTML = '<h2>目标层级</h2><div class="ins-grid"><input id="goalTitle" placeholder="目标 / 阶段 / 里程碑名称"><select id="goalType"><option value="goal">目标</option><option value="stage">阶段</option><option value="milestone">里程碑</option></select><select id="goalParent"><option value="">顶层</option>' + goals.map(g => '<option value="' + escapeRich(g.id) + '">' + escapeRich(g.title) + '</option>').join('') + '</select><textarea id="goalPlaybook" rows="2" placeholder="Playbook：标准步骤、检查清单"></textarea><textarea id="goalReview" rows="2" placeholder="复盘模板：结果、问题、下一步"></textarea><button id="goalAdd">新增层级</button></div><div class="ov-list">' + (goals.length ? tree : '<p>从一个目标开始，再添加阶段和里程碑。</p>') + '</div>';
   overview.classList.add("open");
   document.getElementById("goalAdd").onclick = () => { const title = document.getElementById("goalTitle").value.trim(); if (!title) return; S.goals = S.goals || []; S.goals.push({id:uid(), title, type:document.getElementById("goalType").value, parentId:document.getElementById("goalParent").value, playbook:document.getElementById("goalPlaybook").value, reviewTemplate:document.getElementById("goalReview").value, status:"backlog"}); save(); openGoals(); };
   overview.querySelectorAll("[data-goal-save]").forEach(button => button.onclick = () => { const card = button.closest("[data-goal-id]"), goal = S.goals.find(item => item.id === card.dataset.goalId); if (!goal) return; goal.title = card.querySelector("[data-goal-title]").value.trim() || goal.title; goal.status = card.querySelector("[data-goal-status]").value; goal.playbook = card.querySelector("[data-goal-playbook]").value; goal.reviewTemplate = card.querySelector("[data-goal-review]").value; save(); openGoals(); showToast("目标层级已保存"); });
+}
+function centerOnSticky(st) { // 跳转后把目标贴纸平移到视口中心，applyView 内部会做边界钳制
+  const v = board().view, size = stickySize(st);
+  v.x = Math.round(viewport.clientWidth / 2 - (st.x + size.w / 2) * v.k);
+  v.y = Math.round(viewport.clientHeight / 2 - (st.y + size.h / 2) * v.k);
+  applyView();
+}
+function jumpToSticky(boardId, stickyId) {
+  S.activeId = boardId; document.getElementById("searchBox").value = ""; selectedIds.clear(); selectedElementIds.clear();
+  document.getElementById("viewMode").value = "board"; // 视图状态与下拉同步，避免显示“看板”实际是画布
+  save(); renderBoards(); renderAll();
+  const st = board().stickies.find(x => x.id === stickyId);
+  if (st) { centerOnSticky(st); selectSticky(st, false); }
+  document.getElementById("overview").classList.remove("open");
 }
 function openOverview(mode) {
   const overview = document.getElementById("overview");
@@ -867,33 +942,76 @@ function openOverview(mode) {
   if (mode === "search") { renderSearchResults(document.getElementById("searchBox").value); return; }
   const status = document.getElementById("statusFilter")?.value || "all", priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
   const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed && (status === "all" || x.sticky.status === status) && (priority === "all" || x.sticky.priority === priority) && (tag === "all" || (x.sticky.tags || []).includes(tag)));
-  if (mode === "trash") { overview.innerHTML = '<h2>回收站</h2><div class="ov-list">' + (rows.length ? rows.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + x.sticky.id + '">恢复</button></div>').join('') : '<p>回收站为空。</p>') + '</div>'; overview.querySelectorAll('[data-restore]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const st = rows.find(x => x.sticky.id === btn.dataset.restore)?.sticky; if (st) { st.trashed = false; save(); openOverview('trash'); renderAll(); } }); overview.classList.add('open'); return; }
-  if (mode === "stats") {
-    renderDashboard(); return;
-  } else {
+  if (mode === "trash") {
+    const trashedElements = S.boards.flatMap(b => (b.elements || []).filter(e => e.trashed).map(e => ({board: b, element: e})));
+    const elementName = e => ({shape: "图形", connector: "连接线", stroke: "手绘", table: "表格"})[e.type] || "图形";
+    overview.innerHTML = '<h2>回收站</h2><div class="ov-list">'
+      + (rows.length + trashedElements.length ? "" : "<p>回收站为空。</p>")
+      + rows.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + x.sticky.id + '">恢复</button></div>').join("")
+      + trashedElements.map(x => '<div class="ov-item">' + elementName(x.element) + ' <small>· ' + escapeRich(x.board.name) + '</small> <button data-restore-element="' + escapeRich(x.element.id) + '" data-board="' + escapeRich(x.board.id) + '">恢复</button></div>').join("")
+      + '</div>' + (rows.length + trashedElements.length ? '<div class="ins-actions"><button id="emptyTrash">清空回收站</button></div>' : "");
+    overview.querySelectorAll('[data-restore]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const st = rows.find(x => x.sticky.id === btn.dataset.restore)?.sticky; if (st) { st.trashed = false; save(); openOverview('trash'); renderAll(); showToast("已恢复「" + (st.title || "未命名") + "」"); } });
+    overview.querySelectorAll('[data-restore-element]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const b = S.boards.find(x => x.id === btn.dataset.board); const elm = b && (b.elements || []).find(x => x.id === btn.dataset.restoreElement); if (elm) { elm.trashed = false; save(); openOverview('trash'); renderAll(); showToast("已恢复图形"); } });
+    const emptyBtn = document.getElementById("emptyTrash");
+    if (emptyBtn) emptyBtn.onclick = () => { if (!confirm("彻底删除回收站里的全部内容？此操作不可恢复。")) return; S.boards.forEach(b => { b.stickies = b.stickies.filter(s => !s.trashed); b.elements = (b.elements || []).filter(e => !e.trashed); }); save(); openOverview('trash'); renderAll(); showToast("回收站已清空"); };
+    overview.classList.add('open'); return;
+  }
+  if (mode === "stats") { renderDashboard(); return; }
+  if (mode === "kanban") { renderKanban(); return; }
+  if (mode === "calendar") {
     const dated = rows.filter(x => x.sticky.due).sort((a,b) => a.sticky.due.localeCompare(b.sticky.due));
-    if (mode === "calendar") {
+    const calView = overview.dataset.calView || "month";
+    const toggle = '<div class="cal-toggle"><button data-calview="month" class="' + (calView === "month" ? "on" : "") + '">月历</button><button data-calview="list" class="' + (calView === "list" ? "on" : "") + '">列表</button></div>';
+    if (calView === "list") {
+      overview.innerHTML = '<h2>日历视图 · 列表</h2>' + toggle + '<div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
+      overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
+    } else {
       const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), 1), days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), cells = [];
       for (let i = 0; i < first.getDay(); i += 1) cells.push('<div class="cal-cell muted"></div>');
       for (let day = 1; day <= days; day += 1) { const date = dateKey(new Date(now.getFullYear(), now.getMonth(), day)), items = dated.filter(row => row.sticky.due === date); cells.push('<div class="cal-cell"><b>' + day + '</b>' + items.map(row => '<button class="cal-task" data-board="' + escapeRich(row.board.id) + '" data-sticky="' + escapeRich(row.sticky.id) + '">' + escapeRich(row.sticky.title || "未命名") + '</button>').join('') + '</div>'); }
       while (cells.length % 7) cells.push('<div class="cal-cell muted"></div>');
-      overview.innerHTML = '<h2>日历视图 · ' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, "0") + '</h2><div class="calendar-grid">' + ["日", "一", "二", "三", "四", "五", "六"].map(day => '<div class="cal-weekday">' + day + '</div>').join('') + cells.join('') + '</div>';
-      overview.querySelectorAll('.cal-task').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
-    } else {
-      overview.innerHTML = '<h2>时间线</h2><div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
-      overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
+      overview.innerHTML = '<h2>日历视图 · ' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, "0") + '</h2>' + toggle + '<div class="calendar-grid">' + ["日", "一", "二", "三", "四", "五", "六"].map(day => '<div class="cal-weekday">' + day + '</div>').join('') + cells.join('') + '</div>';
+      overview.querySelectorAll('.cal-task').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
     }
+    overview.querySelectorAll('[data-calview]').forEach(btn => btn.onclick = () => { overview.dataset.calView = btn.dataset.calview; openOverview("calendar"); });
   }
+  overview.classList.add("open");
+}
+function renderKanban() {
+  const overview = document.getElementById("overview");
+  const priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
+  const rows = allStickies().filter(x => !x.sticky.trashed && (priority === "all" || x.sticky.priority === priority) && (tag === "all" || (x.sticky.tags || []).includes(tag)));
+  const cols = [["backlog", "待办"], ["next", "下一步"], ["doing", "进行中"], ["blocked", "阻塞"], ["done", "完成"]];
+  overview.dataset.mode = "kanban";
+  overview.innerHTML = '<h2>看板 · 拖到其他列改状态，点击跳转</h2><div class="kanban">' + cols.map(([key, label]) => {
+    const cards = rows.filter(x => x.sticky.status === key);
+    return '<div class="kan-col" data-status="' + key + '"><h4>' + label + ' · ' + cards.length + '</h4>'
+      + cards.map(x => '<div class="kan-card b-' + escapeRich(x.sticky.color) + '" draggable="true" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '">' + escapeRich(x.sticky.title || "未命名") + '<small>' + escapeRich(x.board.name) + (x.sticky.due ? ' · 截止 ' + escapeRich(x.sticky.due) : "") + '</small></div>').join("") + '</div>';
+  }).join("") + '</div>';
+  overview.querySelectorAll(".kan-card").forEach(card => {
+    card.ondragstart = e => { e.dataTransfer.setData("text/plain", card.dataset.sticky + "|" + card.dataset.board); e.dataTransfer.effectAllowed = "move"; };
+    card.onclick = () => jumpToSticky(card.dataset.board, card.dataset.sticky);
+  });
+  overview.querySelectorAll(".kan-col").forEach(col => {
+    col.ondragover = e => { e.preventDefault(); col.classList.add("over"); };
+    col.ondragleave = () => col.classList.remove("over");
+    col.ondrop = e => {
+      e.preventDefault(); col.classList.remove("over");
+      const parts = (e.dataTransfer.getData("text/plain") || "").split("|"), sid = parts[0], bid = parts[1];
+      const b = S.boards.find(x => x.id === bid), st = b && b.stickies.find(x => x.id === sid);
+      if (st && st.status !== col.dataset.status) { st.status = col.dataset.status; maybeCreateRecurring(st); save(); renderAll(); renderKanban(); }
+    };
+  });
   overview.classList.add("open");
 }
 function renderSearchResults(value) {
   const query = String(value || "").trim().toLowerCase(), overview = document.getElementById("overview");
   if (!query) { if (overview.dataset.mode === "search") overview.classList.remove("open"); return; }
   const status = document.getElementById("statusFilter")?.value || "all", priority = document.getElementById("priorityFilter")?.value || "all", tag = document.getElementById("tagFilter")?.value || "all";
-  const rows = allStickies().filter(({sticky: st}) => !st.trashed && (status === "all" || st.status === status) && (priority === "all" || st.priority === priority) && (tag === "all" || (st.tags || []).includes(tag)) && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ")).toLowerCase().includes(query));
+  const rows = allStickies().filter(({sticky: st}) => !st.trashed && (status === "all" || st.status === status) && (priority === "all" || st.priority === priority) && (tag === "all" || (st.tags || []).includes(tag)) && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase().includes(query));
   overview.dataset.mode = "search";
-  overview.innerHTML = '<h2>全局搜索</h2><p>找到 ' + rows.length + ' 张便利贴 · 点击结果跳转</p><div class="ov-list">' + (rows.length ? rows.map(({board:b, sticky:st}) => '<div class="ov-item" data-board="' + escapeRich(b.id) + '" data-sticky="' + escapeRich(st.id) + '"><b>' + escapeRich(st.title || "未命名") + '</b><small> · ' + escapeRich(b.name) + ' · ' + escapeRich(st.status || "backlog") + '</small><div>' + escapeRich((st.tags || []).map(tag => "#" + tag).join(" ")) + '</div></div>').join("") : '<p>没有匹配内容。</p>') + '</div>';
-  overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => { S.activeId = item.dataset.board; document.getElementById("searchBox").value = ""; selectedIds.clear(); selectedElementIds.clear(); renderBoards(); renderAll(); const st = board().stickies.find(x => x.id === item.dataset.sticky); if (st) selectSticky(st, false); overview.classList.remove('open'); });
+  overview.innerHTML = '<h2>全局搜索</h2><p>找到 ' + rows.length + ' 张便利贴 · 点击结果跳转</p><div class="ov-list">' + (rows.length ? rows.map(({board:b, sticky:st}) => '<div class="ov-item" data-board="' + escapeRich(b.id) + '" data-sticky="' + escapeRich(st.id) + '"><b>' + escapeRich(st.title || "未命名") + '</b><small> · ' + escapeRich(b.name) + ' · ' + escapeRich(STATUS_LABELS[st.status] || "待办") + '</small><div>' + escapeRich((st.tags || []).map(tag => "#" + tag).join(" ")) + '</div></div>').join("") : '<p>没有匹配内容。</p>') + '</div>';
+  overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
   overview.classList.add("open");
 }
 /* ---- palette ---- */
@@ -1001,8 +1119,8 @@ viewport.addEventListener("pointerup", e => {
     const rect = {x:Math.min(selectionDrag.sx, ex), y:Math.min(selectionDrag.sy, ey), w:Math.abs(ex - selectionDrag.sx), h:Math.abs(ey - selectionDrag.sy)};
     const additive = selectionDrag.additive; selectionDrag.box.remove(); selectionDrag = null; if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
     board().stickies.forEach(st => { const n = world.querySelector(`[data-id="${st.id}"]`), w = n?.offsetWidth || 220, h = n?.offsetHeight || 120; if (!st.trashed && !n?.classList.contains("search-miss") && st.x < rect.x + rect.w && st.x + w > rect.x && st.y < rect.y + rect.h && st.y + h > rect.y) selectedIds.add(st.id); });
-    board().elements.filter(elm => !elm.locked).forEach(elm => { if (elm.x < rect.x + rect.w && elm.x + elm.w > rect.x && elm.y < rect.y + rect.h && elm.y + elm.h > rect.y) selectedElementIds.add(elm.id); });
-    renderAll(); if (selectedIds.size === 1) openInspector(board().stickies.find(st => selectedIds.has(st.id))); else if (!selectedIds.size) document.getElementById("inspector").style.display = "none"; return;
+    board().elements.filter(elm => !elm.locked && !elm.trashed).forEach(elm => { if (elm.x < rect.x + rect.w && elm.x + elm.w > rect.x && elm.y < rect.y + rect.h && elm.y + elm.h > rect.y) selectedElementIds.add(elm.id); });
+    renderAll(); syncInspector(); return;
   }
   if (pan) { pan = null; viewport.classList.remove("panning"); save(); }
 });
@@ -1125,10 +1243,25 @@ document.getElementById("priorityFilter").onchange = () => { renderAll(); if (do
 document.getElementById("tagFilter").onchange = () => { renderAll(); if (document.getElementById("searchBox").value.trim()) renderSearchResults(document.getElementById("searchBox").value); };
 document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
 const importPick = document.getElementById("importPick");
-const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insRecurrence = document.getElementById("insRecurrence"), insReminder = document.getElementById("insReminder"), insParent = document.getElementById("insParent"), parentOptions = document.getElementById("parentOptions"), insDeps = document.getElementById("insDeps"), insSubs = document.getElementById("insSubs"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), dependencyEditor = document.getElementById("dependencyEditor"), insGoal = document.getElementById("insGoal"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation");
+const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), insRecurrence = document.getElementById("insRecurrence"), insReminder = document.getElementById("insReminder"), insMoveBoard = document.getElementById("insMoveBoard"), insDeps = document.getElementById("insDeps"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), dependencyEditor = document.getElementById("dependencyEditor"), insGoal = document.getElementById("insGoal"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
+insMoveBoard.onchange = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id), target = S.boards.find(b => b.id === insMoveBoard.value); if (!st || !target) return; board().stickies = board().stickies.filter(x => x.id !== id); target.stickies.push(st); selectedIds.clear(); save(); renderBoards(); renderAll(); setInspectorMode("none"); showToast("已移到「" + target.name + "」"); };
+elmText.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.text = elmText.value.trim().slice(0, 200); save(); renderAll(); };
+elmColor.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.color = elmColor.value; save(); renderAll(); };
+document.getElementById("batchApply").onclick = () => {
+  const targets = selectedStickies(); if (!targets.length) { showToast("批量修改只作用于便利贴"); return; }
+  targets.forEach(st => {
+    if (batchStatus.value) st.status = batchStatus.value;
+    if (batchPriority.value) st.priority = batchPriority.value;
+    if (batchDue.value) st.due = batchDue.value;
+    const extra = batchTag.value.split(",").map(x => x.trim()).filter(Boolean);
+    if (extra.length) st.tags = [...new Set([...(st.tags || []), ...extra])].slice(0, 20);
+    if (batchStatus.value === "done") maybeCreateRecurring(st);
+  });
+  save(); renderAll(); showToast("已批量修改 " + targets.length + " 张");
+};
 insSubAdd.onclick = () => { const value = insSubNew.value.trim(); if (!value) return; appendSubtaskRow({id:uid(), title:value, status:"backlog"}); insSubNew.value = ""; insSubNew.focus(); };
 insSubNew.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); insSubAdd.click(); } };
-document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20); st.recurrence = insRecurrence.value; st.reminder = insReminder.value; st.parentId = validParentId(st, insParent.value.trim()); st.dependencies = readDependencies(st); st.subtasks = readSubtasks(); st.goalId = insGoal.value.trim(); st.locked = insLocked.checked; if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); } maybeCreateRecurring(st); save(); if (st.reminder && typeof Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission().catch(() => {}); renderAll(); selectSticky(st, false); };
+document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20); st.recurrence = insRecurrence.value; st.reminder = insReminder.value; st.dependencies = readDependencies(st); st.subtasks = readSubtasks(); st.goalId = insGoal.value.trim(); st.locked = insLocked.checked; if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); } maybeCreateRecurring(st); save(); if (st.reminder && typeof Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission().catch(() => {}); renderAll(); selectSticky(st, false); };
 document.getElementById("insTrash").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (st) { st.trashed = true; save(); renderAll(); document.getElementById("inspector").style.display = "none"; } };
 document.getElementById("insClose").onclick = () => document.getElementById("inspector").style.display = "none";
 document.getElementById("insGroup").onclick = () => { const gid = uid(); selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.groupId = gid; }); save(); };
@@ -1138,7 +1271,7 @@ document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { ac
 document.querySelectorAll("[data-op]").forEach(btn => btn.onclick = () => {
   const op = btn.dataset.op;
   if (op === "select") { selectionMode = !selectionMode; btn.classList.toggle("active", selectionMode); return; }
-  arrangeSelected(op === "distX" || op === "distY" ? op : op === "left" ? "left" : op === "top" ? "top" : op);
+  arrangeSelected(op);
 });
 document.querySelectorAll(".toolBtn[data-action]").forEach(btn => btn.onclick = () => {
   if (btn.dataset.action === "trash") { openOverview("trash"); return; }
@@ -1185,8 +1318,10 @@ imgPick.onchange = () => {
 document.getElementById("imgReplace").onclick = () => { const id = document.getElementById("inspector").dataset.id; replaceTarget = board().stickies.find(st => st.id === id && st.kind === "img") || null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
 document.getElementById("imgPreview").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); };
 document.getElementById("mediaClose").onclick = () => document.getElementById("mediaPreview").classList.remove("open");
-function refreshImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; save(); renderAll(); }
-imgCropScale.oninput = refreshImageCrop; imgCropX.oninput = refreshImageCrop; imgCropY.oninput = refreshImageCrop;
+function previewImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; const img = world.querySelector(`[data-id="${st.id}"] img`); if (img) { img.style.objectPosition = st.crop.x + "% " + st.crop.y + "%"; img.style.transform = "scale(" + (st.crop.scale || 1) + ")"; } }
+function commitImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; previewImageCrop(); save(); renderAll(); }
+imgCropScale.oninput = previewImageCrop; imgCropX.oninput = previewImageCrop; imgCropY.oninput = previewImageCrop;
+imgCropScale.onchange = commitImageCrop; imgCropX.onchange = commitImageCrop; imgCropY.onchange = commitImageCrop;
 document.addEventListener("paste", e => {
   const item = Array.from(e.clipboardData?.items || []).find(x => x.type.startsWith("image/"));
   if (!item) return;
@@ -1305,7 +1440,7 @@ function confirmIsland() {
   closeIsland().then(() => {
     persistView();
     const b = {id: uid(), name: n.slice(0, 24),
-      view: {x: 300, y: 80, k: 1}, stickies: [], elements: []};
+      view: {x: 0, y: 0, k: 1}, stickies: [], elements: []};
     S.boards.push(b); S.activeId = b.id;
     save(); renderBoards(); renderAll();
   });
@@ -1317,10 +1452,30 @@ islInput.onkeydown = e => {
   e.stopPropagation();
   if (e.key === "Enter") confirmIsland();
 };
+function duplicateSelected() {
+  const copies = [];
+  selectedStickies().forEach(st => {
+    const copy = {...st, id: uid(), x: Math.min(BOARD.width - 60, st.x + 24), y: Math.min(BOARD.height - 60, st.y + 24), items: (st.items || []).map(it => ({...it})), tags: [...(st.tags || [])], dependencies: [...(st.dependencies || [])], subtasks: (st.subtasks || []).map(t => ({...t, id: uid()})), crop: st.crop ? {...st.crop} : st.crop};
+    board().stickies.push(copy); copies.push(copy.id);
+  });
+  if (!copies.length) return;
+  selectedIds = new Set(copies); selectedElementIds.clear();
+  save(); renderAll(); syncInspector(); showToast("已复制 " + copies.length + " 张");
+}
+function nudgeSelected(dx, dy) {
+  const items = selectedCanvasItems(); if (!items.length) return;
+  items.forEach(item => { const w = item.w || stickySize(item).w, h = item.h || stickySize(item).h; item.x = Math.round(Math.max(0, Math.min(BOARD.width - w, item.x + dx))); item.y = Math.round(Math.max(0, Math.min(BOARD.height - h, item.y + dy))); });
+  save(); renderAll(); refreshConnectors();
+}
 document.addEventListener("keydown", e => {
+  const inInput = e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
   if (e.key === "Escape") { palette.classList.remove("open"); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],#arrangeGroup [data-op=select]").forEach(button => button.classList.remove("active")); }
-  if ((e.key === "Delete" || e.key === "Backspace") && !e.target.isContentEditable && !["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName) && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); board().elements = (board().elements || []).filter(elm => !selectedElementIds.has(elm.id)); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
-  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !e.target.isContentEditable && e.target.tagName !== "INPUT") { e.preventDefault(); undo(); }
+  if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !inInput) { e.preventDefault(); undo(); }
+  if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "z" || (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") && !inInput) { e.preventDefault(); redo(); }
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "d" && !inInput && selectedIds.size) { e.preventDefault(); duplicateSelected(); }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a" && !inInput) { e.preventDefault(); selectedIds.clear(); selectedElementIds.clear(); board().stickies.forEach(st => { if (!st.trashed) selectedIds.add(st.id); }); (board().elements || []).forEach(elm => { if (!elm.trashed && !elm.locked) selectedElementIds.add(elm.id); }); renderAll(); syncInspector(); }
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key) && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); const step = e.shiftKey ? 10 : 1; nudgeSelected(e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0, e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0); }
 });
 /* ---- sidebar collapse (persisted) ---- */
 const UIKEY = "stickyboard-ui-v1";
@@ -1340,7 +1495,7 @@ document.getElementById("sideTab").onclick = () => {
   ui.collapsed = false; applySide();
 };
 /* ---- init ---- */
-if (!board().view) board().view = {x: 300, y: 80, k: 1};
+if (!board().view) board().view = {x: 0, y: 0, k: 1};
 applySide();
 buildPalette();
 renderBoards();
