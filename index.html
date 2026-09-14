@@ -430,21 +430,76 @@ let mem = null;
 let history = [];
 let redoStack = [];
 let historyBusy = false;
+/* ---- 数据归一化：load/import/undo 共用的唯一入口，非法数据在这里全部兜底 ---- */
+const STICKY_KINDS = ["note", "todo", "title", "img"];
+const STICKY_COLORS = ["yellow", "blue", "pink", "green", "purple", "cyan", "white"];
+const ELEMENT_TYPES = ["shape", "connector", "stroke", "table"];
+const STATUS_KEYS = ["backlog", "next", "doing", "blocked", "done"];
+const PRIORITY_KEYS = ["none", "low", "medium", "high"];
+function clampView(view) { // 缩放钳制在 0.4–1.6，非法值回退默认
+  return {
+    x: Number.isFinite(Number(view?.x)) ? Number(view.x) : 0,
+    y: Number.isFinite(Number(view?.y)) ? Number(view.y) : 0,
+    k: Math.min(1.6, Math.max(0.4, Number(view?.k) || 1)),
+  };
+}
+function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜色、迁移历史字段
+  const out = {
+    ...st,
+    id: String(st.id || uid()),
+    kind: STICKY_KINDS.includes(st.kind) ? st.kind : "note",
+    color: STICKY_COLORS.includes(st.color) ? st.color : "yellow",
+    x: Math.min(BOARD.width - 40, Math.max(0, Number(st.x) || 0)),
+    y: Math.min(BOARD.height - 40, Math.max(0, Number(st.y) || 0)),
+    rot: Number(st.rot) || 0,
+    title: String(st.title || "").slice(0, 500),
+    body: String(st.body || "").slice(0, 10000),
+    items: Array.isArray(st.items) ? st.items : [],
+  };
+  out.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : [];
+  out.status = STATUS_KEYS.includes(st.status) ? st.status : "backlog";
+  const migrated = st.priority === "urgent" ? "high" : st.priority; // 历史数据：urgent 已并入 high
+  out.priority = PRIORITY_KEYS.includes(migrated) ? migrated : "none";
+  out.due = typeof st.due === "string" ? st.due : "";
+  out.recurrence = out.recurringCreatedFor = out.reminder = out.dependencies = undefined; // 已砍功能：旧字段落盘时静默清除
+  out.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string"
+    ? {id: uid(), title: x, status: "backlog"}
+    : {...x, id: String(x.id || uid()), title: String(x.title || x.t || ""), status: ["backlog", "doing", "done"].includes(x.status) ? x.status : "backlog"}) : [];
+  out.goalId = typeof st.goalId === "string" ? st.goalId : "";
+  out.crop = st.crop && typeof st.crop === "object"
+    ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)}
+    : {x: 50, y: 50, scale: 1};
+  out.annotation = typeof st.annotation === "string" ? st.annotation : "";
+  out.locked = !!st.locked;
+  out.trashed = !!st.trashed;
+  return out;
+}
+function normalizeElement(elm) { // 单个画布元素：尺寸下限 20，坐标不出板
+  const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120));
+  const h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80));
+  return {
+    ...elm,
+    id: String(elm.id || uid()),
+    type: ELEMENT_TYPES.includes(elm.type) ? elm.type : "shape",
+    x: Math.min(BOARD.width - w, Math.max(0, Number(elm.x) || 0)),
+    y: Math.min(BOARD.height - h, Math.max(0, Number(elm.y) || 0)),
+    w, h,
+    locked: !!elm.locked,
+    trashed: !!elm.trashed,
+    z: Number(elm.z) || 0,
+  };
+}
 function normalizeState(input) {
   const raw = input && typeof input === "object" ? input : {};
   let boards = Array.isArray(raw.boards) ? raw.boards.filter(Boolean) : [];
   boards = boards.map(b => ({
     id: String(b.id || uid()),
     name: String(b.name || "未命名画板").trim().slice(0, 24) || "未命名画板",
-    view: { x: Number.isFinite(Number(b.view?.x)) ? Number(b.view.x) : 0, y: Number.isFinite(Number(b.view?.y)) ? Number(b.view.y) : 0, k: Math.min(1.6, Math.max(0.4, Number(b.view?.k) || 1)) },
-    stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(st => ({ ...st, id: String(st.id || uid()), kind: ["note","todo","title","img"].includes(st.kind) ? st.kind : "note", color: ["yellow","blue","pink","green","purple","cyan","white"].includes(st.color) ? st.color : "yellow", x: Math.min(BOARD.width - 40, Math.max(0, Number(st.x) || 0)), y: Math.min(BOARD.height - 40, Math.max(0, Number(st.y) || 0)), rot: Number(st.rot) || 0, title: String(st.title || "").slice(0, 500), body: String(st.body || "").slice(0, 10000), items: Array.isArray(st.items) ? st.items : [] })) : []
+    view: clampView(b.view),
+    stickies: Array.isArray(b.stickies) ? b.stickies.filter(Boolean).map(normalizeSticky) : [],
+    elements: Array.isArray(b.elements) ? b.elements.filter(Boolean).map(normalizeElement) : [],
   }));
   if (!boards.length) boards = [{ id: uid(), name: "我的画板", view: { x: 0, y: 0, k: 1 }, stickies: [], elements: [] }];
-  boards.forEach(b => {
-    b.elements = Array.isArray(b.elements) ? b.elements.filter(Boolean).map(elm => { const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120)), h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80)); return {...elm, id:String(elm.id || uid()), type:["shape","connector","stroke","table"].includes(elm.type) ? elm.type : "shape", x:Math.min(BOARD.width - w, Math.max(0, Number(elm.x)||0)), y:Math.min(BOARD.height - h, Math.max(0, Number(elm.y)||0)), w, h, locked:!!elm.locked, trashed:!!elm.trashed, z:Number(elm.z)||0}; }) : [];
-    b.stickies.forEach(st => { st.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : []; st.status = ["backlog","next","doing","blocked","done"].includes(st.status) ? st.status : "backlog"; const p = st.priority === "urgent" ? "high" : st.priority; st.priority = ["none","low","medium","high"].includes(p) ? p : "none"; st.due = typeof st.due === "string" ? st.due : ""; st.recurrence = st.recurringCreatedFor = st.reminder = st.dependencies = undefined; // 已砍功能：旧数据落盘时静默清除
-st.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string" ? {id:uid(), title:x, status:"backlog"} : {...x, id:String(x.id || uid()), title:String(x.title || x.t || ""), status:["backlog","doing","done"].includes(x.status) ? x.status : "backlog"}) : []; st.goalId = typeof st.goalId === "string" ? st.goalId : ""; st.crop = st.crop && typeof st.crop === "object" ? {x:Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y:Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale:Math.max(1, Number(st.crop.scale) || 1)} : {x:50,y:50,scale:1}; st.annotation = typeof st.annotation === "string" ? st.annotation : ""; st.locked = !!st.locked; st.trashed = !!st.trashed; });
-  });
   const plans = raw.plans && typeof raw.plans === "object" ? {daily:String(raw.plans.daily || ""), weekly:String(raw.plans.weekly || ""), review:String(raw.plans.review || ""), habitDates:Array.isArray(raw.plans.habitDates) ? raw.plans.habitDates.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-365) : []} : {daily:"", weekly:"", review:"", habitDates:[]};
   const goals = Array.isArray(raw.goals) ? raw.goals.filter(Boolean).map(g => ({id:String(g.id || uid()), title:String(g.title || "未命名目标").slice(0,120), type:["goal","stage","milestone"].includes(g.type) ? g.type : "goal", parentId:typeof g.parentId === "string" ? g.parentId : "", playbook:String(g.playbook || ""), reviewTemplate:String(g.reviewTemplate || ""), status:["backlog","doing","done"].includes(g.status) ? g.status : "backlog"})) : [];
   const activity = Array.isArray(raw.activity) ? raw.activity.filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date)).slice(-90) : [];
@@ -507,8 +562,10 @@ let S = load();
 mem = S;
 let quotaWarned = false;
 let lastSnapshot = null; // 上一次落盘的快照；history 存"修改前"状态，撤销才有意义
-function save() {
-  if (!historyBusy && lastSnapshot != null) { history.push(lastSnapshot); if (history.length > 50) history.shift(); redoStack = []; }
+// opts.history === false：只落盘、不进撤销栈。视图平移/缩放是纯视角变化，不该被 ⌘Z 撤销
+function save(opts) {
+  const trackHistory = !opts || opts.history !== false;
+  if (trackHistory && !historyBusy && lastSnapshot != null) { history.push(lastSnapshot); if (history.length > 50) history.shift(); redoStack = []; }
   recordActivity(); mem = S;
   lastSnapshot = JSON.stringify(S);
   try { localStorage.setItem(KEY, lastSnapshot); }
@@ -521,6 +578,7 @@ function save() {
   try { localStorage.setItem(KEY + "-backup", JSON.stringify({savedAt: new Date().toISOString(), state: S})); } catch (e) {}
   backupToDiskSoon();
 }
+function saveView() { save({history: false}); } // 视口变化统一入口：落盘但不污染撤销历史
 let backupTimer = null;
 function backupToDiskSoon() { // 桌面壳内：防抖 3 秒，让原生层写文件级备份
   const handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.backup;
@@ -531,8 +589,9 @@ function backupToDiskSoon() { // 桌面壳内：防抖 3 秒，让原生层写�
 function restoreSnapshot(raw) {
   S = normalizeState(JSON.parse(raw)); mem = S;
   lastSnapshot = JSON.stringify(S);
-  localStorage.setItem(KEY, lastSnapshot);
+  try { localStorage.setItem(KEY, lastSnapshot); } catch (e) {} // 与 save() 同款配额保护
   selectedIds.clear(); selectedElementIds.clear();
+  setInspectorMode("none"); // 撤销/重做后面板引用的贴纸可能已不存在，直接收起避免脏引用
   renderBoards(); renderAll();
 }
 function undo() {
@@ -621,12 +680,12 @@ function stickyNode(st) {
   if (st.w) a.style.width = st.w + "px";
   a.style.setProperty("--rot", st.rot + "deg");
   const del = el("button", "del", "×");
-  del.title = "删除便利贴";
+  del.title = "删除便利贴（进回收站，可恢复）";
   del.onclick = e => {
     e.stopPropagation();
-    const b = board();
-    b.stickies = b.stickies.filter(o => o.id !== st.id);
-    save(); renderAll();
+    st.trashed = true; // 与 Delete 键口径一致：进回收站可恢复、可撤销，而不是直接抹掉
+    selectedIds.delete(st.id);
+    save(); renderAll(); syncInspector(); showToast("已移到回收站");
   };
   a.appendChild(del);
   a.addEventListener("click", e => { if (!e.target.closest("input,button,.dots,.rh,.rsz,.tbox,.tx,.tadd,[contenteditable=true]")) selectSticky(st, e.shiftKey); });
@@ -745,19 +804,28 @@ let selectedElementIds = new Set();
 let activeTool = null;
 let selectionMode = false;
 let selectionDrag = null;
-function selectSticky(st, additive) {
-  if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
-  selectedIds.add(st.id); document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(n => n.classList.remove("sel"));
+// 选择模型：selectedIds（便利贴）+ selectedElementIds（图形/连接线）。
+// 高亮只由 applySelectionStyles 一个出口维护——先全清再按选择集重挂，
+// 两个类名（.sel 阴影抬升 / .selected-outline 蓝色描边）必须成对摘挂，否则旧高亮残留。
+function applySelectionStyles() {
+  document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel,.selected-outline").forEach(n => n.classList.remove("sel", "selected-outline"));
   selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel", "selected-outline"); });
   selectedElementIds.forEach(id => { const n = world.querySelector(`[data-element-id="${id}"]`); if (n) n.classList.add("sel"); });
+}
+function clearSelection() { // blur 的对称操作：清空选择集并摘掉全部高亮
+  selectedIds.clear(); selectedElementIds.clear();
+  applySelectionStyles();
+}
+function selectSticky(st, additive) {
+  if (!additive) clearSelection();
+  selectedIds.add(st.id);
+  applySelectionStyles();
   syncInspector();
 }
 function selectElement(elm, additive) {
-  if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
-  document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(node => node.classList.remove("sel"));
+  if (!additive) clearSelection();
   selectedElementIds.add(elm.id);
-  selectedIds.forEach(id => { const node = world.querySelector(`[data-id="${id}"]`); if (node) node.classList.add("sel", "selected-outline"); });
-  world.querySelectorAll("[data-element-id]").forEach(node => node.classList.toggle("sel", selectedElementIds.has(node.dataset.elementId)));
+  applySelectionStyles();
   syncInspector();
 }
 function selectedStickies() { return board().stickies.filter(st => selectedIds.has(st.id) && !st.locked && !st.trashed); }
@@ -894,13 +962,14 @@ function renderElement(elm) {
 function enableElementDrag(node, elm) {
   if (elm.locked) return;
   node.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return; // 只响应左键，右键留给后续扩展（与选择监听口径一致）
     if (e.target.closest("td[contenteditable=true]")) return;
     e.stopPropagation();
     const v = board().view, sx = e.clientX, sy = e.clientY, ox = elm.x, oy = elm.y;
     let moved = false;
     const move = ev => { const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k; moved = moved || Math.abs(dx) + Math.abs(dy) > 3; elm.x = Math.round(Math.max(0, Math.min(BOARD.width - elm.w, ox + dx))); elm.y = Math.round(Math.max(0, Math.min(BOARD.height - elm.h, oy + dy))); node.style.left = elm.x + "px"; node.style.top = elm.y + "px"; };
-    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); if (moved) save(); };
-    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+    const up = () => { if (moved) save(); };
+    bindWindowDrag(move, up);
   });
 }
 function snapAnchor(x, y) {
@@ -1111,11 +1180,11 @@ function applyView() {
   world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.k})`;
   zLabel.textContent = Math.round(v.k * 100) + "%";
 }
-function persistView() { save(); }
+function persistView() { saveView(); }
 function zoomBy(f) {
   const v = board().view;
   v.k = Math.min(1.6, Math.max(0.4, v.k * f));
-  applyView(); save();
+  applyView(); saveView();
 }
 document.getElementById("zIn").onclick = () => zoomBy(1.12);
 document.getElementById("zOut").onclick = () => zoomBy(0.89);
@@ -1137,20 +1206,21 @@ viewport.addEventListener("pointerdown", e => {
         const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y);
         preview.remove();
         const element = {id:uid(), type:"connector", x:start.x, y:start.y, x2:state.x, y2:state.y, w:Math.max(4, Math.hypot(state.x - start.x, state.y - start.y)), h:3, arrow:false, fromId:from?.id || "", toId:to?.id || ""};
-        board().elements.push(element); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
+        board().elements.push(element); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll();
       };
-      window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); return;
+      bindWindowDrag(move, up); return;
     }
     const shape = activeTool === "ellipse" ? "ellipse" : "rect", start = {x, y}, preview = el("div", "shape " + shape); preview.style.left = x + "px"; preview.style.top = y + "px"; preview.style.width = "180px"; preview.style.height = "100px"; preview.style.opacity = ".55"; world.appendChild(preview);
     const move = ev => { const ex = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)), ey = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); const px = Math.min(start.x, ex), py = Math.min(start.y, ey), pw = Math.max(40, Math.abs(ex - start.x)), ph = Math.max(30, Math.abs(ey - start.y)); Object.assign(preview.style, {left:px + "px", top:py + "px", width:pw + "px", height:ph + "px"}); };
-    const up = ev => { const ex = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)), ey = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); const px = Math.min(start.x, ex), py = Math.min(start.y, ey), pw = Math.max(40, Math.abs(ex - start.x)), ph = Math.max(30, Math.abs(ey - start.y)); preview.remove(); board().elements.push({id:uid(), type:"shape", shape, x:px, y:py, w:pw, h:ph}); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); };
-    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up); return;
+    const up = ev => { const ex = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)), ey = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); const px = Math.min(start.x, ex), py = Math.min(start.y, ey), pw = Math.max(40, Math.abs(ex - start.x)), ph = Math.max(30, Math.abs(ey - start.y)); preview.remove(); board().elements.push({id:uid(), type:"shape", shape, x:px, y:py, w:pw, h:ph}); activeTool = null; document.querySelectorAll("[data-tool]").forEach(x => x.classList.remove("active")); save(); renderAll(); };
+    bindWindowDrag(move, up); return;
   }
   if (e.target.closest(".sticky,#sidebar,#toolbar,#palette,.zoom")) return;
+  clearSelection(); syncInspector(); // 点空白画布 = 元素 blur：对称移除高亮并收起属性面板
   const v = board().view;
   pan = {x: e.clientX - v.x, y: e.clientY - v.y};
   viewport.classList.add("panning");
-  viewport.setPointerCapture(e.pointerId);
+  viewport.setPointerCapture?.(e.pointerId);
 });
 viewport.addEventListener("pointermove", e => {
   if (selectionDrag) {
@@ -1163,7 +1233,7 @@ viewport.addEventListener("pointermove", e => {
   v.x = e.clientX - pan.x; v.y = e.clientY - pan.y;
   applyView();
 });
-viewport.addEventListener("pointerup", e => {
+function endViewportGesture(e) { // pointerup / pointercancel 共用的收尾：结束框选或平移
   if (selectionDrag) {
     const v = board().view, ex = (e.clientX - v.x) / v.k, ey = (e.clientY - v.y) / v.k;
     const rect = {x:Math.min(selectionDrag.sx, ex), y:Math.min(selectionDrag.sy, ey), w:Math.abs(ex - selectionDrag.sx), h:Math.abs(ey - selectionDrag.sy)};
@@ -1172,12 +1242,14 @@ viewport.addEventListener("pointerup", e => {
     board().elements.filter(elm => !elm.locked && !elm.trashed).forEach(elm => { if (elm.x < rect.x + rect.w && elm.x + elm.w > rect.x && elm.y < rect.y + rect.h && elm.y + elm.h > rect.y) selectedElementIds.add(elm.id); });
     renderAll(); syncInspector(); return;
   }
-  if (pan) { pan = null; viewport.classList.remove("panning"); save(); }
-});
+  if (pan) { pan = null; viewport.classList.remove("panning"); saveView(); }
+}
+viewport.addEventListener("pointerup", endViewportGesture);
+viewport.addEventListener("pointercancel", endViewportGesture); // 触摸被系统打断时同样收尾，避免 pan/框选状态卡死
 let viewSaveT = null;
 function saveViewSoon() { // 滚轮高频触发，视角落盘防抖
   clearTimeout(viewSaveT);
-  viewSaveT = setTimeout(save, 500);
+  viewSaveT = setTimeout(saveView, 500);
 }
 viewport.addEventListener("wheel", e => {
   e.preventDefault();
@@ -1188,6 +1260,18 @@ viewport.addEventListener("wheel", e => {
   applyView();
   saveViewSoon();
 }, {passive: false});
+/* ---- 拖拽监听统一管理：move 期间跟手，up/cancel 统一收尾并注销，杜绝监听泄漏 ---- */
+function bindWindowDrag(move, up) {
+  const end = ev => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", end);
+    window.removeEventListener("pointercancel", end);
+    up(ev);
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", end);
+  window.addEventListener("pointercancel", end);
+}
 /* ---- sticky drag + select ---- */
 function enableDrag(node, st) {
   let sx = 0, sy = 0, ox = 0, oy = 0, moved = false;
@@ -1209,15 +1293,10 @@ function enableDrag(node, st) {
     };
     const up = () => {
       node.classList.remove("drag");
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
       if (moved) save();
       else selectSticky(st, e.shiftKey);
     };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
+    bindWindowDrag(move, up);
   });
 }
 /* ---- rotate handle: drag around center ---- */
@@ -1244,14 +1323,9 @@ function enableRotate(node, st, handle) {
     };
     const up = () => {
       node.classList.remove("drag");
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
       save();
     };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
+    bindWindowDrag(move, up);
   });
 }
 /* ---- resize handle: drag from corner, keep aspect ---- */
@@ -1272,14 +1346,9 @@ function enableResize(node, st, handle) {
     };
     const up = () => {
       node.classList.remove("drag");
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
       save();
     };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
+    bindWindowDrag(move, up);
   });
 }
 /* ---- toolbar / palette / boards ---- */
@@ -1352,7 +1421,7 @@ importPick.onchange = () => {
     try {
       const next = normalizeState(JSON.parse(reader.result));
       if (!confirm("导入后会替换当前全部画板，继续吗？")) return;
-      history.push(JSON.stringify(S)); S = next; save(); renderBoards(); renderAll();
+      S = next; save(); renderBoards(); renderAll(); // save() 会把导入前快照入撤销栈，导入本身可撤销
     } catch (e) { alert("导入失败：文件不是有效的便利贴备份。"); }
   };
   reader.readAsText(file);
@@ -1531,7 +1600,7 @@ function nudgeSelected(dx, dy) {
 }
 document.addEventListener("keydown", e => {
   const inInput = e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
-  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); }
+  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); clearSelection(); syncInspector(); }
   if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !inInput) { e.preventDefault(); undo(); }
   if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "z" || (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") && !inInput) { e.preventDefault(); redo(); }
