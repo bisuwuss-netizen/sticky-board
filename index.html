@@ -128,7 +128,8 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .meta span{padding:2px 6px;border:1px solid rgba(35,39,47,.2);border-radius:999px;background:rgba(255,255,255,.3)}
 .meta .high{background:#ffd6d6;border-color:#d66}.meta .done{background:#d8f5df}.meta .blocked{background:#ffe9bd}.meta .next{background:#dbeafe}.meta .doing{background:#fef3c7}
 ::selection{background:rgba(255,243,163,.85)} /* 便利贴黄作为选区色，呼应主视觉 */
-button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[contenteditable=true]:focus-visible{outline:2.5px solid #2563eb;outline-offset:2px}
+button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[contenteditable=true]:focus-visible,
+.sticky:focus-visible,.board:focus-visible,.pcell:focus-visible,.ov-item:focus-visible,.kan-card:focus-visible{outline:2.5px solid #2563eb;outline-offset:2px}
 #viewMode{border:1px solid rgba(35,39,47,.2);border-radius:9px;padding:8px 6px;background:#fff;font:12px inherit}
 #overview{position:fixed;inset:90px 24px 24px 280px;z-index:40;background:rgba(255,253,246,.97);border:1px solid rgba(35,39,47,.2);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px;overflow:auto;display:none}
 #overview.open{display:block}
@@ -333,12 +334,12 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
   <button id="imgBtn">+ 图片</button>
   <input type="file" id="imgPick" accept="image/*">
   <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
-  <button class="toolBtn" id="toolBtn" title="绘图与排列工具">工具 ▾</button>
-  <select id="viewMode" title="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
-  <button class="toolBtn" id="moreBtn" title="数据与帮助">⋯</button>
+  <button class="toolBtn" id="toolBtn" title="绘图与排列工具" aria-haspopup="true" aria-expanded="false">工具 ▾</button>
+  <select id="viewMode" title="视图" aria-label="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
+  <button class="toolBtn" id="moreBtn" title="数据与帮助" aria-haspopup="true" aria-expanded="false">⋯</button>
   <input type="file" id="importPick" accept="application/json,.json">
   <span class="bname" id="boardName"></span>
-  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
+  <span id="boardCount" aria-live="polite" aria-atomic="true" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
 </div>
 <div id="toolPop" class="pop">
   <div id="toolGroup"><button class="toolBtn" data-tool="line" title="连接线（箭头在属性面板开关）">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button></div>
@@ -350,22 +351,22 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
   <button class="toolBtn" data-action="import">导入数据</button>
   <button class="toolBtn" data-action="help">快捷键帮助</button>
 </div>
-<div id="palette"></div>
-<div id="islandWrap"><div id="island"><div class="island-inner">
-  <div class="isl-title">新画板</div>
-  <input id="islInput" maxlength="24" placeholder="给画板起个名字" autocomplete="off">
+<div id="palette" role="group" aria-label="选择便利贴类型与颜色"></div>
+<div id="islandWrap" role="dialog" aria-modal="true" aria-labelledby="islTitle"><div id="island"><div class="island-inner">
+  <div class="isl-title" id="islTitle">新画板</div>
+  <input id="islInput" maxlength="24" placeholder="给画板起个名字" autocomplete="off" aria-label="画板名称">
   <div class="isl-btns"><button id="islCancel">取消</button><button id="islOk">创建</button></div>
 </div></div></div>
 
 <div id="viewport"><div id="world"></div></div>
-<section id="overview"></section>
+<section id="overview" role="dialog" aria-modal="true" aria-label="面板" tabindex="-1"></section>
 <button id="ovClose" title="关闭面板 (Esc)">×</button>
-<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
-<div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
+<aside id="inspector" role="complementary" aria-label="属性面板"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<div id="mediaPreview" role="dialog" aria-modal="true" aria-label="图片预览"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
-<div class="hint" id="hint"><button id="hintClose" title="关闭">×</button>拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具 / 关闭面板</div>
+<div class="hint" id="hint" role="region" aria-label="快捷键说明"><button id="hintClose" title="关闭">×</button>拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具 / 关闭面板</div>
 <button id="helpBtn" title="快捷键帮助">?</button>
 <script>
 "use strict";
@@ -656,6 +657,16 @@ const attrSelector = (name, value) => "[" + name + '="' + String(value).replace(
 const nodeById = id => world.querySelector(attrSelector("data-id", id));
 const nodeByElementId = id => world.querySelector(attrSelector("data-element-id", id));
 
+// 面板里的列表项是 div + onclick，鼠标能用键盘用不了：统一补上语义与回车/空格激活
+function activateOnKey(node, run, role, label) {
+  node.tabIndex = 0;
+  node.setAttribute("role", role || "button");
+  if (label) node.setAttribute("aria-label", label);
+  node.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault(); run();
+  });
+}
 function el(tag, cls, text) {
   const n = document.createElement(tag);
   if (cls) n.className = cls;
@@ -688,11 +699,13 @@ function renderBoards() {
       save(); renderBoards(); renderAll();
     };
     d.appendChild(x);
-    d.onclick = () => {
+    const pickBoard = () => {
       if (S.activeId === b.id) return;
       persistView(); S.activeId = b.id; save(); renderBoards(); renderAll();
     };
+    d.onclick = pickBoard;
     d.ondblclick = () => renameBoard(b);
+    activateOnKey(d, pickBoard, "button", "画板 " + b.name + "，" + b.stickies.filter(s => !s.trashed).length + " 张便利贴");
     boardList.appendChild(d);
   });
 }
@@ -713,9 +726,29 @@ function todoRow(st, it) {
   li.append(box, tx, rm);
   return li;
 }
+function stickyLabel(st) { // 贴纸的可访问名：类型 + 标题 + 状态/优先级/截止
+  const kindName = st.kind === "img" ? "图片" : (KINDS.find(k => k.k === st.kind) || {label: "便利贴"}).label;
+  const bits = [kindName, st.title || "未命名"];
+  if (st.status && st.status !== "backlog") bits.push(STATUS_LABELS[st.status] || st.status);
+  if (st.priority && st.priority !== "none") bits.push("优先级" + st.priority);
+  if (st.due) bits.push("截止" + st.due);
+  return bits.join("，");
+}
 function stickyNode(st) {
   const a = el("article", `sticky b-${st.color}` + (st.kind === "title" ? " titlekind" : st.kind === "img" ? " imgkind" : ""));
   a.dataset.id = st.id;
+  a.tabIndex = 0; // 键盘可达：画布上每张贴纸都是可聚焦对象
+  a.setAttribute("role", "group");
+  a.setAttribute("aria-label", stickyLabel(st));
+  a.addEventListener("keydown", e => {
+    if (e.target !== a) return; // 内部按钮 / 输入框自己处理，别抢它们的键
+    if (e.key === "Enter") { e.preventDefault(); selectSticky(st, e.shiftKey); }
+    else if (e.key === " ") {
+      e.preventDefault();
+      if (selectedIds.has(st.id)) selectedIds.delete(st.id); else selectedIds.add(st.id);
+      applySelectionStyles(); syncInspector();
+    }
+  });
   a.style.zIndex = st.z ?? 1;
   a.style.left = st.x + "px"; a.style.top = st.y + "px";
   if (st.w) a.style.width = st.w + "px";
@@ -814,6 +847,9 @@ function stickyNode(st) {
 }
 function renderAll() {
   const b = board();
+  // 整棵树重建会把焦点丢回 body，键盘用户从此接不上：先记住聚焦的贴纸，重建后还回去
+  const active = document.activeElement;
+  const focusId = active && active.classList && active.classList.contains("sticky") ? active.dataset.id : "";
   world.innerHTML = ""; // 整棵树重建，之前按类名清高亮的那一趟是无效功
   const query = (searchBox.value || "").trim().toLowerCase();
   b.stickies.forEach(st => {
@@ -827,6 +863,7 @@ function renderAll() {
   boardName.textContent = b.name;
   boardCount.textContent = b.stickies.filter(s => !s.trashed).length + " 张";
   emptyHint.style.display = b.stickies.some(s => !s.trashed) ? "none" : "grid";
+  if (focusId) { const back = nodeById(focusId); if (back) back.focus({preventScroll: true}); }
   applyView();
 }
 let selectedIds = new Set();
@@ -1008,9 +1045,9 @@ function snapAnchor(x, y) {
 }
 function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
 function recordActivity() { S.activity = Array.isArray(S.activity) ? S.activity : []; const date = dateKey(); const rows = allStickies().filter(x => !x.sticky.trashed); const entry = {date, total:rows.length, done:rows.filter(x => x.sticky.status === "done").length}; const old = S.activity.find(x => x.date === date); if (old) Object.assign(old, entry); else S.activity.push(entry); S.activity = S.activity.slice(-90); }
-function showToast(message) { let toast = document.getElementById("toast"); if (!toast) { toast = el("div", "toast"); toast.id = "toast"; document.body.appendChild(toast); } toast.textContent = message; toast.classList.add("show"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 5000); }
+function showToast(message) { let toast = document.getElementById("toast"); if (!toast) { toast = el("div", "toast"); toast.id = "toast"; toast.setAttribute("role", "status"); toast.setAttribute("aria-live", "polite"); document.body.appendChild(toast); } toast.textContent = message; toast.classList.add("show"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 5000); }
 function renderDashboard() { hideInspector();
-  const overview = overviewPanel, rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const subAll = rows.flatMap(x => [...(x.sticky.items || []).map(it => !!it.done), ...(x.sticky.subtasks || []).map(t => t.status === "done")]), subDone = subAll.filter(Boolean).length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>子项完成</h3><strong>' + subDone + '/' + subAll.length + '</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div>'; overview.classList.add("open"); }
+  const overview = overviewPanel, rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const subAll = rows.flatMap(x => [...(x.sticky.items || []).map(it => !!it.done), ...(x.sticky.subtasks || []).map(t => t.status === "done")]), subDone = subAll.filter(Boolean).length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>子项完成</h3><strong>' + subDone + '/' + subAll.length + '</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div>'; openPanel(overview); }
 function centerOnSticky(st) { // 跳转后把目标贴纸平移到视口中心，applyView 内部会做边界钳制
   const v = board().view, size = stickySize(st);
   v.x = Math.round(viewport.clientWidth / 2 - (st.x + size.w / 2) * v.k);
@@ -1045,8 +1082,8 @@ function renderToday() { // 「今天」页：到期/逾期 + 进行中，一个
     + '<h3>今日到期与逾期</h3><div class="ov-list">' + (dueRows.length ? dueRows.map(dueItem).join("") : '<p class="muted">今天没有到期任务，去画布上挑一张开始吧。</p>') + '</div>'
     + '<h3>进行中</h3><div class="ov-list">' + (doing.length ? doing.map(doingItem).join("") : '<p class="muted">没有进行中的任务。</p>') + '</div>';
 
-  overview.classList.add("open");
-  overview.querySelectorAll(".ov-item[data-sticky]").forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
+  openPanel(overview);
+  overview.querySelectorAll(".ov-item[data-sticky]").forEach(item => { item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky); activateOnKey(item, item.onclick); });
   overview.querySelectorAll("[data-done]").forEach(btn => btn.onclick = e => {
     e.stopPropagation();
     const parts = btn.dataset.done.split("|"), b = S.boards.find(x => x.id === parts[0]), st = b && b.stickies.find(x => x.id === parts[1]);
@@ -1079,7 +1116,7 @@ function openOverview(mode) {
     overview.querySelectorAll('[data-restore-element]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const b = S.boards.find(x => x.id === btn.dataset.board); const elm = b && (b.elements || []).find(x => x.id === btn.dataset.restoreElement); if (elm) { elm.trashed = false; save(); openOverview('trash'); renderAll(); showToast("已恢复图形"); } });
     const emptyBtn = document.getElementById("emptyTrash");
     if (emptyBtn) emptyBtn.onclick = () => { if (!confirm("彻底删除回收站里的全部内容？此操作不可恢复。")) return; S.boards.forEach(b => { b.stickies = b.stickies.filter(s => !s.trashed); b.elements = (b.elements || []).filter(e => !e.trashed); }); save(); openOverview('trash'); renderAll(); showToast("回收站已清空"); };
-    overview.classList.add('open'); return;
+    openPanel(overview); return;
   }
   if (mode === "stats") { renderDashboard(); return; }
   if (mode === "kanban") { renderKanban(); return; }
@@ -1089,7 +1126,7 @@ function openOverview(mode) {
     const toggle = '<div class="cal-toggle"><button data-calview="month" class="' + (calView === "month" ? "on" : "") + '">月历</button><button data-calview="list" class="' + (calView === "list" ? "on" : "") + '">列表</button></div>';
     if (calView === "list") {
       overview.innerHTML = '<h2>日历视图 · 列表</h2>' + toggle + '<div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
-      overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
+      overview.querySelectorAll('.ov-item').forEach(item => { item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky); activateOnKey(item, item.onclick); });
     } else {
       const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), 1), days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), cells = [];
       for (let i = 0; i < first.getDay(); i += 1) cells.push('<div class="cal-cell muted"></div>');
@@ -1100,7 +1137,7 @@ function openOverview(mode) {
     }
     overview.querySelectorAll('[data-calview]').forEach(btn => btn.onclick = () => { overview.dataset.calView = btn.dataset.calview; openOverview("calendar"); });
   }
-  overview.classList.add("open");
+  openPanel(overview);
 }
 function renderKanban() {
   hideInspector();
@@ -1116,6 +1153,7 @@ function renderKanban() {
   overview.querySelectorAll(".kan-card").forEach(card => {
     card.ondragstart = e => { e.dataTransfer.setData("text/plain", card.dataset.sticky + "|" + card.dataset.board); e.dataTransfer.effectAllowed = "move"; };
     card.onclick = () => jumpToSticky(card.dataset.board, card.dataset.sticky);
+    activateOnKey(card, card.onclick);
   });
   overview.querySelectorAll(".kan-col").forEach(col => {
     col.ondragover = e => { e.preventDefault(); col.classList.add("over"); };
@@ -1127,7 +1165,7 @@ function renderKanban() {
       if (st && st.status !== col.dataset.status) { st.status = col.dataset.status; save(); renderAll(); renderKanban(); }
     };
   });
-  overview.classList.add("open");
+  openPanel(overview);
 }
 function renderSearchResults(value) {
   const query = String(value || "").trim().toLowerCase(), overview = overviewPanel;
@@ -1136,8 +1174,8 @@ function renderSearchResults(value) {
   const rows = allStickies().filter(({sticky: st}) => !st.trashed && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase().includes(query));
   overview.dataset.mode = "search";
   overview.innerHTML = '<h2>全局搜索</h2><p>找到 ' + rows.length + ' 张便利贴 · 点击结果跳转</p><div class="ov-list">' + (rows.length ? rows.map(({board:b, sticky:st}) => '<div class="ov-item" data-board="' + escapeRich(b.id) + '" data-sticky="' + escapeRich(st.id) + '"><b>' + escapeRich(st.title || "未命名") + '</b><small> · ' + escapeRich(b.name) + ' · ' + escapeRich(STATUS_LABELS[st.status] || "待办") + '</small><div>' + escapeRich((st.tags || []).map(tag => "#" + tag).join(" ")) + '</div></div>').join("") : '<p>没有匹配内容。</p>') + '</div>';
-  overview.querySelectorAll('.ov-item').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
-  overview.classList.add("open");
+  overview.querySelectorAll('.ov-item').forEach(item => { item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky); activateOnKey(item, item.onclick); });
+  openPanel(overview, false);
 }
 /* ---- palette ---- */
 function buildPalette() {
@@ -1155,6 +1193,7 @@ function buildPalette() {
       cell.appendChild(mini);
       cell.appendChild(el("span", null, CNAMES[c]));
       cell.onclick = () => { addSticky(c, k); palette.classList.remove("open"); };
+      activateOnKey(cell, cell.onclick, "button", label + " · " + CNAMES[c]);
       row.appendChild(cell);
     });
     palette.appendChild(row);
@@ -1367,8 +1406,18 @@ viewMode.addEventListener("pointerdown", () => { // 打开下拉即预收菜单�
   if (ovPanel.classList.contains("open") && ["trash", "search"].includes(ovPanel.dataset.mode)) closeOverview();
 });
 /* ---- 弹出层：工具 / 更多，同一时刻只开一个 ---- */
-function closePops(except) { ["toolPop", "moreMenu"].forEach(id => { if (id !== except) document.getElementById(id).classList.remove("open"); }); }
-function togglePop(id) { const p = document.getElementById(id), was = p.classList.contains("open"); closePops(); p.classList.toggle("open", !was); }
+function openPanel(node, moveFocus) { // 全屏面板统一出口：补 aria-label、展开、把焦点带进面板
+  const heading = node.querySelector("h2");
+  node.setAttribute("aria-label", heading ? heading.textContent : "面板");
+  node.classList.add("open");
+  if (moveFocus !== false && !node.contains(document.activeElement)) node.focus();
+}
+function syncPopA11y() {
+  document.getElementById("toolBtn").setAttribute("aria-expanded", String(document.getElementById("toolPop").classList.contains("open")));
+  document.getElementById("moreBtn").setAttribute("aria-expanded", String(document.getElementById("moreMenu").classList.contains("open")));
+}
+function closePops(except) { ["toolPop", "moreMenu"].forEach(id => { if (id !== except) document.getElementById(id).classList.remove("open"); }); syncPopA11y(); }
+function togglePop(id) { const p = document.getElementById(id), was = p.classList.contains("open"); closePops(); p.classList.toggle("open", !was); syncPopA11y(); }
 document.getElementById("toolBtn").onclick = e => { e.stopPropagation(); togglePop("toolPop"); };
 document.getElementById("moreBtn").onclick = e => { e.stopPropagation(); togglePop("moreMenu"); };
 const importPick = document.getElementById("importPick");
@@ -1454,7 +1503,7 @@ imgPick.onchange = () => {
   rd.readAsDataURL(f);
 };
 document.getElementById("imgReplace").onclick = () => { const target = currentSticky(); replaceTarget = target && target.kind === "img" ? target : null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
-document.getElementById("imgPreview").onclick = () => { const st = currentSticky(); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); };
+document.getElementById("imgPreview").onclick = () => { const st = currentSticky(); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); document.getElementById("mediaClose").focus(); };
 document.getElementById("mediaClose").onclick = () => document.getElementById("mediaPreview").classList.remove("open");
 function previewImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; const host = nodeById(st.id), img = host && host.querySelector("img"); if (img) { img.style.objectPosition = st.crop.x + "% " + st.crop.y + "%"; img.style.transform = "scale(" + (st.crop.scale || 1) + ")"; } }
 function commitImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; previewImageCrop(); save(); renderAll(); }
@@ -1571,6 +1620,7 @@ async function closeIsland() {
   } catch (e) {}
   islandWrap.classList.remove("show");
   islandOpen = false;
+  document.getElementById("newBoard").focus(); // 关闭后把焦点还给触发按钮，键盘用户不会掉到 body
 }
 function confirmIsland() {
   const n = islInput.value.trim();
