@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN" data-page-node-id="kTMAYSQGME73Dv59FcnIiC">
+<head data-page-node-id="uKHBlnvmCtMnIa9GN7k0G8">
+<meta charset="UTF-8" data-page-node-id="JWHl99vQDXvbYL3juoD3L5">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="ftDlepk89Ctp3vOalSEUjj">
 <title>The Journey · 便利贴白板</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="80fQepJNE4oCSW55FGR59u">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="Fcqc1zg1o0QB1kVWwG4lKG">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" data-page-node-id="vHRlGAFhSfERulbOA5o0A8">
 <style>
 :root{
   --paper:#f6f2e9; --ink:#23272f; --muted:#6b7280; --card:#fffdf6;
@@ -318,59 +318,60 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 }
 </style>
 </head>
-<body>
-<aside id="sidebar">
-  <div class="side-head"><h1>Sticky Board</h1><button id="collapseBtn" title="收起侧栏">‹</button></div>
-  <div class="sub">便利贴白板 · 自动保存到本地</div>
-  <div id="boardList"></div>
-  <button id="newBoard">+ 新画板</button>
-  <div class="foot">双击画板改名 · 悬停出现删除<br>所有内容只存在这台电脑<br><span id="ver">v3.12 · 专注今天</span></div>
+<body data-page-node-id="8cqXb0SAaMw92ngiCAaavk">
+<aside id="sidebar" data-page-node-id="u0DFLA9CkTE3vCvNnxACxh">
+  <div class="side-head" data-page-node-id="5FJvHZQjv0Y92U9MoH4rQk"><h1 data-page-node-id="Qgu8s4YTmAakwzngCMsc9e">Sticky Board</h1><button id="collapseBtn" title="收起侧栏" data-page-node-id="oGlX6l1FJEfqonzBS8LIbw">‹</button></div>
+  <div class="sub" data-page-node-id="NDRY8GfT0BjZ1cX9rvOG7p">便利贴白板 · 自动保存到本地</div>
+  <div id="boardList" data-page-node-id="J4O4xWWAznboGWDMrrjoaC"></div>
+  <button id="newBoard" data-page-node-id="l3teaowZuiPHEZTzeDp7m2">+ 新画板</button>
+  <div class="foot" data-page-node-id="AOyTI7dh6FJCSA03N3AVJx">双击画板改名 · 悬停出现删除<br data-page-node-id="wTCrAAB5yvrHuXDxZIWseZ">所有内容只存在这台电脑<br data-page-node-id="4EOcnFmehbzdSqnWCt2rqQ"><span id="ver" data-page-node-id="rdBGsPI1hXGyE2X1XxVF3x">v3.12 · 专注今天</span></div>
 </aside>
-<button id="sideTab" title="展开侧栏">›</button>
+<button id="sideTab" title="展开侧栏" data-page-node-id="u0rrE3YSDUQ2lqibiW3WdC">›</button>
 
-<div id="toolbar">
-  <button id="addBtn">+ 便利贴</button>
-  <button id="imgBtn">+ 图片</button>
-  <input type="file" id="imgPick" accept="image/*">
-  <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
-  <button class="toolBtn" id="toolBtn" title="绘图与排列工具">工具 ▾</button>
-  <select id="viewMode" title="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
-  <button class="toolBtn" id="moreBtn" title="数据与帮助">⋯</button>
-  <input type="file" id="importPick" accept="application/json,.json">
-  <span class="bname" id="boardName"></span>
-  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px"></span>
+<div id="toolbar" data-page-node-id="gGfgyea8r32jy51ODGx6Wk">
+  <button id="addBtn" data-page-node-id="UpmKsfDS5rpCuqZRUx9mQu">+ 便利贴</button>
+  <button id="imgBtn" data-page-node-id="eLnUVurTfOaU7SSrRczX9j">+ 图片</button>
+  <input type="file" id="imgPick" accept="image/*" data-page-node-id="CeLlGyQBph4A4KfEntOupa">
+  <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴" data-page-node-id="azbKm6DTM8CKjjBjHpnTd3">
+  <button class="toolBtn" id="toolBtn" title="绘图与排列工具" data-page-node-id="vAwJaKRSILVBcDGMKvRycg">工具 ▾</button>
+  <select id="viewMode" title="视图" data-page-node-id="rgzu8176HKP4Axw0M5MuVG"><option value="board" data-page-node-id="LXYhdDJEzsh1Jple9mmChF">画布</option><option value="today" data-page-node-id="lp6IDvrHe2t2D4onOUneaj">今天</option><option value="kanban" data-page-node-id="sFxQHwMmxGxZRzgDrEERoE">看板</option><option value="calendar" data-page-node-id="NIKMtr3HPnmSziiGoriFaf">日历</option><option value="stats" data-page-node-id="HrVRmsinCmGJExuulyL8KI">统计</option></select>
+  <button class="toolBtn" id="moreBtn" title="数据与帮助" data-page-node-id="viokQnpRePqgyJwZqWqya6">⋯</button>
+  <input type="file" id="importPick" accept="application/json,.json" data-page-node-id="4x1FljxnLakZ6jQkTElRIy">
+  <span class="bname" id="boardName" data-page-node-id="YJhCWk5VboVrFUfMwuHB24"></span>
+  <span id="boardCount" style="font-size:11px;font-weight:700;background:#23272f;color:#fff;border-radius:999px;padding:3px 10px" data-page-node-id="5IjrkY2qSKNZxfYXuhJUmL"></span>
 </div>
-<div id="toolPop" class="pop">
-  <div id="toolGroup"><button class="toolBtn" data-tool="line" title="连接线（箭头在属性面板开关）">／</button><button class="toolBtn" data-tool="rect" title="矩形">□</button><button class="toolBtn" data-tool="ellipse" title="圆形">○</button></div>
-  <button class="toolBtn" data-op="select" title="框选多选">框选</button>
+<div id="toolPop" class="pop" data-page-node-id="0VyShFHidSL1JHeVtlfoOs">
+  <div id="toolGroup" data-page-node-id="vHveEG1cwSvRkAeIb3EVFC"><button class="toolBtn" data-tool="line" title="连接线（箭头在属性面板开关）" data-page-node-id="GkxN4sRrrF0gm4R9LQcXKG">／</button><button class="toolBtn" data-tool="rect" title="矩形" data-page-node-id="du2rcgfTkhxfG4vzjExiU8">□</button><button class="toolBtn" data-tool="ellipse" title="圆形" data-page-node-id="y0NnIcTXfGCjD6i6gEzmNn">○</button></div>
+  <button class="toolBtn" data-op="select" title="框选多选" data-page-node-id="EpXN7fOnTP7eO6dar67RAs">框选</button>
 </div>
-<div id="moreMenu" class="pop">
-  <button class="toolBtn" data-action="trash">回收站</button>
-  <button class="toolBtn" data-action="export">导出备份</button>
-  <button class="toolBtn" data-action="import">导入数据</button>
-  <button class="toolBtn" data-action="help">快捷键帮助</button>
+<div id="moreMenu" class="pop" data-page-node-id="WERrmSy74ztLsTNnTe19XU">
+  <button class="toolBtn" data-action="trash" data-page-node-id="r8TbqVxq7rRhbjFYKrKseH">回收站</button>
+  <button class="toolBtn" data-action="export" data-page-node-id="D3rIGjbTP0FAXFJU7qqzkj">导出备份</button>
+  <button class="toolBtn" data-action="import" data-page-node-id="fM872GFiPpJ2Rpzu0xfX1D">导入数据</button>
+  <button class="toolBtn" data-action="help" data-page-node-id="bOYOHcD5FunTcJ1Fe96E71">快捷键帮助</button>
 </div>
-<div id="palette"></div>
-<div id="islandWrap"><div id="island"><div class="island-inner">
-  <div class="isl-title">新画板</div>
-  <input id="islInput" maxlength="24" placeholder="给画板起个名字" autocomplete="off">
-  <div class="isl-btns"><button id="islCancel">取消</button><button id="islOk">创建</button></div>
+<div id="palette" data-page-node-id="2Lq8RjFCvGRnELNFrB5bHG"></div>
+<div id="islandWrap" data-page-node-id="tZUruDuIFlpAxYWuLmLFAo"><div id="island" data-page-node-id="IbdBxLPEN3TDYFZATjvTwf"><div class="island-inner" data-page-node-id="CvckXPejvhqfoKtB93ftF4">
+  <div class="isl-title" data-page-node-id="gGubMXHnssDrG51Hi6dbsk">新画板</div>
+  <input id="islInput" maxlength="24" placeholder="给画板起个名字" autocomplete="off" data-page-node-id="MUxH8ODTD22MddHvy9DBDM">
+  <div class="isl-btns" data-page-node-id="llCBVAgJS0HwTpz2NJyFv7"><button id="islCancel" data-page-node-id="7nHsi5jn69LZXrXWaYIDyu">取消</button><button id="islOk" data-page-node-id="5QJDXrAB4cCPdvjJwxP5zP">创建</button></div>
 </div></div></div>
 
-<div id="viewport"><div id="world"></div></div>
-<section id="overview"></section>
-<button id="ovClose" title="关闭面板 (Esc)">×</button>
-<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
-<div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
-<div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
+<div id="viewport" data-page-node-id="LWpCiHnifo7vc7xg3CGBy3"><div id="world" data-page-node-id="FqUZvlDxD6jVkzEy9YSLir"></div></div>
+<section id="overview" data-page-node-id="kWeBs8Jcz0tyB4xr4iNnEX"></section>
+<button id="ovClose" title="关闭面板 (Esc)" data-page-node-id="3jHSI9nEWdksg3LFSbVBKT">×</button>
+<aside id="inspector" data-page-node-id="4fALPadY0GAUkweypsMm4k"><div class="ins-title" data-page-node-id="gD02KoYD58XTZYdTmCTVB7">属性</div><div id="batchActions" style="display:none" data-page-node-id="nosVeoFd9aldtPUVPsbdBF"><div class="ins-grid" data-page-node-id="sruSkYqkXKvqBI1ho0D6rh"><label data-page-node-id="n5xgtUxkiJfMTKpaAoFYjN">批量状态<select id="batchStatus" data-page-node-id="44uI64ZaDuRsMcq5xHcbne"><option value="" data-page-node-id="cGht4cEaP1JHhdN01afiHm">不变</option><option value="backlog" data-page-node-id="VPUbNsTp5K0KLbb6rVSTK7">待办</option><option value="next" data-page-node-id="RlrWkmvhzreAO03mfBufBd">下一步</option><option value="doing" data-page-node-id="bAeqqlOOBp962DUzHkM8py">进行中</option><option value="blocked" data-page-node-id="MgiJWmr1bNwWbMPnFgC17S">阻塞</option><option value="done" data-page-node-id="TCTalM0ACEKv6nMejytZst">完成</option></select></label><label data-page-node-id="dSrcDE3V0sMZIaxPhcJhNQ">批量优先级<select id="batchPriority" data-page-node-id="JxS2fZeyxZQvUslMWJVfJk"><option value="" data-page-node-id="jYuCNTXJ6zKzXg15WkVxkI">不变</option><option value="none" data-page-node-id="GHhkbjGFa6UgGH7WWKEIP3">无</option><option value="low" data-page-node-id="FNQFhRNfiN3uCbiA1KRU8F">低</option><option value="medium" data-page-node-id="h0z5R9g95ADkeBLNlypNVJ">中</option><option value="high" data-page-node-id="9Bbqt491ZlzXG7i2dSbVYr">高</option></select></label><label data-page-node-id="Ew7ZDRT8hKDKFS7Mwis9cQ">批量截止<input id="batchDue" type="date" data-page-node-id="3P2MCbdOpfAyp9monEBXvd"></label><label data-page-node-id="79TMotAX1Ui5UpxBDoR1Gg">追加标签<input id="batchTag" placeholder="留空不加" data-page-node-id="LkRuB0NNlHZ5aDdND4Hm4u"></label></div><div class="ins-actions" data-page-node-id="zEgPNon87mZvqvZXjGiNEx"><button id="batchApply" data-page-node-id="xdT6mCcDvUBGDqWmo8Vvrz">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields" data-page-node-id="tZPiijWguQwYgjjVJMGOfh"><label data-page-node-id="GRK5rnDUlyQwBay3bMBPPm">状态<select id="insStatus" data-page-node-id="KRFdaE8L182iFqxc4iFbCq"><option value="backlog" data-page-node-id="n57djYPkzOzEdjxxmD9hSb">待办</option><option value="next" data-page-node-id="6dC92VNY0o4jhGoijpmFHs">下一步</option><option value="doing" data-page-node-id="Lxu2HJbBYMiv61eCznIhlB">进行中</option><option value="blocked" data-page-node-id="9JEkPBOOWOmnSwSSP0fdq5">阻塞</option><option value="done" data-page-node-id="BH4X8rkxfPmcBC7sJNStzC">完成</option></select></label><label data-page-node-id="NE9HIaioeZzTxibKmtCgqY">优先级<select id="insPriority" data-page-node-id="Va454hKpy2ZUdWh0mTupuJ"><option value="none" data-page-node-id="kDfZC620afAYFJ6JtM0O9g">无</option><option value="low" data-page-node-id="wFY2LzIL3FR1PDB8XeB91H">低</option><option value="medium" data-page-node-id="8Ed8ueDvJ05Iyn5CJz8BKo">中</option><option value="high" data-page-node-id="AKcOQAPUhNa9odgtWCXCKe">高</option></select></label><label data-page-node-id="CQT7T6D3XrPoBqe8xaX9DA">截止日期<input id="insDue" type="date" data-page-node-id="QkulbmVsDuVMuXuph1arQf"></label><button id="insMoreBtn" type="button" class="ins-more-btn" data-page-node-id="77fOKBOD0ggIZzeQX3wBYY">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none" data-page-node-id="sjtQWHNc8uuFehc4aMVeT7"><label data-page-node-id="2k4vFjWxEUGLEFSnmYrse3">标签<input id="insTags" placeholder="工作, 研究" data-page-node-id="RanFJBCAEuG3wyLPueXSZA"></label><label data-page-node-id="zR12TdB9PHvlPTGgv16g9T">子任务<div id="subtaskEditor" class="subtask-editor" data-page-node-id="oIKpxEogq592OdykBJ4j3K"></div><div class="subtask-add" data-page-node-id="qp95vKOcrLLMRCn3OXZoGt"><input id="insSubNew" placeholder="新增子任务" data-page-node-id="eZx7ZmMMwykvyzDfpUh4i8"><button id="insSubAdd" type="button" data-page-node-id="Bn9Xdc0l1dBjklXJBaErsK">添加</button></div></label><label class="check-label" data-page-node-id="9KbY4rBR1xieHJlfCJcN7P">锁定 <input id="insLocked" type="checkbox" data-page-node-id="zu5Gjbf2qa91JdH1SqXGJM"></label></div></div><div class="img-actions" id="imageActions" data-page-node-id="6x2PZ6QP9gg7OkqHnnX71g"><button id="imgReplace" data-page-node-id="z3MyJrDAjo6uKPAurYJi2q">替换图片</button><button id="imgPreview" data-page-node-id="xY6J3ptqxukyvYctOOPGte">预览图片</button><label data-page-node-id="OuRdTqjMRmDzFET4DnNJia">裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1" data-page-node-id="S34ZwEa2AvV5GAGcsvrIP8"></label><label data-page-node-id="93mBHK7LfWgrSVx2GZwPkL">水平位置<input id="imgCropX" type="range" min="0" max="100" value="50" data-page-node-id="9xCVHmL0nnsI1ZZqInrEOj"></label><label data-page-node-id="S9Is7WsSHzXFsJgo5NCd6v">垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50" data-page-node-id="2sSBnaShAmLoHnFOFL7lAw"></label><label data-page-node-id="wMIdJ8qUQY0WlvLGIqJxFs">标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions" data-page-node-id="RYYn9tFUqzhHTeCgYF9rTb"><label class="check-label" id="elmArrowRow" data-page-node-id="pCF4CoQAp4HXWeG3yy3XMo">箭头 <input id="elmArrow" type="checkbox" data-page-node-id="nPcKXRair22Ez6Xlkj8zUS"></label><label id="elmTextRow" data-page-node-id="DDzvShDjF3AmR0FxfEbxSe">文字<input id="elmText" placeholder="图形上的文字" data-page-node-id="LIJU4BG7At8SEPfPbraQJU"></label><label id="elmColorRow" data-page-node-id="JST7f843VCMo7sAOkP1FDt">填充颜色<select id="elmColor" data-page-node-id="mnLpm3IFN5dqMKjEClznOi"><option value="" data-page-node-id="wDqC4N9re5ePeR85yh7jhh">默认</option><option value="white" data-page-node-id="0L0vgm9HR2PLZMGHsdhSiT">白</option><option value="yellow" data-page-node-id="ZZofaDH9TBg2TPFar07YLi">黄</option><option value="blue" data-page-node-id="2mU6tOykCYiBG6UWjztXpE">蓝</option><option value="pink" data-page-node-id="ME9lMVCvDymKBFQMkQTJZz">粉</option><option value="green" data-page-node-id="td2wJiBcr1bl1XlGB6lAdV">绿</option><option value="purple" data-page-node-id="J3UXoGpeO5JFnyaughW0A7">紫</option><option value="cyan" data-page-node-id="lNTbmhCCHcCn0V84Nm4EUi">青</option></select></label></div><div class="ins-actions" id="stickyActions" data-page-node-id="xkn8bDYh6nrXSTwPGk8Od4"><button id="insFront" data-page-node-id="H7RjHb9ikz5B6sPGK8GCMc">置顶</button><button id="insBack" data-page-node-id="bVgBWVXXdlTyW5sY7WEHAC">置底</button><button id="insTrash" data-page-node-id="bxV9jEWi5rMfllJTEL7h6V">回收站</button><button id="insClose" data-page-node-id="vBAI07SfKP0CdOXSWjKapO">关闭</button></div></aside>
+<div id="mediaPreview" data-page-node-id="sI2earY9Cob621wRmy5Acv"><button id="mediaClose" data-page-node-id="SutTG767ne6sNc9fqS5NbL">关闭</button><img alt="图片预览" data-page-node-id="pdfzDmlI6MKs5IY6Z58u7D"></div>
+<div id="empty" data-page-node-id="VH9W4ojn6AQ2PZAuVahi22">点「+ 便利贴」放第一张贴纸 ~</div>
 
-<div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
-<div class="hint" id="hint"><button id="hintClose" title="关闭">×</button>拖背景平移 · 滚轮缩放 · <b>双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具 / 关闭面板</div>
-<button id="helpBtn" title="快捷键帮助">?</button>
+<div class="zoom" data-page-node-id="ArDBWHjXm9xBvdXokmHH3V"><button id="zOut" data-page-node-id="wt3K37FixBCajSSh6ayfAo">−</button><span id="zLabel" data-page-node-id="f77DRKaxKdxmqODY74FNWH">100%</span><button id="zIn" data-page-node-id="O1A7xUT2bsYNs8U0ubpBeV">＋</button></div>
+<div class="hint" id="hint" data-page-node-id="RBGvPAWnTfIzFpvGF9Cln8"><button id="hintClose" title="关闭" data-page-node-id="bjdHYHuLqyrkRzUofZGQQ2">×</button>拖背景平移 · 滚轮缩放 · <b data-page-node-id="FLDLB52hK6VV6qDoCF4CMV">双击改字</b> · ⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制 · ⌘A 全选 · 方向键微调 · Esc 取消工具 / 关闭面板</div>
+<button id="helpBtn" title="快捷键帮助" data-page-node-id="iEpDUQBeauYzu25sZ4kClc">?</button>
 <script>
 "use strict";
 const KEY = "stickyboards-v1";
 const COLORS = ["yellow", "blue", "pink", "green", "purple", "cyan"];
+/* ==== PURE-CORE-START ==== 以下整块不碰 DOM/localStorage/全局状态，测试与浏览器共用同一份实现（见 tests/harness.mjs） */
 const BOARD = {width: 2400, height: 1600};
 const CNAMES = {yellow:"黄", blue:"蓝", pink:"粉", green:"绿", purple:"紫", cyan:"青", white:"白"};
 const STATUS_LABELS = {backlog:"待办", next:"下一步", doing:"进行中", blocked:"阻塞", done:"完成"}; // 全站统一中文，避免与看板双语混杂
@@ -436,6 +437,7 @@ function clampView(view) { // 缩放钳制在 0.4–1.6，非法值回退默认
   };
 }
 function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜色、迁移历史字段
+  if (!st || typeof st !== "object") return null; // 兜底：调用点 filter(Boolean) 依赖这里返回 null 而不是抛错
   const out = {
     ...st,
     id: String(st.id || uid()),
@@ -467,6 +469,7 @@ function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜�
   return out;
 }
 function normalizeElement(elm) { // 单个画布元素：尺寸下限 20，坐标不出板
+  if (!elm || typeof elm !== "object") return null; // 同上
   const w = Math.min(BOARD.width, Math.max(20, Number(elm.w) || 120));
   const h = Math.min(BOARD.height, Math.max(20, Number(elm.h) || 80));
   return {
@@ -543,6 +546,8 @@ function richText(source) {
   if (code) blocks.push("<pre><code>" + highlightCode(code.join("\n")) + "</code></pre>");
   flushParagraph(); flushList(); return blocks.join("");
 }
+function dateKey(date = new Date()) { const pad = value => String(value).padStart(2, "0"); return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()); }
+/* ==== PURE-CORE-END ==== */
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
@@ -947,7 +952,6 @@ function snapAnchor(x, y) {
   return best;
 }
 function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
-function dateKey(date = new Date()) { const pad = value => String(value).padStart(2, "0"); return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()); }
 function recordActivity() { S.activity = Array.isArray(S.activity) ? S.activity : []; const date = dateKey(); const rows = allStickies().filter(x => !x.sticky.trashed); const entry = {date, total:rows.length, done:rows.filter(x => x.sticky.status === "done").length}; const old = S.activity.find(x => x.date === date); if (old) Object.assign(old, entry); else S.activity.push(entry); S.activity = S.activity.slice(-90); }
 function showToast(message) { let toast = document.getElementById("toast"); if (!toast) { toast = el("div", "toast"); toast.id = "toast"; document.body.appendChild(toast); } toast.textContent = message; toast.classList.add("show"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 5000); }
 function renderDashboard() { hideInspector();
@@ -1308,7 +1312,7 @@ document.getElementById("viewMode").onchange = e => openOverview(e.target.value)
 document.getElementById("ovClose").onclick = () => closeOverview();
 document.getElementById("viewMode").addEventListener("pointerdown", () => { // 打开下拉即预收菜单打开的面板：规避「画布」同值不触发 change 的死角
   const ovPanel = document.getElementById("overview");
-  if (ovPanel.classList.contains("open") && ["planning", "goals", "trash", "search"].includes(ovPanel.dataset.mode)) closeOverview();
+  if (ovPanel.classList.contains("open") && ["trash", "search"].includes(ovPanel.dataset.mode)) closeOverview();
 });
 /* ---- 弹出层：工具 / 更多，同一时刻只开一个 ---- */
 function closePops(except) { ["toolPop", "moreMenu"].forEach(id => { if (id !== except) document.getElementById(id).classList.remove("open"); }); }
@@ -1355,8 +1359,6 @@ document.querySelectorAll('[data-op="select"]').forEach(btn => btn.onclick = () 
 document.querySelectorAll(".toolBtn[data-action]").forEach(btn => btn.onclick = () => {
   closePops();
   if (btn.dataset.action === "trash") { openOverview("trash"); return; }
-  if (btn.dataset.action === "planning") { openOverview("planning"); return; }
-  if (btn.dataset.action === "goals") { openOverview("goals"); return; }
   if (btn.dataset.action === "import") { importPick.value = ""; importPick.click(); return; }
   if (btn.dataset.action === "help") { toggleHelp(true); return; }
   const blob = new Blob([JSON.stringify(S, null, 2)], {type: "application/json"});

@@ -30,6 +30,20 @@ bash desktop/build.sh
 
 需要 Xcode 命令行工具。产物在 `desktop/TheJourney.app`。
 
+## 测试
+
+```bash
+node --test tests/app.test.mjs
+```
+
+网页层为了保持单文件零依赖，不能拆成外部 ES module，所以 `index.html` 里用
+`PURE-CORE-START` / `PURE-CORE-END` 两个注释标记圈出一块**不碰 DOM 的纯逻辑区**。
+`tests/harness.mjs` 用 `node:vm` 把这块真实代码取出来执行并命名导出，测试因此直接跑在
+发布代码上——不存在需要手工同步的第二份实现。
+
+往这块区域加函数时请注意：保持不引用 `document` / `localStorage` / 全局可变状态，
+否则 harness 会取不到符号并直接报错。
+
 ## 说明
 
 - 网页层是零依赖单文件 `index.html`（浏览器直接打开也能用）
