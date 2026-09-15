@@ -1,6 +1,4 @@
 import Cocoa
-import ImageIO
-import UniformTypeIdentifiers
 import WebKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler {
@@ -24,7 +22,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
         window.setFrameAutosaveName("MainWindow")
 
         let cfg = WKWebViewConfiguration()
-        cfg.userContentController.add(self, name: "pickImage")
         cfg.userContentController.add(self, name: "backup")
         webView = WKWebView(frame: window.contentView!.bounds, configuration: cfg)
         webView.autoresizingMask = [.width, .height]
@@ -203,16 +200,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
                                didReceive message: WKScriptMessage) {
         if message.name == "backup" {
             if let json = message.body as? String { writeBackup(json) }
-            return
-        }
-        guard message.name == "pickImage" else { return }
-        let panel = NSOpenPanel()
-        panel.message = "选择一张图片放到画板上"
-        panel.allowedContentTypes = [.image]
-        panel.allowsMultipleSelection = false
-        panel.begin { [weak self] resp in
-            guard resp == .OK, let url = panel.url else { return }
-            self?.deliverImage(url)
         }
     }
 
@@ -243,33 +230,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
                 NSLog("TheJourney backup failed: \(error.localizedDescription)")
             }
         }
-    }
-
-    private func deliverImage(_ url: URL) {
-        guard let data = downsizedImage(url), !data.isEmpty else { return }
-        let mime = url.pathExtension.lowercased() == "png" ? "image/png" : "image/jpeg"
-        let js = "window.__nativeImage&&window.__nativeImage(\"data:\(mime);base64,\(data.base64EncodedString())\")"
-        DispatchQueue.main.async { [weak self] in
-            self?.webView.evaluateJavaScript(js, completionHandler: nil)
-        }
-    }
-
-    private func downsizedImage(_ url: URL, maxDim: CGFloat = 1000) -> Data? {
-        guard let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-        let thumbOpts = [kCGImageSourceThumbnailMaxPixelSize: maxDim,
-                         kCGImageSourceCreateThumbnailFromImageAlways: true] as CFDictionary
-        guard let thumb = CGImageSourceCreateThumbnailAtIndex(src, 0, thumbOpts) else { return nil }
-        let out = NSMutableData()
-        let isPNG = url.pathExtension.lowercased() == "png"
-        let type = (isPNG ? UTType.png.identifier : UTType.jpeg.identifier) as CFString
-        guard let dest = CGImageDestinationCreateWithData(out, type, 1, nil) else { return nil }
-        if isPNG {
-            CGImageDestinationAddImage(dest, thumb, nil)
-        } else {
-            CGImageDestinationAddImage(dest, thumb, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
-        }
-        guard CGImageDestinationFinalize(dest) else { return nil }
-        return out as Data
     }
 }
 

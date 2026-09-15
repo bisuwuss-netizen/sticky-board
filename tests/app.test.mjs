@@ -142,15 +142,15 @@ test('normalizeSticky drops retired recurring/reminder/group fields', () => {
   assert.deepEqual(Object.keys(JSON.parse(JSON.stringify(st))).filter(k => /recurr|reminder|dependencies|groupId/.test(k)), []);
 });
 
-test('normalizeSticky keeps subtasks, crop and annotation', () => {
-  const st = normalizeSticky({subtasks: [{title: 'Ship', status: 'done'}, {t: 'Draft'}], crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>'});
+test('normalizeSticky keeps subtasks and drops retired image fields', () => {
+  // 图片/裁剪/标注功能已移除：旧存档里的 src / crop / annotation / w 落盘时静默清除
+  const st = normalizeSticky({subtasks: [{title: 'Ship', status: 'done'}, {t: 'Draft'}], src: 'data:image/png;base64,x', crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>', w: 400});
   assert.equal(st.subtasks[0].status, 'done');
   assert.equal(st.subtasks[1].title, 'Draft');
   assert.equal(st.subtasks[1].status, 'backlog');
-  assert.deepEqual(plain(st.crop), {x: 20, y: 80, scale: 1.5});
-  assert.equal(st.annotation, '<note>');
-  // 缺 crop 时回退到居中不缩放
-  assert.deepEqual(plain(normalizeSticky({}).crop), {x: 50, y: 50, scale: 1});
+  // 落盘后这些键彻底消失，不会污染存档
+  const saved = Object.keys(JSON.parse(JSON.stringify(st))).filter(k => /^(src|crop|annotation|w)$/.test(k));
+  assert.deepEqual(saved, []);
 });
 
 test('normalizeSticky repairs malformed checklist items', () => {
@@ -246,8 +246,8 @@ test('normalizeState migrates task metadata with safe defaults', () => {
   assert.equal(sticky.locked, false);
 });
 
-test('normalizeState drops retired fields, migrates urgent priority, keeps subtasks/crop/annotation', () => {
-  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', priority: 'urgent', recurrence: 'weekly', recurringCreatedFor: '2026-09-13', reminder: '12:30', dependencies: ['x'], subtasks: [{title: 'Ship', status: 'done'}], crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>'}]}]});
+test('normalizeState drops retired fields, migrates urgent priority, keeps subtasks, clears image fields', () => {
+  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', priority: 'urgent', recurrence: 'weekly', recurringCreatedFor: '2026-09-13', reminder: '12:30', dependencies: ['x'], subtasks: [{title: 'Ship', status: 'done'}], src: 'data:image/png;base64,x', crop: {x: 20, y: 80, scale: 1.5}, annotation: '<note>'}]}]});
   const sticky = state.boards[0].stickies[0];
   assert.equal(sticky.priority, 'high'); // urgent 已并入 high
   assert.equal(sticky.recurrence, undefined);
@@ -255,8 +255,9 @@ test('normalizeState drops retired fields, migrates urgent priority, keeps subta
   assert.equal(sticky.reminder, undefined);
   assert.equal(sticky.dependencies, undefined);
   assert.equal(sticky.subtasks[0].status, 'done');
-  assert.deepEqual(plain(sticky.crop), {x: 20, y: 80, scale: 1.5});
-  assert.equal(sticky.annotation, '<note>');
+  // 图片类字段全部静默清除
+  const saved = Object.keys(JSON.parse(JSON.stringify(sticky))).filter(k => /^(src|crop|annotation|w)$/.test(k));
+  assert.deepEqual(saved, []);
 });
 
 test('normalizeState preserves drawable board elements', () => {
@@ -274,11 +275,13 @@ test('normalizeState clamps imported cards and elements to the fixed board', () 
   assert.equal(state.boards[0].elements[0].y, BOARD.height - 300);
 });
 
-test('normalizeState keeps crop position 0 instead of resetting to 50', () => {
-  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', kind: 'img', src: 'data:image/png;base64,x', crop: {x: 0, y: 0, scale: 2}}]}]});
-  assert.deepEqual(plain(state.boards[0].stickies[0].crop), {x: 0, y: 0, scale: 2});
-  // img 类型的 src 会被保留
-  assert.equal(state.boards[0].stickies[0].src, 'data:image/png;base64,x');
+test('normalizeState downgrades retired img-kind stickies and clears their image data', () => {
+  // 图片类型已移除：kind=img 应降级为 note，src/crop/annotation/w 等图片字段一并清掉
+  const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', kind: 'img', src: 'data:image/png;base64,x', crop: {x: 0, y: 0, scale: 2}, annotation: 'note', w: 500}]}]});
+  const sticky = state.boards[0].stickies[0];
+  assert.equal(sticky.kind, 'note'); // img → note
+  const saved = Object.keys(JSON.parse(JSON.stringify(sticky))).filter(k => /^(src|crop|annotation|w)$/.test(k));
+  assert.deepEqual(saved, []);
 });
 
 test('normalizeState defaults view to the clamped origin 0,0', () => {

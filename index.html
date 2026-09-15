@@ -97,10 +97,11 @@ body.side-hidden #sideTab{transform:translateX(0)}
 #importPick{display:none}
 #toolGroup{display:flex;gap:4px;border-left:1px solid #ddd;padding-left:6px}.toolBtn.active{background:#23272f;color:#fff}
 #inspector{position:fixed;right:14px;top:90px;width:280px;max-height:calc(100vh - 110px);overflow:auto;z-index:65;background:rgba(255,253,246,.98);border:1px solid rgba(35,39,47,.2);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px;display:none}.ins-title{font-weight:700;font-size:14px;margin-bottom:8px}.ins-grid{display:grid;gap:7px}.ins-grid label{font-size:11px;color:var(--muted)}.ins-grid input,.ins-grid select,.ins-grid textarea{width:100%;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;font:12px inherit;box-sizing:border-box}.ins-grid textarea{resize:vertical;min-height:50px}.ins-grid .check-label{display:flex;align-items:center;gap:7px}.ins-grid .check-label input{width:auto}.ins-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}.ins-actions button{flex:1;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer;min-width:62px}.ins-actions button:hover{background:#f3eee1}.subtask-editor{display:grid;gap:5px;margin-top:5px}.subtask-row{display:grid;grid-template-columns:18px 1fr 70px 24px;gap:4px;align-items:center}.subtask-row input[type=checkbox]{width:15px;height:15px}.subtask-row input[type=text],.subtask-row select{padding:5px;font-size:11px}.subtask-row button{border:0;background:transparent;color:#777;cursor:pointer;padding:3px}.subtask-row button:hover{color:#b42318}.subtask-add{display:flex;gap:5px;margin-top:5px}.subtask-add input{flex:1}.subtask-add button{border:1px solid #ccd1d8;border-radius:7px;background:#fff;padding:5px 8px;cursor:pointer}
+.elm-actions{display:none}.elm-actions.open{display:grid;gap:7px}.elm-actions label{font-size:11px;color:var(--muted)}.elm-actions input,.elm-actions select{width:100%;padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;font:12px inherit;box-sizing:border-box}.elm-actions .check-label{display:flex;align-items:center;gap:7px}.elm-actions .check-label input{width:auto}
 .shape{position:absolute;border:2px solid #23272f;background:rgba(255,255,255,.35);border-radius:8px}.shape.ellipse{border-radius:50%}.connector{position:absolute;height:3px;background:#23272f;transform-origin:left center}.drawstroke{position:absolute;pointer-events:none}
 .shape table{width:100%;height:100%;border-collapse:collapse;font-size:12px;background:rgba(255,255,255,.65)}.shape td{border:1px solid #777;padding:5px}.shape td[contenteditable=true]{background:#fff}
-.selection-box{position:absolute;border:1px dashed #2563eb;background:rgba(37,99,235,.12);pointer-events:none;z-index:1000}.selected-outline,.shape.sel,.connector.sel,.drawstroke.sel{outline:3px solid #2563eb;outline-offset:3px}.connector .arrowhead{position:absolute;right:-2px;top:-8px;font-size:20px}.crop-preview{max-width:100%;max-height:60vh;object-fit:contain}.trend{display:flex;align-items:flex-end;gap:5px;height:130px;padding:8px;border-bottom:1px solid #ccc}.trend i{display:block;flex:1;background:#91b8e8;min-height:3px;border-radius:4px 4px 0 0;position:relative}.trend i b{position:absolute;bottom:-18px;left:50%;font-size:9px;transform:translateX(-50%);font-weight:400}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));gap:5px}.cal-weekday{text-align:center;font-size:11px;color:var(--muted);padding:5px}.cal-cell{min-height:82px;border:1px solid #ddd;border-radius:7px;background:#fff;padding:6px}.cal-cell.muted{background:transparent;border-color:transparent}.cal-task{display:block;width:100%;margin-top:5px;padding:4px;border:0;border-radius:5px;background:#e9f0ff;color:#1d4ed8;text-align:left;font-size:10px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selection-box{position:absolute;border:1px dashed #2563eb;background:rgba(37,99,235,.12);pointer-events:none;z-index:1000}.selected-outline,.shape.sel,.connector.sel,.drawstroke.sel{outline:3px solid #2563eb;outline-offset:3px}.connector .arrowhead{position:absolute;right:-2px;top:-8px;font-size:20px}.trend{display:flex;align-items:flex-end;gap:5px;height:130px;padding:8px;border-bottom:1px solid #ccc}.trend i{display:block;flex:1;background:#91b8e8;min-height:3px;border-radius:4px 4px 0 0;position:relative}.trend i b{position:absolute;bottom:-18px;left:50%;font-size:9px;transform:translateX(-50%);font-weight:400}
+
 .muted{color:var(--muted);font-size:11px}
 .kanban{display:grid;grid-template-columns:repeat(5,minmax(170px,1fr));gap:10px;align-items:start}
 .kan-col{background:rgba(35,39,47,.055);border-radius:10px;padding:8px;min-height:220px}
@@ -109,10 +110,8 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .kan-card{border-radius:8px;padding:8px 9px;margin-bottom:6px;font-size:12px;font-weight:600;cursor:grab;border:1px solid rgba(35,39,47,.15)}
 .kan-card small{display:block;font-weight:400;color:rgba(35,39,47,.6);margin-top:2px}
 .shape-label{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:600;padding:6px;text-align:center;pointer-events:none;overflow:hidden}
-.cal-toggle{display:flex;gap:6px;margin:0 0 10px}.cal-toggle button{border:1px solid #ccd1d8;border-radius:7px;background:#fff;padding:6px 12px;cursor:pointer;font-size:12px}.cal-toggle button.on{background:#23272f;color:#fff}
-.frame{position:relative;overflow:hidden}.frame img{object-fit:cover;transform-origin:center}.image-annotation{position:absolute;left:10px;right:10px;bottom:8px;padding:4px 7px;border-radius:5px;background:rgba(255,255,255,.78);font-size:11px;pointer-events:none}
-#mediaPreview{position:fixed;inset:0;z-index:120;background:rgba(20,24,30,.82);display:none;place-items:center;padding:30px}#mediaPreview.open{display:grid}#mediaPreview img{max-width:90vw;max-height:88vh;object-fit:contain}#mediaPreview button{position:absolute;top:20px;right:24px;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
-.img-actions{display:none}.img-actions.open{display:grid;gap:6px}.img-actions button{padding:7px;border:1px solid #ccd1d8;border-radius:7px;background:#fff;cursor:pointer}.img-actions input{width:100%;padding:6px}
+
+
 .toast{position:fixed;right:20px;bottom:20px;z-index:150;max-width:360px;padding:11px 15px;border-radius:10px;background:#23272f;color:#fff;box-shadow:var(--shadow-lg);opacity:0;transform:translateY(10px);transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
 .richbody{font-size:12.5px;line-height:1.6;color:rgba(35,39,47,.82);margin:0;outline:none;border-radius:4px;min-height:1em;word-break:break-word}
 .richbody:focus{background:rgba(255,255,255,.55)}
@@ -120,6 +119,7 @@ body.side-hidden #sideTab{transform:translateX(0)}
 .richbody h4{font-size:15px;line-height:1.3;margin:0 0 7px}.richbody ul,.richbody ol{margin:4px 0 7px;padding-left:20px}.richbody li{margin:2px 0}
 .richbody blockquote{margin:5px 0;padding:3px 9px;border-left:3px solid rgba(35,39,47,.35);background:rgba(255,255,255,.28);border-radius:0 5px 5px 0}
 .richbody code{font-family:ui-monospace,monospace;font-size:11px;background:rgba(255,255,255,.5);padding:1px 4px;border-radius:4px}
+.bodyedit{width:100%;min-height:120px;font:inherit;line-height:1.5;padding:8px 10px;border:1px solid #ccd1d8;border-radius:6px;background:#fcfbf3;resize:vertical;color:inherit}
 .richbody pre{margin:7px 0;padding:9px 10px;overflow:auto;background:rgba(35,39,47,.08);border:1px solid rgba(35,39,47,.14);border-radius:7px;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 .tok-keyword{color:#7c3aed;font-weight:700}.tok-string{color:#0f766e}.tok-number{color:#b45309}.tok-comment{color:#6b7280;font-style:italic}
 .richbody a{color:#225ea8;text-decoration:underline}
@@ -140,7 +140,7 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 #overview.open ~ #ovClose{display:grid;place-items:center}
 #ovClose:hover{background:#f3eee1}.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.ov-card{border:1px solid rgba(35,39,47,.15);border-radius:8px;padding:14px;background:#fff}.ov-card h3{margin:0 0 8px;font-size:14px}.ov-card strong{font-size:28px}.ov-list{display:grid;gap:6px}.ov-item{padding:8px;border-bottom:1px solid #eee;cursor:pointer;border-radius:7px;transition:background .12s}
 .ov-item:hover{background:rgba(37,99,235,.07)}
-.cal-task:hover{filter:brightness(.94)}
+
 #addBtn{
   border:0;border-radius:10px;background:#23272f;color:#fff;font-weight:700;
   font-size:13px;padding:9px 16px;cursor:pointer;white-space:nowrap;
@@ -220,21 +220,8 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 .b-green{background:var(--green)} .b-yellow{background:var(--yellow)}
 .b-purple{background:var(--purple)} .b-cyan{background:var(--cyan)}
 .b-white{background:#fdfdf8}
-.sticky.imgkind{width:240px;padding:26px 12px 10px}
-.frame{background:#fff;border:1px solid rgba(35,39,47,.4);border-radius:3px;
-  padding:10px 10px 8px;box-shadow:inset 0 0 0 1px rgba(35,39,47,.08)}
-.frame img{display:block;width:100%;border-radius:2px;user-select:none;-webkit-user-drag:none}
-.sticky.imgkind .frame{height:160px}.sticky.imgkind .frame img{height:100%;object-fit:cover}
-.caption{font-family:"Caveat",cursive;font-size:19px;text-align:center;margin:7px 0 0;
-  outline:none;border-radius:4px;min-height:1em;word-break:break-word}
-.caption:focus{background:rgba(255,255,255,.55)}
 #ver{opacity:.55}
-#imgPick{position:fixed;top:0;left:0;width:4px;height:4px;opacity:0;pointer-events:none}
-#imgBtn{
-  border:1px solid rgba(35,39,47,.3);border-radius:10px;background:#fff;font-weight:700;
-  font-size:13px;padding:8px 14px;cursor:pointer;white-space:nowrap;
-}
-#imgBtn:hover{background:#f3eee1}
+
 .sticky .rh{position:absolute;right:-11px;bottom:-11px;width:26px;height:26px;border-radius:50%;
   background:#fff;border:1.5px solid rgba(35,39,47,.6);cursor:grab;display:none;place-items:center;
   box-shadow:var(--shadow);color:#23272f}
@@ -331,11 +318,9 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 
 <div id="toolbar">
   <button id="addBtn">+ 便利贴</button>
-  <button id="imgBtn">+ 图片</button>
-  <input type="file" id="imgPick" accept="image/*">
   <input id="searchBox" type="search" placeholder="搜索便利贴…" aria-label="搜索便利贴">
   <button class="toolBtn" id="toolBtn" title="绘图与排列工具" aria-haspopup="true" aria-expanded="false">工具 ▾</button>
-  <select id="viewMode" title="视图" aria-label="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="calendar">日历</option><option value="stats">统计</option></select>
+  <select id="viewMode" title="视图" aria-label="视图"><option value="board">画布</option><option value="today">今天</option><option value="kanban">看板</option><option value="stats">统计</option></select>
   <button class="toolBtn" id="moreBtn" title="数据与帮助" aria-haspopup="true" aria-expanded="false">⋯</button>
   <input type="file" id="importPick" accept="application/json,.json">
   <span class="bname" id="boardName"></span>
@@ -361,8 +346,7 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 <div id="viewport"><div id="world"></div></div>
 <section id="overview" role="dialog" aria-modal="true" aria-label="面板" tabindex="-1"></section>
 <button id="ovClose" title="关闭面板 (Esc)">×</button>
-<aside id="inspector" role="complementary" aria-label="属性面板"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
-<div id="mediaPreview" role="dialog" aria-modal="true" aria-label="图片预览"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
+<aside id="inspector" role="complementary" aria-label="属性面板"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="elm-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
 <div class="zoom"><button id="zOut">−</button><span id="zLabel">100%</span><button id="zIn">＋</button></div>
@@ -377,9 +361,8 @@ const BOARD = {width: 2400, height: 1600};
 const CNAMES = {yellow:"黄", blue:"蓝", pink:"粉", green:"绿", purple:"紫", cyan:"青", white:"白"};
 const STATUS_LABELS = {backlog:"待办", next:"下一步", doing:"进行中", blocked:"阻塞", done:"完成"}; // 全站统一中文，避免与看板双语混杂
 const KINDS = [
-  {k:"note",  label:"文本贴", tip:"标题 + 短句"},
-  {k:"todo",  label:"清单贴", tip:"可勾选事项"},
-  {k:"title", label:"标题卡", tip:"分区大标题"},
+  {k:"note", label:"文本贴", tip:"富文本 + 短句"},
+  {k:"todo", label:"清单贴", tip:"可勾选事项"},
 ];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const rot = () => +(Math.random() * 4 - 2).toFixed(1);
@@ -392,7 +375,7 @@ function mkSticky(color, kind, x, y, title, body, items) {
 function seed() {
   const welcome = {id: uid(), name: "欢迎使用",
     view: {x: 0, y: 0, k: 1}, stickies: [
-    mkSticky("yellow", "title", 60, 80, "欢迎来到便利贴白板"),
+    mkSticky("yellow", "note", 60, 80, "欢迎来到便利贴白板"),
     mkSticky("blue", "note", 340, 100, "三步上手",
       "1. 点顶部 + 便利贴挑选组件\n2. 双击文字直接改\n3. 拖背景平移、滚轮缩放"),
     mkSticky("pink", "todo", 620, 80, "试试看", "", [
@@ -402,17 +385,17 @@ function seed() {
     ]),
   ], elements: []};
   const T = [
-    ["blue", "title", "Learn · 学工具", "", 60], ["blue", "note", "Pick ONE stack",
+    ["blue", "note", "Learn · 学工具", "", 60], ["blue", "note", "Pick ONE stack",
       "OpenAI + Make + Airtable 跑通即可。", 60],
-    ["pink", "title", "Build · 做作品", "", 330], ["pink", "note", "3 killer demos",
+    ["pink", "note", "Build · 做作品", "", 330], ["pink", "note", "3 killer demos",
       "客服、线索、内容流水线，各配 60 秒录屏。", 330],
-    ["green", "title", "Find Clients · 找客户", "", 600], ["green", "note", "20 outreaches / day",
+    ["green", "note", "Find Clients · 找客户", "", 600], ["green", "note", "20 outreaches / day",
       "短 DM + 定制 demo 开头 15 秒。", 600],
-    ["yellow", "title", "Deliver · 做交付", "", 870], ["yellow", "note", "SOP everything",
+    ["yellow", "note", "Deliver · 做交付", "", 870], ["yellow", "note", "SOP everything",
       "每个交付配 Loom + 文档 + 交接表。", 870],
-    ["purple", "title", "Retain · 做留存", "", 1140], ["purple", "note", "Monthly ROI report",
+    ["purple", "note", "Retain · 做留存", "", 1140], ["purple", "note", "Monthly ROI report",
       "省了几小时、多回几条线索，算出来。", 1140],
-    ["cyan", "title", "Scale · 做扩张", "", 1410], ["cyan", "note", "Productize one offer",
+    ["cyan", "note", "Scale · 做扩张", "", 1410], ["cyan", "note", "Productize one offer",
       "“7 天上线 AI 客服”代替按小时报价。", 1410],
   ];
   const journey = {id: uid(), name: "成长旅程 · 模板",
@@ -425,7 +408,7 @@ let history = [];
 let redoStack = [];
 let historyBusy = false;
 /* ---- 数据归一化：load/import/undo 共用的唯一入口，非法数据在这里全部兜底 ---- */
-const STICKY_KINDS = ["note", "todo", "title", "img"];
+const STICKY_KINDS = ["note", "todo"];
 const STICKY_COLORS = ["yellow", "blue", "pink", "green", "purple", "cyan", "white"];
 const ELEMENT_TYPES = ["shape", "connector", "stroke", "table"];
 const STATUS_KEYS = ["backlog", "next", "doing", "blocked", "done"];
@@ -466,13 +449,10 @@ function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜�
   out.subtasks = Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(x => typeof x === "string"
     ? {id: uid(), title: x, status: "backlog"}
     : {...x, id: String(x.id || uid()), title: String(x.title || x.t || ""), status: ["backlog", "doing", "done"].includes(x.status) ? x.status : "backlog"}) : [];
-  out.crop = st.crop && typeof st.crop === "object"
-    ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)}
-    : {x: 50, y: 50, scale: 1};
-  out.annotation = typeof st.annotation === "string" ? st.annotation : "";
   out.groupId = undefined; // 编组功能已移除：旧数据落盘时静默清除
   out.locked = !!st.locked;
   out.trashed = !!st.trashed;
+  out.src = out.crop = out.annotation = out.w = undefined; // 图片功能已移除：旧数据落盘时静默清除
   return out;
 }
 function normalizeElement(elm) { // 单个画布元素：尺寸下限 20，坐标不出板
@@ -520,6 +500,8 @@ function inlineRich(value) {
   let out = escapeRich(value);
   out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
   out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/~~([^~]+)~~/g, "<s>$1</s>"); // 删除线
+  out = out.replace(/__([^_]+)__/g, "<u>$1</u>"); // 下划线
   out = out.replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, "$1<em>$2</em>");
   out = out.replace(/(^|\s)(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
   return out;
@@ -727,7 +709,7 @@ function todoRow(st, it) {
   return li;
 }
 function stickyLabel(st) { // 贴纸的可访问名：类型 + 标题 + 状态/优先级/截止
-  const kindName = st.kind === "img" ? "图片" : (KINDS.find(k => k.k === st.kind) || {label: "便利贴"}).label;
+  const kindName = (KINDS.find(k => k.k === st.kind) || {label: "便利贴"}).label;
   const bits = [kindName, st.title || "未命名"];
   if (st.status && st.status !== "backlog") bits.push(STATUS_LABELS[st.status] || st.status);
   if (st.priority && st.priority !== "none") bits.push("优先级" + st.priority);
@@ -735,7 +717,7 @@ function stickyLabel(st) { // 贴纸的可访问名：类型 + 标题 + 状态/�
   return bits.join("，");
 }
 function stickyNode(st) {
-  const a = el("article", `sticky b-${st.color}` + (st.kind === "title" ? " titlekind" : st.kind === "img" ? " imgkind" : ""));
+  const a = el("article", `sticky b-${st.color}`);
   a.dataset.id = st.id;
   a.tabIndex = 0; // 键盘可达：画布上每张贴纸都是可聚焦对象
   a.setAttribute("role", "group");
@@ -763,23 +745,7 @@ function stickyNode(st) {
   };
   a.appendChild(del);
   a.addEventListener("click", e => { if (!e.target.closest("input,button,.dots,.rh,.rsz,.tbox,.tx,.tadd,[contenteditable=true]")) selectSticky(st, e.shiftKey); });
-  if (st.kind === "img") {
-    const f = el("div", "frame");
-    const im = document.createElement("img");
-    im.src = st.src || ""; im.alt = ""; im.draggable = false;
-    const crop = st.crop || {x:50, y:50, scale:1}; im.style.objectPosition = `${crop.x}% ${crop.y}%`; im.style.transform = `scale(${crop.scale || 1})`;
-    f.appendChild(im);
-    if (st.annotation) f.appendChild(el("div", "image-annotation", st.annotation));
-    a.appendChild(f);
-    const cap = el("p", "caption", st.title);
-    cap.ondblclick = e => {
-      e.stopPropagation(); cap.contentEditable = "true"; cap.focus();
-      cap.onblur = () => { cap.contentEditable = "false"; st.title = cap.innerText.trim(); save(); };
-      cap.onkeydown = ev => { if (ev.key === "Enter") { ev.preventDefault(); cap.blur(); } };
-    };
-    a.appendChild(cap);
-  } else {
-  const h = el("h3", null, st.title || "双击改标题");
+{ const h = el("h3", null, st.title || "双击改标题");
   h.ondblclick = e => {
     e.stopPropagation(); h.contentEditable = "true"; h.focus();
     document.execCommand && document.execCommand("selectAll", false, null);
@@ -797,9 +763,23 @@ function stickyNode(st) {
   if (st.kind === "note") {
     const p = el("div", "richbody");
     p.innerHTML = richText(st.body);
+    // 双击切到源码 textarea：所见 = 渲染后的富文本，所写 = 源码
+    // 把格式化文本「以源码保存」——输入 **粗** 显示成粗体，编辑时仍是 **粗**，所见即所写一致。
     p.ondblclick = e => {
-      e.stopPropagation(); p.contentEditable = "true"; p.focus();
-      p.onblur = () => { p.contentEditable = "false"; st.body = p.innerText.trim(); save(); };
+      e.stopPropagation();
+      const ta = document.createElement("textarea");
+      ta.className = "bodyedit";
+      ta.value = st.body || "";
+      ta.addEventListener("keydown", ev => { if (ev.key === "Escape") { ev.preventDefault(); ta.blur(); } });
+      ta.addEventListener("blur", () => {
+        st.body = ta.value.replace(/\s+$/, "");
+        ta.remove();
+        p.style.display = "";
+        save(); renderAll(); syncInspector();
+      });
+      p.style.display = "none";
+      p.parentNode.insertBefore(ta, p.nextSibling);
+      ta.focus();
     };
     a.appendChild(p);
   }
@@ -821,7 +801,7 @@ function stickyNode(st) {
     }
   }
   const dots = el("div", "dots");
-  (st.kind === "img" ? ["white"].concat(COLORS) : COLORS).forEach(c => {
+  COLORS.forEach(c => {
     const b = el("button");
     b.style.background = `var(--${c})`;
     b.title = CNAMES[c];
@@ -835,13 +815,6 @@ function stickyNode(st) {
   rh.title = "拖动旋转（按住 Shift 按 15°吸附）";
   enableRotate(a, st, rh);
   a.appendChild(rh);
-  if (st.kind === "img") {
-    const rz = el("span", "rsz");
-    rz.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L20 4"/><path d="M14 4h6v6"/><path d="M10 20H4v-6"/></svg>';
-    rz.title = "拖动缩放图片";
-    enableResize(a, st, rz);
-    a.appendChild(rz);
-  }
   enableDrag(a, st);
   return a;
 }
@@ -854,7 +827,7 @@ function renderAll() {
   const query = (searchBox.value || "").trim().toLowerCase();
   b.stickies.forEach(st => {
     const node = stickyNode(st);
-    const text = query ? (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase() : "";
+    const text = query ? (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ")).toLowerCase() : "";
     if (st.trashed || (query && !text.includes(query))) node.classList.add("search-miss");
     if (selectedIds.has(st.id)) node.classList.add("sel", "selected-outline");
     world.appendChild(node);
@@ -936,7 +909,6 @@ function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "non
   document.getElementById("batchActions").style.display = mode === "batch" ? "block" : "none";
   document.getElementById("elementActions").classList.toggle("open", mode === "element");
   document.getElementById("stickyActions").style.display = mode === "sticky" ? "flex" : "none"; // 只在单选便利贴时显示；修掉原先选图形时按钮排残留（且按钮全部无效）的问题
-  if (mode !== "sticky") imageActions.classList.remove("open");
 }
 function openInspector(st) {
   const box = inspector; box.dataset.id = st.id;
@@ -944,8 +916,7 @@ function openInspector(st) {
   insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", ");
   insLocked.checked = !!st.locked;
   syncInsMore();
-  renderSubtaskEditor(st); imageActions.classList.toggle("open", st.kind === "img");
-  if (st.kind === "img") { const crop = st.crop || {x:50,y:50,scale:1}; imgCropX.value = crop.x; imgCropY.value = crop.y; imgCropScale.value = crop.scale; imgAnnotation.value = st.annotation || ""; }
+  renderSubtaskEditor(st);
 }
 function openElementInspector(elm) {
   const box = inspector; box.dataset.elementId = elm.id; box.dataset.id = "";
@@ -965,7 +936,7 @@ function syncInspector() { // 选择变化后面板跟随：单个便利贴→�
 }
 function stickySize(st) {
   const node = nodeById(st.id);
-  return {w: node?.offsetWidth || st.w || (st.kind === "title" ? 240 : 320), h: node?.offsetHeight || (st.kind === "img" ? 220 : 120)};
+  return {w: node?.offsetWidth || (st.w && st.w > 0 ? st.w : 320), h: node?.offsetHeight || 120};
 }
 // 一次手势内贴纸尺寸不变：按 id 缓存后复用，避免逐次读 offsetWidth 触发同步重排
 function sizeLookup() {
@@ -1100,7 +1071,7 @@ function openOverview(mode) {
   const overview = overviewPanel;
   if (mode === "board") { closeOverview(); return; }
   if (mode === "search") { renderSearchResults(searchBox.value); return; }
-  if (mode === "today" || mode === "kanban" || mode === "calendar" || mode === "stats") viewMode.value = mode; // 下拉显示与实际面板保持一致
+  if (mode === "today" || mode === "kanban" || mode === "stats") viewMode.value = mode; // 下拉显示与实际面板保持一致
   if (mode === "today") { renderToday(); return; }
   const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed);
   if (mode === "trash") {
@@ -1120,23 +1091,7 @@ function openOverview(mode) {
   }
   if (mode === "stats") { renderDashboard(); return; }
   if (mode === "kanban") { renderKanban(); return; }
-  if (mode === "calendar") {
-    const dated = rows.filter(x => x.sticky.due).sort((a,b) => a.sticky.due.localeCompare(b.sticky.due));
-    const calView = overview.dataset.calView || "month";
-    const toggle = '<div class="cal-toggle"><button data-calview="month" class="' + (calView === "month" ? "on" : "") + '">月历</button><button data-calview="list" class="' + (calView === "list" ? "on" : "") + '">列表</button></div>';
-    if (calView === "list") {
-      overview.innerHTML = '<h2>日历视图 · 列表</h2>' + toggle + '<div class="ov-list">' + (dated.length ? dated.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '"><b>' + escapeRich(x.sticky.due) + '</b> · ' + escapeRich(x.sticky.title || '未命名') + ' <small>' + escapeRich(x.board.name) + '</small></div>').join('') : '<p>还没有设置截止日期。</p>') + '</div>';
-      overview.querySelectorAll('.ov-item').forEach(item => { item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky); activateOnKey(item, item.onclick); });
-    } else {
-      const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), 1), days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), cells = [];
-      for (let i = 0; i < first.getDay(); i += 1) cells.push('<div class="cal-cell muted"></div>');
-      for (let day = 1; day <= days; day += 1) { const date = dateKey(new Date(now.getFullYear(), now.getMonth(), day)), items = dated.filter(row => row.sticky.due === date); cells.push('<div class="cal-cell"><b>' + day + '</b>' + items.map(row => '<button class="cal-task" data-board="' + escapeRich(row.board.id) + '" data-sticky="' + escapeRich(row.sticky.id) + '">' + escapeRich(row.sticky.title || "未命名") + '</button>').join('') + '</div>'); }
-      while (cells.length % 7) cells.push('<div class="cal-cell muted"></div>');
-      overview.innerHTML = '<h2>日历视图 · ' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, "0") + '</h2>' + toggle + '<div class="calendar-grid">' + ["日", "一", "二", "三", "四", "五", "六"].map(day => '<div class="cal-weekday">' + day + '</div>').join('') + cells.join('') + '</div>';
-      overview.querySelectorAll('.cal-task').forEach(item => item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky));
-    }
-    overview.querySelectorAll('[data-calview]').forEach(btn => btn.onclick = () => { overview.dataset.calView = btn.dataset.calview; openOverview("calendar"); });
-  }
+
   openPanel(overview);
 }
 function renderKanban() {
@@ -1171,7 +1126,7 @@ function renderSearchResults(value) {
   const query = String(value || "").trim().toLowerCase(), overview = overviewPanel;
   if (!query) { if (overview.dataset.mode === "search") overview.classList.remove("open"); return; }
   hideInspector(); // 搜索结果也是全屏面板，属性面板同样让位
-  const rows = allStickies().filter(({sticky: st}) => !st.trashed && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase().includes(query));
+  const rows = allStickies().filter(({sticky: st}) => !st.trashed && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ")).toLowerCase().includes(query));
   overview.dataset.mode = "search";
   overview.innerHTML = '<h2>全局搜索</h2><p>找到 ' + rows.length + ' 张便利贴 · 点击结果跳转</p><div class="ov-list">' + (rows.length ? rows.map(({board:b, sticky:st}) => '<div class="ov-item" data-board="' + escapeRich(b.id) + '" data-sticky="' + escapeRich(st.id) + '"><b>' + escapeRich(st.title || "未命名") + '</b><small> · ' + escapeRich(b.name) + ' · ' + escapeRich(STATUS_LABELS[st.status] || "待办") + '</small><div>' + escapeRich((st.tags || []).map(tag => "#" + tag).join(" ")) + '</div></div>').join("") : '<p>没有匹配内容。</p>') + '</div>';
   overview.querySelectorAll('.ov-item').forEach(item => { item.onclick = () => jumpToSticky(item.dataset.board, item.dataset.sticky); activateOnKey(item, item.onclick); });
@@ -1187,9 +1142,7 @@ function buildPalette() {
       const cell = el("div", "pcell");
       const mini = el("div", "mini");
       mini.style.background = `var(--${c})`;
-      if (k === "note") mini.innerHTML = "标题<i></i><i></i>";
-      else if (k === "todo") mini.innerHTML = "<b></b>事项<i></i><i></i>";
-      else mini.textContent = "大标题";
+      mini.innerHTML = k === "todo" ? "<b></b>事项<i></i><i></i>" : "标题<i></i><i></i>";
       cell.appendChild(mini);
       cell.appendChild(el("span", null, CNAMES[c]));
       cell.onclick = () => { addSticky(c, k); palette.classList.remove("open"); };
@@ -1203,7 +1156,7 @@ function addSticky(color, kind) {
   const b = board(), v = b.view;
   const cx = (viewport.clientWidth / 2 - v.x) / v.k + (Math.random() * 60 - 30);
   const cy = (viewport.clientHeight / 2 - v.y) / v.k + (Math.random() * 60 - 30);
-  const defaults = {note: ["新便利贴", "双击改内容"], todo: ["新清单", ""], title: ["大标题", ""], img: ["图片", ""]};
+  const defaults = {note: ["新便利贴", "双击改内容"], todo: ["新清单", ""]};
   const preset = defaults[kind] || defaults.note; // 未知 kind 兜底到文本贴，别在 defaults[kind][0] 上抛 TypeError
   const st = mkSticky(color, kind, Math.min(BOARD.width - 240, Math.max(0, Math.round(cx - 110))), Math.min(BOARD.height - 180, Math.max(0, Math.round(cy - 60))),
     preset[0], preset[1]);
@@ -1421,7 +1374,7 @@ function togglePop(id) { const p = document.getElementById(id), was = p.classLis
 document.getElementById("toolBtn").onclick = e => { e.stopPropagation(); togglePop("toolPop"); };
 document.getElementById("moreBtn").onclick = e => { e.stopPropagation(); togglePop("moreMenu"); };
 const importPick = document.getElementById("importPick");
-const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), elmArrow = document.getElementById("elmArrow"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
+const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), insLocked = document.getElementById("insLocked"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), elmArrow = document.getElementById("elmArrow"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
 document.getElementById("insMoreBtn").onclick = () => { insMoreOpen = !insMoreOpen; syncInsMore(); };
 const currentSticky = () => board().stickies.find(x => x.id === inspector.dataset.id);
 const currentElement = () => (board().elements || []).find(x => x.id === inspector.dataset.elementId);
@@ -1448,10 +1401,9 @@ function applyInspector() {
   st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value;
   st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20);
   st.subtasks = readSubtasks(); st.locked = insLocked.checked;
-  if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); }
   save(); renderAll(); selectSticky(st, false);
 }
-[insStatus, insPriority, insDue, insTags, insLocked, imgAnnotation].forEach(field => field.onchange = applyInspector);
+[insStatus, insPriority, insDue, insTags, insLocked].forEach(field => field.onchange = applyInspector);
 subtaskEditor.addEventListener("change", applyInspector); // 子任务行的勾选/下拉即时生效；文本框失焦时触发 change 后统一保存
 document.getElementById("insTrash").onclick = () => { const st = currentSticky(); if (st) { st.trashed = true; save(); renderAll(); hideInspector(); } };
 document.getElementById("insClose").onclick = () => hideInspector();
@@ -1483,79 +1435,6 @@ importPick.onchange = () => {
   };
   reader.readAsText(file);
 };
-/* ---- image upload: downscale then pin with a frame ---- */
-const imgPick = document.getElementById("imgPick");
-let replaceTarget = null;
-document.getElementById("imgBtn").onclick = e => {
-  e.stopPropagation();
-  const h = window.webkit && window.webkit.messageHandlers
-    && window.webkit.messageHandlers.pickImage;
-  if (h) h.postMessage({}); // App 内：原生选图面板
-  else imgPick.click();     // 浏览器里：回退文件框
-};
-window.__nativeImage = b64 => { const url = String(b64).startsWith("data:") ? b64 : "data:image/jpeg;base64," + b64; if (replaceTarget) { replaceTarget.src = url; replaceTarget = null; save(); renderAll(); } else addImage(url, "图片"); };
-imgPick.onchange = () => {
-  const f = imgPick.files && imgPick.files[0];
-  imgPick.value = "";
-  if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => downscaleImage(rd.result, url => { if (replaceTarget) { replaceTarget.src = url; replaceTarget = null; save(); renderAll(); } else addImage(url, f.name); });
-  rd.readAsDataURL(f);
-};
-document.getElementById("imgReplace").onclick = () => { const target = currentSticky(); replaceTarget = target && target.kind === "img" ? target : null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
-document.getElementById("imgPreview").onclick = () => { const st = currentSticky(); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); document.getElementById("mediaClose").focus(); };
-document.getElementById("mediaClose").onclick = () => document.getElementById("mediaPreview").classList.remove("open");
-function previewImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; const host = nodeById(st.id), img = host && host.querySelector("img"); if (img) { img.style.objectPosition = st.crop.x + "% " + st.crop.y + "%"; img.style.transform = "scale(" + (st.crop.scale || 1) + ")"; } }
-function commitImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; previewImageCrop(); save(); renderAll(); }
-imgCropScale.oninput = previewImageCrop; imgCropX.oninput = previewImageCrop; imgCropY.oninput = previewImageCrop;
-imgCropScale.onchange = commitImageCrop; imgCropX.onchange = commitImageCrop; imgCropY.onchange = commitImageCrop;
-document.addEventListener("paste", e => {
-  const item = Array.from(e.clipboardData?.items || []).find(x => x.type.startsWith("image/"));
-  if (!item) return;
-  const file = item.getAsFile(); if (!file) return;
-  const rd = new FileReader(); rd.onload = () => downscaleImage(rd.result, url => addImage(url, "剪贴板图片")); rd.readAsDataURL(file);
-});
-function downscaleImage(dataUrl, done) {
-  const im = new Image();
-  // 失败时必须解除 replaceTarget，否则下次贴图会被误判成「替换上一张」
-  const fail = () => { replaceTarget = null; alert("这张图片读不出来，换一张试试"); };
-  im.onload = () => {
-    const shot = (max, q, type) => {
-      const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
-      const c = document.createElement("canvas");
-      c.width = Math.max(1, Math.round(im.naturalWidth * s));
-      c.height = Math.max(1, Math.round(im.naturalHeight * s));
-      const ctx = c.getContext("2d");
-      if (!ctx) return "";
-      ctx.drawImage(im, 0, 0, c.width, c.height);
-      return c.toDataURL(type || "image/jpeg", q);
-    };
-    const preservePng = /^data:image\/png/i.test(dataUrl);
-    let out = shot(1000, 0.85, preservePng ? "image/png" : "image/jpeg");
-    if (out.length > 1200000) out = shot(700, preservePng ? 1 : 0.7, preservePng ? "image/png" : "image/jpeg");
-    if (!out) { fail(); return; }
-    done(out);
-  };
-  im.onerror = fail;
-  im.src = dataUrl;
-}
-function addImage(dataUrl, name) {
-  const b = board(), v = b.view;
-  const cx = (viewport.clientWidth / 2 - v.x) / v.k;
-  const cy = (viewport.clientHeight / 2 - v.y) / v.k;
-  const st = mkSticky("white", "img", // 与 addSticky 同一套边界钳制，别把图片丢到负坐标上
-    Math.min(BOARD.width - 240, Math.max(0, Math.round(cx - 120))),
-    Math.min(BOARD.height - 180, Math.max(0, Math.round(cy - 100))),
-    (name || "图片").replace(/\.[^.]+$/, "").slice(0, 20));
-  st.src = dataUrl;
-  st.crop = {x:50,y:50,scale:1}; st.annotation = "";
-  b.stickies.push(st);
-  save(); renderAll();
-  requestAnimationFrame(() => {
-    const n = nodeById(st.id);
-    if (n) { selectedIds.clear(); selectedElementIds.clear(); selectedIds.add(st.id); n.classList.add("sel", "selected-outline"); n.style.zIndex = ++Z; openInspector(st); }
-  });
-}
 document.addEventListener("pointerdown", e => {
   if (!e.target.closest("#palette,#addBtn")) palette.classList.remove("open");
   if (!e.target.closest(".pop,#toolBtn,#moreBtn")) closePops();
@@ -1651,7 +1530,7 @@ islInput.onkeydown = e => {
 function duplicateSelected() {
   const copies = [];
   selectedStickies().forEach(st => {
-    const copy = {...st, id: uid(), x: Math.min(BOARD.width - 60, st.x + 24), y: Math.min(BOARD.height - 60, st.y + 24), items: (st.items || []).map(it => ({...it})), tags: [...(st.tags || [])], subtasks: (st.subtasks || []).map(t => ({...t, id: uid()})), crop: st.crop ? {...st.crop} : st.crop};
+    const copy = {...st, id: uid(), x: Math.min(BOARD.width - 60, st.x + 24), y: Math.min(BOARD.height - 60, st.y + 24), items: (st.items || []).map(it => ({...it})), tags: [...(st.tags || [])], subtasks: (st.subtasks || []).map(t => ({...t, id: uid()}))};
     board().stickies.push(copy); copies.push(copy.id);
   });
   if (!copies.length) return;
@@ -1665,7 +1544,7 @@ function nudgeSelected(dx, dy) {
 }
 document.addEventListener("keydown", e => {
   const inInput = e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
-  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); document.getElementById("mediaPreview").classList.remove("open"); const ovPanel = overviewPanel; if (ovPanel.classList.contains("open")) closeOverview(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); clearSelection(); syncInspector(); }
+  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland();  const ovPanel = overviewPanel; if (ovPanel.classList.contains("open")) closeOverview(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); clearSelection(); syncInspector(); }
   if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); hideInspector(); showToast("已移到回收站"); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !inInput) { e.preventDefault(); undo(); }
   if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "z" || (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") && !inInput) { e.preventDefault(); redo(); }
