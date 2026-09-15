@@ -132,10 +132,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if let url = navigationAction.request.url {
+        // 只把 http(s) 交给浏览器；about:blank / 自定义协议一律忽略，避免打开无意义的外链
+        if let url = navigationAction.request.url, isWebURL(url) {
             NSWorkspace.shared.open(url)
         }
         return nil
+    }
+
+    private func isWebURL(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https"
     }
 
     // MARK: - JavaScript dialogs: WKWebView drops these silently without a bridge
@@ -181,11 +187,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
         }
         if url.isFileURL {
             decisionHandler(.allow)
+        } else if !isWebURL(url) {
+            decisionHandler(.cancel) // 白名单之外的一律不放行（file 与 http(s) 之外的协议都不需要）
         } else if navigationAction.navigationType == .linkActivated {
             NSWorkspace.shared.open(url)
             decisionHandler(.cancel)
         } else {
-            decisionHandler(.allow)
+            decisionHandler(.allow) // 字体等子资源仍走这里
         }
     }
 
@@ -210,6 +218,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
 
     // MARK: - File backups
 
+    /// 时间戳只用得到一次格式，没必要每次备份都重建 formatter
+    private static let stampFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
     /// 把网页层发来的完整状态 JSON 写到 Application Support，保留最近 10 份
     private func writeBackup(_ json: String) {
         DispatchQueue.global(qos: .utility).async {
@@ -218,7 +233,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
             let dir = support.appendingPathComponent("TheJourney/backups", isDirectory: true)
             do {
                 try fm.createDirectory(at: dir, withIntermediateDirectories: true)
-                let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+                let stamp = Self.stampFormatter.string(from: Date()).replacingOccurrences(of: ":", with: "-")
                 try json.write(to: dir.appendingPathComponent("backup-\(stamp).json"), atomically: true, encoding: .utf8)
                 let files = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles])
                     .filter { $0.lastPathComponent.hasPrefix("backup-") }

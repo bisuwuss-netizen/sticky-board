@@ -436,6 +436,12 @@ function clampView(view) { // 缩放钳制在 0.4–1.6，非法值回退默认
     k: Math.min(1.6, Math.max(0.4, Number(view?.k) || 1)),
   };
 }
+function normalizeItems(src) { // 清单项逐项兜底：渲染期读 it.t / it.done，混进一个 null 就整块白屏
+  if (!Array.isArray(src)) return [];
+  return src.filter(x => x != null).map(x => typeof x === "string"
+    ? {t: x, done: false}
+    : typeof x === "object" ? {...x, t: String(x.t ?? "").slice(0, 500), done: !!x.done} : {t: String(x), done: false});
+}
 function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜色、迁移历史字段
   if (!st || typeof st !== "object") return null; // 兜底：调用点 filter(Boolean) 依赖这里返回 null 而不是抛错
   const out = {
@@ -448,7 +454,7 @@ function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜�
     rot: Number(st.rot) || 0,
     title: String(st.title || "").slice(0, 500),
     body: String(st.body || "").slice(0, 10000),
-    items: Array.isArray(st.items) ? st.items : [],
+    items: normalizeItems(st.items),
   };
   out.tags = Array.isArray(st.tags) ? st.tags.map(String).map(x => x.trim()).filter(Boolean).slice(0, 20) : [];
   out.status = STATUS_KEYS.includes(st.status) ? st.status : "backlog";
@@ -552,7 +558,20 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) return normalizeState(JSON.parse(raw));
-  } catch (e) {}
+  } catch (e) {
+    // 存档损坏时绝不能静默回落到示例数据 —— 那等于无声清空用户的全部画板。
+    // 顺序：隔离坏档 → 影子备份恢复 → 示例数据，每一步都明确告知。
+    try { const bad = localStorage.getItem(KEY); if (bad) localStorage.setItem(KEY + "-corrupt", bad); } catch (e2) {}
+    try {
+      const shadow = localStorage.getItem(KEY + "-backup");
+      if (shadow) {
+        const restored = normalizeState(JSON.parse(shadow).state);
+        alert("检测到主存档损坏，已自动恢复到最近一次备份。坏档另存为 " + KEY + "-corrupt。");
+        return restored;
+      }
+    } catch (e2) {}
+    alert("本地存档读取失败，已重置为示例数据。坏档另存为 " + KEY + "-corrupt，可导出后手工修复。");
+  }
   return mem || (mem = seed());
 }
 let S = load();
@@ -567,22 +586,39 @@ function save(opts) {
   lastSnapshot = JSON.stringify(S);
   try { localStorage.setItem(KEY, lastSnapshot); }
   catch (e) {
-    if (!quotaWarned) {
-      quotaWarned = true;
-      alert("本地存储满了：图片太大存不下，最近的改动重启后可能丢失。建议删掉大图或另建画板。");
+    // 配额爆了先腾掉影子备份再试一次；两次都失败才告警，避免主存档直接丢失
+    try { localStorage.removeItem(KEY + "-backup"); localStorage.setItem(KEY, lastSnapshot); }
+    catch (e2) {
+      if (!quotaWarned) {
+        quotaWarned = true;
+        alert("本地存储满了：图片太大存不下，最近的改动重启后可能丢失。建议删掉大图或另建画板。");
+      }
     }
   }
-  try { localStorage.setItem(KEY + "-backup", JSON.stringify({savedAt: new Date().toISOString(), state: S})); } catch (e) {}
+  // 影子备份直接复用主存档已算好的 JSON 串，省掉每次保存的第二遍全量序列化
+  try { localStorage.setItem(KEY + "-backup", '{"savedAt":"' + new Date().toISOString() + '","state":' + lastSnapshot + "}"); } catch (e) {}
   backupToDiskSoon();
 }
 function saveView() { save({history: false}); } // 视口变化统一入口：落盘但不污染撤销历史
 let backupTimer = null;
+function postBackup() { // 立即把当前状态交给原生层写文件级备份
+  const handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.backup;
+  if (!handler) return;
+  try { handler.postMessage(JSON.stringify(S)); } catch (e) {}
+}
 function backupToDiskSoon() { // 桌面壳内：防抖 3 秒，让原生层写文件级备份
   const handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.backup;
   if (!handler) return;
   clearTimeout(backupTimer);
-  backupTimer = setTimeout(() => { try { handler.postMessage(JSON.stringify(S)); } catch (e) {} }, 3000);
+  backupTimer = setTimeout(() => { backupTimer = null; postBackup(); }, 3000);
 }
+function flushBackup() { // 应用退出/隐藏时补写一次，避免最后 3 秒内的改动随防抖定时器一起丢
+  if (!backupTimer) return;
+  clearTimeout(backupTimer); backupTimer = null;
+  postBackup();
+}
+window.addEventListener("pagehide", flushBackup);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushBackup(); });
 function restoreSnapshot(raw) {
   S = normalizeState(JSON.parse(raw)); mem = S;
   lastSnapshot = JSON.stringify(S);
@@ -611,6 +647,14 @@ const boardCount = document.getElementById("boardCount");
 const palette = document.getElementById("palette");
 const emptyHint = document.getElementById("empty");
 let Z = 10;
+const inspector = document.getElementById("inspector");
+const overviewPanel = document.getElementById("overview");
+const searchBox = document.getElementById("searchBox");
+const viewMode = document.getElementById("viewMode");
+// 便利贴/元素 id 可能来自导入的存档，直接拼进属性选择器既会破坏语法也可能被注入，统一转义
+const attrSelector = (name, value) => "[" + name + '="' + String(value).replace(/["\\]/g, ch => "\\" + ch) + '"]';
+const nodeById = id => world.querySelector(attrSelector("data-id", id));
+const nodeByElementId = id => world.querySelector(attrSelector("data-element-id", id));
 
 function el(tag, cls, text) {
   const n = document.createElement(tag);
@@ -770,12 +814,11 @@ function stickyNode(st) {
 }
 function renderAll() {
   const b = board();
-  document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel").forEach(n => n.classList.remove("sel"));
-  world.innerHTML = "";
-  const query = (document.getElementById("searchBox")?.value || "").trim().toLowerCase();
+  world.innerHTML = ""; // 整棵树重建，之前按类名清高亮的那一趟是无效功
+  const query = (searchBox.value || "").trim().toLowerCase();
   b.stickies.forEach(st => {
     const node = stickyNode(st);
-    const text = (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase();
+    const text = query ? (st.title + " " + st.body + " " + (st.items || []).map(it => it.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase() : "";
     if (st.trashed || (query && !text.includes(query))) node.classList.add("search-miss");
     if (selectedIds.has(st.id)) node.classList.add("sel", "selected-outline");
     world.appendChild(node);
@@ -796,7 +839,7 @@ let selectionDrag = null;
 // 两个类名（.sel 阴影抬升 / .selected-outline 蓝色描边）必须成对摘挂，否则旧高亮残留。
 function applySelectionStyles() {
   document.querySelectorAll(".sticky.sel,.shape.sel,.connector.sel,.drawstroke.sel,.selected-outline").forEach(n => n.classList.remove("sel", "selected-outline"));
-  selectedIds.forEach(id => { const n = world.querySelector(`[data-id="${id}"]`); if (n) n.classList.add("sel", "selected-outline"); });
+  selectedIds.forEach(id => { const n = nodeById(id); if (n) n.classList.add("sel", "selected-outline"); });
   selectedElementIds.forEach(id => { const n = world.querySelector(`[data-element-id="${id}"]`); if (n) n.classList.add("sel"); });
 }
 function clearSelection() { // blur 的对称操作：清空选择集并摘掉全部高亮
@@ -850,7 +893,7 @@ function syncInsMore() {
   document.getElementById("insMoreBtn").textContent = insMoreOpen ? "收起属性 ▾" : "更多属性 ▸";
 }
 function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "none"
-  const box = document.getElementById("inspector");
+  const box = inspector;
   box.style.display = mode === "none" ? "none" : "block";
   document.getElementById("stickyFields").style.display = mode === "sticky" ? "grid" : "none";
   document.getElementById("batchActions").style.display = mode === "batch" ? "block" : "none";
@@ -859,7 +902,7 @@ function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "non
   if (mode !== "sticky") imageActions.classList.remove("open");
 }
 function openInspector(st) {
-  const box = document.getElementById("inspector"); box.dataset.id = st.id;
+  const box = inspector; box.dataset.id = st.id;
   setInspectorMode("sticky");
   insStatus.value = st.status || "backlog"; insPriority.value = st.priority || "none"; insDue.value = st.due || ""; insTags.value = (st.tags || []).join(", ");
   insLocked.checked = !!st.locked;
@@ -868,7 +911,7 @@ function openInspector(st) {
   if (st.kind === "img") { const crop = st.crop || {x:50,y:50,scale:1}; imgCropX.value = crop.x; imgCropY.value = crop.y; imgCropScale.value = crop.scale; imgAnnotation.value = st.annotation || ""; }
 }
 function openElementInspector(elm) {
-  const box = document.getElementById("inspector"); box.dataset.elementId = elm.id; box.dataset.id = "";
+  const box = inspector; box.dataset.elementId = elm.id; box.dataset.id = "";
   setInspectorMode("element");
   // 按元素类型显隐：连接线只调箭头，图形调文字/填充色
   document.getElementById("elmArrowRow").style.display = elm.type === "connector" ? "flex" : "none";
@@ -884,33 +927,44 @@ function syncInspector() { // 选择变化后面板跟随：单个便利贴→�
   else setInspectorMode("none");
 }
 function stickySize(st) {
-  const node = world.querySelector(`[data-id="${st.id}"]`);
+  const node = nodeById(st.id);
   return {w: node?.offsetWidth || st.w || (st.kind === "title" ? 240 : 320), h: node?.offsetHeight || (st.kind === "img" ? 220 : 120)};
 }
-function stickyCenter(st) { const size = stickySize(st); return {x: st.x + size.w / 2, y: st.y + size.h / 2}; }
-function stickyEdge(st, target) {
-  const size = stickySize(st), center = {x: st.x + size.w / 2, y: st.y + size.h / 2};
+// 一次手势内贴纸尺寸不变：按 id 缓存后复用，避免逐次读 offsetWidth 触发同步重排
+function sizeLookup() {
+  const cache = new Map();
+  return st => { let size = cache.get(st.id); if (!size) { size = stickySize(st); cache.set(st.id, size); } return size; };
+}
+function stickyCenter(st, size) { const s = size || stickySize(st); return {x: st.x + s.w / 2, y: st.y + s.h / 2}; }
+function stickyEdge(st, target, size) {
+  const s = size || stickySize(st), center = {x: st.x + s.w / 2, y: st.y + s.h / 2};
   const dx = target.x - center.x, dy = target.y - center.y;
   if (!dx && !dy) return center;
   const scale = 1 / Math.max(Math.abs(dx) / Math.max(1, size.w / 2), Math.abs(dy) / Math.max(1, size.h / 2));
   return {x: center.x + dx * scale, y: center.y + dy * scale};
 }
-function positionConnector(node, elm) {
+function positionConnector(node, elm, sizeOf) {
+  const size = sizeOf || stickySize;
   const from = elm.fromId ? board().stickies.find(st => st.id === elm.fromId && !st.trashed) : null, to = elm.toId ? board().stickies.find(st => st.id === elm.toId && !st.trashed) : null;
-  const rawStart = from ? stickyCenter(from) : {x: elm.x, y: elm.y};
-  const rawEnd = to ? stickyCenter(to) : {x: elm.x2 ?? elm.x + elm.w, y: elm.y2 ?? elm.y};
-  const start = from ? stickyEdge(from, rawEnd) : rawStart, end = to ? stickyEdge(to, rawStart) : rawEnd;
+  const rawStart = from ? stickyCenter(from, size(from)) : {x: elm.x, y: elm.y};
+  const rawEnd = to ? stickyCenter(to, size(to)) : {x: elm.x2 ?? elm.x + elm.w, y: elm.y2 ?? elm.y};
+  const start = from ? stickyEdge(from, rawEnd, size(from)) : rawStart, end = to ? stickyEdge(to, rawStart, size(to)) : rawEnd;
   const dx = end.x - start.x, dy = end.y - start.y, length = Math.max(4, Math.hypot(dx, dy));
   node.style.left = start.x + "px"; node.style.top = start.y + "px"; node.style.width = length + "px"; node.style.height = "3px"; node.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`; node.style.color = "#23272f";
   const arrow = node.querySelector(".arrowhead"); if (arrow) arrow.style.display = elm.arrow ? "block" : "none";
 }
-function refreshConnectors() { (board().elements || []).filter(elm => elm.type === "connector").forEach(elm => { const node = world.querySelector(`[data-element-id="${elm.id}"]`); if (node) positionConnector(node, elm); }); }
+function refreshConnectors(list) { // 一次手势内共用一个尺寸缓存：N 条连线只读 N 次 offsetWidth，而不是 3N 次
+  const connectors = list || (board().elements || []).filter(elm => elm.type === "connector");
+  if (!connectors.length) return;
+  const sizeOf = sizeLookup();
+  connectors.forEach(elm => { const node = nodeByElementId(elm.id); if (node) positionConnector(node, elm, sizeOf); });
+}
 function renderElement(elm) {
-  const n = el("div", elm.type === "shape" ? "shape " + (elm.shape || "rect") : elm.type === "connector" ? "connector" : elm.type === "stroke" ? "drawstroke" : "shape");
+  const n = el("div", elm.type === "shape" ? "shape " + (elm.shape === "ellipse" ? "ellipse" : "rect") : elm.type === "connector" ? "connector" : elm.type === "stroke" ? "drawstroke" : "shape");
   n.dataset.elementId = elm.id; n.style.left = elm.x + "px"; n.style.top = elm.y + "px"; n.style.width = elm.w + "px"; n.style.height = elm.h + "px"; n.style.zIndex = elm.z ?? 1;
   n.style.pointerEvents = "auto";
   if (elm.type === "shape") {
-    if (elm.color) n.style.background = elm.color === "white" ? "#fdfdf8" : "var(--" + elm.color + ")";
+    if (STICKY_COLORS.includes(elm.color)) n.style.background = elm.color === "white" ? "#fdfdf8" : "var(--" + elm.color + ")";
     if (elm.text) n.appendChild(el("div", "shape-label", elm.text));
   }
   if (selectedElementIds.has(elm.id)) n.classList.add("sel");
@@ -948,14 +1002,15 @@ function enableElementDrag(node, elm) {
 }
 function snapAnchor(x, y) {
   let best = null, distance = 52;
-  board().stickies.filter(st => !st.trashed).forEach(st => { const size = stickySize(st), center = {x:st.x + size.w / 2, y:st.y + size.h / 2}, dx = Math.max(Math.abs(x - center.x) - size.w / 2, 0), dy = Math.max(Math.abs(y - center.y) - size.h / 2, 0), d = Math.hypot(dx, dy); if (d < distance) { best = {id:st.id, x:center.x, y:center.y}; distance = d; } });
+  const sizeOf = sizeLookup();
+  board().stickies.filter(st => !st.trashed).forEach(st => { const size = sizeOf(st), center = {x:st.x + size.w / 2, y:st.y + size.h / 2}, dx = Math.max(Math.abs(x - center.x) - size.w / 2, 0), dy = Math.max(Math.abs(y - center.y) - size.h / 2, 0), d = Math.hypot(dx, dy);       if (d < distance) { best = {id:st.id, x:center.x, y:center.y, size}; distance = d; } });
   return best;
 }
 function allStickies() { return S.boards.flatMap(b => b.stickies.map(st => ({board:b, sticky:st}))); }
 function recordActivity() { S.activity = Array.isArray(S.activity) ? S.activity : []; const date = dateKey(); const rows = allStickies().filter(x => !x.sticky.trashed); const entry = {date, total:rows.length, done:rows.filter(x => x.sticky.status === "done").length}; const old = S.activity.find(x => x.date === date); if (old) Object.assign(old, entry); else S.activity.push(entry); S.activity = S.activity.slice(-90); }
 function showToast(message) { let toast = document.getElementById("toast"); if (!toast) { toast = el("div", "toast"); toast.id = "toast"; document.body.appendChild(toast); } toast.textContent = message; toast.classList.add("show"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 5000); }
 function renderDashboard() { hideInspector();
-  const overview = document.getElementById("overview"), rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const subAll = rows.flatMap(x => [...(x.sticky.items || []).map(it => !!it.done), ...(x.sticky.subtasks || []).map(t => t.status === "done")]), subDone = subAll.filter(Boolean).length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>子项完成</h3><strong>' + subDone + '/' + subAll.length + '</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div>'; overview.classList.add("open"); }
+  const overview = overviewPanel, rows = allStickies().filter(x => !x.sticky.trashed), done = rows.filter(x => x.sticky.status === "done").length, blocked = rows.filter(x => x.sticky.status === "blocked").length, overdue = rows.filter(x => x.sticky.due && x.sticky.due < dateKey() && x.sticky.status !== "done").length; const subAll = rows.flatMap(x => [...(x.sticky.items || []).map(it => !!it.done), ...(x.sticky.subtasks || []).map(t => t.status === "done")]), subDone = subAll.filter(Boolean).length; const trend = Array.from({length:14}, (_,i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); const key = dateKey(d), e = (S.activity || []).find(x => x.date === key); return {key, done:e?.done || 0}; }); const max = Math.max(1, ...trend.map(x => x.done)); overview.dataset.mode = "stats"; overview.innerHTML = '<h2>进度仪表盘</h2><div class="ov-grid"><div class="ov-card"><h3>任务总数</h3><strong>' + rows.length + '</strong></div><div class="ov-card"><h3>完成率</h3><strong>' + (rows.length ? Math.round(done / rows.length * 100) : 0) + '%</strong></div><div class="ov-card"><h3>阻塞任务</h3><strong>' + blocked + '</strong></div><div class="ov-card"><h3>逾期任务</h3><strong>' + overdue + '</strong></div><div class="ov-card"><h3>子项完成</h3><strong>' + subDone + '/' + subAll.length + '</strong></div></div><h3>近 14 天完成趋势</h3><div class="trend">' + trend.map(x => '<i style="height:' + Math.max(3, Math.round(x.done / max * 100)) + '%"><b>' + x.key.slice(5) + '</b></i>').join('') + '</div>'; overview.classList.add("open"); }
 function centerOnSticky(st) { // 跳转后把目标贴纸平移到视口中心，applyView 内部会做边界钳制
   const v = board().view, size = stickySize(st);
   v.x = Math.round(viewport.clientWidth / 2 - (st.x + size.w / 2) * v.k);
@@ -963,8 +1018,8 @@ function centerOnSticky(st) { // 跳转后把目标贴纸平移到视口中心�
   applyView();
 }
 function jumpToSticky(boardId, stickyId) {
-  S.activeId = boardId; document.getElementById("searchBox").value = ""; selectedIds.clear(); selectedElementIds.clear();
-  document.getElementById("viewMode").value = "board"; // 视图状态与下拉同步，避免显示“看板”实际是画布
+  S.activeId = boardId; searchBox.value = ""; selectedIds.clear(); selectedElementIds.clear();
+  viewMode.value = "board"; // 视图状态与下拉同步，避免显示“看板”实际是画布
   save(); renderBoards(); renderAll();
   const st = board().stickies.find(x => x.id === stickyId);
   if (st) { centerOnSticky(st); selectSticky(st, false); }
@@ -972,7 +1027,7 @@ function jumpToSticky(boardId, stickyId) {
 }
 function renderToday() { // 「今天」页：到期/逾期 + 进行中，一个入口开始一天
   hideInspector();
-  const overview = document.getElementById("overview"), today = dateKey();
+  const overview = overviewPanel, today = dateKey();
   const rows = allStickies().filter(x => !x.sticky.trashed);
   const dueRows = rows.filter(x => x.sticky.due && x.sticky.due <= today && x.sticky.status !== "done").sort((a, b) => a.sticky.due.localeCompare(b.sticky.due));
   const doing = rows.filter(x => x.sticky.status === "doing");
@@ -999,16 +1054,16 @@ function renderToday() { // 「今天」页：到期/逾期 + 进行中，一个
   });
 }
 function closeOverview() { // 所有全屏面板的统一出口：收起面板、视图下拉同步回「画布」
-  const overview = document.getElementById("overview");
+  const overview = overviewPanel;
   overview.classList.remove("open"); overview.dataset.mode = "board";
-  document.getElementById("viewMode").value = "board";
+  viewMode.value = "board";
 }
-function hideInspector() { document.getElementById("inspector").style.display = "none"; } // 全屏面板打开时属性面板必须让位，避免浮在面板上遮挡内容
+function hideInspector() { inspector.style.display = "none"; } // 全屏面板打开时属性面板必须让位，避免浮在面板上遮挡内容
 function openOverview(mode) {
-  const overview = document.getElementById("overview");
+  const overview = overviewPanel;
   if (mode === "board") { closeOverview(); return; }
-  if (mode === "search") { renderSearchResults(document.getElementById("searchBox").value); return; }
-  if (mode === "today" || mode === "kanban" || mode === "calendar" || mode === "stats") document.getElementById("viewMode").value = mode; // 下拉显示与实际面板保持一致
+  if (mode === "search") { renderSearchResults(searchBox.value); return; }
+  if (mode === "today" || mode === "kanban" || mode === "calendar" || mode === "stats") viewMode.value = mode; // 下拉显示与实际面板保持一致
   if (mode === "today") { renderToday(); return; }
   const rows = allStickies().filter(x => mode === "trash" ? x.sticky.trashed : !x.sticky.trashed);
   if (mode === "trash") {
@@ -1017,7 +1072,7 @@ function openOverview(mode) {
     const elementName = e => ({shape: "图形", connector: "连接线", stroke: "手绘", table: "表格"})[e.type] || "图形";
     overview.innerHTML = '<h2>回收站</h2><div class="ov-list">'
       + (rows.length + trashedElements.length ? "" : "<p>回收站为空。</p>")
-      + rows.map(x => '<div class="ov-item" data-board="' + x.board.id + '" data-sticky="' + x.sticky.id + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + x.sticky.id + '">恢复</button></div>').join("")
+      + rows.map(x => '<div class="ov-item" data-board="' + escapeRich(x.board.id) + '" data-sticky="' + escapeRich(x.sticky.id) + '">' + escapeRich(x.sticky.title || '未命名') + ' <button data-restore="' + escapeRich(x.sticky.id) + '">恢复</button></div>').join("")
       + trashedElements.map(x => '<div class="ov-item">' + elementName(x.element) + ' <small>· ' + escapeRich(x.board.name) + '</small> <button data-restore-element="' + escapeRich(x.element.id) + '" data-board="' + escapeRich(x.board.id) + '">恢复</button></div>').join("")
       + '</div>' + (rows.length + trashedElements.length ? '<div class="ins-actions"><button id="emptyTrash">清空回收站</button></div>' : "");
     overview.querySelectorAll('[data-restore]').forEach(btn => btn.onclick = e => { e.stopPropagation(); const st = rows.find(x => x.sticky.id === btn.dataset.restore)?.sticky; if (st) { st.trashed = false; save(); openOverview('trash'); renderAll(); showToast("已恢复「" + (st.title || "未命名") + "」"); } });
@@ -1049,7 +1104,7 @@ function openOverview(mode) {
 }
 function renderKanban() {
   hideInspector();
-  const overview = document.getElementById("overview");
+  const overview = overviewPanel;
   const rows = allStickies().filter(x => !x.sticky.trashed);
   const cols = [["backlog", "待办"], ["next", "下一步"], ["doing", "进行中"], ["blocked", "阻塞"], ["done", "完成"]];
   overview.dataset.mode = "kanban";
@@ -1075,7 +1130,7 @@ function renderKanban() {
   overview.classList.add("open");
 }
 function renderSearchResults(value) {
-  const query = String(value || "").trim().toLowerCase(), overview = document.getElementById("overview");
+  const query = String(value || "").trim().toLowerCase(), overview = overviewPanel;
   if (!query) { if (overview.dataset.mode === "search") overview.classList.remove("open"); return; }
   hideInspector(); // 搜索结果也是全屏面板，属性面板同样让位
   const rows = allStickies().filter(({sticky: st}) => !st.trashed && (st.title + " " + st.body + " " + (st.items || []).map(item => item.t).join(" ") + " " + (st.tags || []).join(" ") + " " + (st.subtasks || []).map(task => task.title).join(" ") + " " + (st.annotation || "")).toLowerCase().includes(query));
@@ -1109,13 +1164,14 @@ function addSticky(color, kind) {
   const b = board(), v = b.view;
   const cx = (viewport.clientWidth / 2 - v.x) / v.k + (Math.random() * 60 - 30);
   const cy = (viewport.clientHeight / 2 - v.y) / v.k + (Math.random() * 60 - 30);
-  const defaults = {note: ["新便利贴", "双击改内容"], todo: ["新清单", ""], title: ["大标题", ""]};
+  const defaults = {note: ["新便利贴", "双击改内容"], todo: ["新清单", ""], title: ["大标题", ""], img: ["图片", ""]};
+  const preset = defaults[kind] || defaults.note; // 未知 kind 兜底到文本贴，别在 defaults[kind][0] 上抛 TypeError
   const st = mkSticky(color, kind, Math.min(BOARD.width - 240, Math.max(0, Math.round(cx - 110))), Math.min(BOARD.height - 180, Math.max(0, Math.round(cy - 60))),
-    defaults[kind][0], defaults[kind][1]);
+    preset[0], preset[1]);
   b.stickies.push(st);
   save(); renderAll();
   requestAnimationFrame(() => {
-    const n = world.querySelector(`[data-id="${st.id}"]`);
+    const n = nodeById(st.id);
     if (n) { selectedIds.clear(); selectedElementIds.clear(); selectedIds.add(st.id); n.classList.add("sel", "selected-outline"); n.style.zIndex = ++Z; openInspector(st); }
   });
 }
@@ -1150,7 +1206,7 @@ viewport.addEventListener("pointerdown", e => {
     const v = board().view, x = Math.max(0, Math.min(BOARD.width - 80, (e.clientX - v.x) / v.k)), y = Math.max(0, Math.min(BOARD.height - 80, (e.clientY - v.y) / v.k));
     if (activeTool === "arrow" || activeTool === "line") {
       const start = {x, y}, state = {x, y}, preview = el("div", "connector"); world.appendChild(preview);
-      const updatePreview = () => { const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y); const p1 = from ? stickyEdge(board().stickies.find(st => st.id === from.id), to || state) : start; const p2 = to ? stickyEdge(board().stickies.find(st => st.id === to.id), from || start) : state; const dx = p2.x - p1.x, dy = p2.y - p1.y; preview.style.left = p1.x + "px"; preview.style.top = p1.y + "px"; preview.style.width = Math.max(4, Math.hypot(dx, dy)) + "px"; preview.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`; preview.style.opacity = ".55"; };
+      const updatePreview = () => { const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y); const p1 = from ? stickyEdge(board().stickies.find(st => st.id === from.id), to || state, from.size) : start; const p2 = to ? stickyEdge(board().stickies.find(st => st.id === to.id), from || start, to.size) : state; const dx = p2.x - p1.x, dy = p2.y - p1.y; preview.style.left = p1.x + "px"; preview.style.top = p1.y + "px"; preview.style.width = Math.max(4, Math.hypot(dx, dy)) + "px"; preview.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`; preview.style.opacity = ".55"; };
       const move = ev => { state.x = Math.max(0, Math.min(BOARD.width, (ev.clientX - v.x) / v.k)); state.y = Math.max(0, Math.min(BOARD.height, (ev.clientY - v.y) / v.k)); updatePreview(); };
       const up = () => {
         const from = snapAnchor(start.x, start.y), to = snapAnchor(state.x, state.y);
@@ -1188,7 +1244,8 @@ function endViewportGesture(e) { // pointerup / pointercancel 共用的收尾：
     const v = board().view, ex = (e.clientX - v.x) / v.k, ey = (e.clientY - v.y) / v.k;
     const rect = {x:Math.min(selectionDrag.sx, ex), y:Math.min(selectionDrag.sy, ey), w:Math.abs(ex - selectionDrag.sx), h:Math.abs(ey - selectionDrag.sy)};
     const additive = selectionDrag.additive; selectionDrag.box.remove(); selectionDrag = null; if (!additive) { selectedIds.clear(); selectedElementIds.clear(); }
-    board().stickies.forEach(st => { const n = world.querySelector(`[data-id="${st.id}"]`), w = n?.offsetWidth || 220, h = n?.offsetHeight || 120; if (!st.trashed && !n?.classList.contains("search-miss") && st.x < rect.x + rect.w && st.x + w > rect.x && st.y < rect.y + rect.h && st.y + h > rect.y) selectedIds.add(st.id); });
+    const nodes = new Map(); world.querySelectorAll("[data-id]").forEach(n => nodes.set(n.dataset.id, n));
+    board().stickies.forEach(st => { const n = nodes.get(st.id), w = n?.offsetWidth || 220, h = n?.offsetHeight || 120; if (!st.trashed && !n?.classList.contains("search-miss") && st.x < rect.x + rect.w && st.x + w > rect.x && st.y < rect.y + rect.h && st.y + h > rect.y) selectedIds.add(st.id); });
     board().elements.filter(elm => !elm.locked && !elm.trashed).forEach(elm => { if (elm.x < rect.x + rect.w && elm.x + elm.w > rect.x && elm.y < rect.y + rect.h && elm.y + elm.h > rect.y) selectedElementIds.add(elm.id); });
     renderAll(); syncInspector(); return;
   }
@@ -1232,11 +1289,11 @@ function enableDrag(node, st) {
     e.stopPropagation();
     const v = board().view;
     sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; moved = false;
+    const size = stickySize(st); // 拖拽过程中尺寸不变，量一次即可
     node.classList.add("drag");
     const move = ev => {
       const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k;
       if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
-      const size = stickySize(st);
       st.x = Math.round(Math.max(0, Math.min(BOARD.width - size.w, ox + dx)));
       st.y = Math.round(Math.max(0, Math.min(BOARD.height - size.h, oy + dy)));
       node.style.left = st.x + "px"; node.style.top = st.y + "px";
@@ -1255,14 +1312,9 @@ function enableRotate(node, st, handle) {
   handle.addEventListener("pointerdown", e => {
     e.stopPropagation();
     e.preventDefault();
-    const center = () => {
-      const r = node.getBoundingClientRect();
-      return {x: r.left + r.width / 2, y: r.top + r.height / 2};
-    };
-    const ang = ev => {
-      const c = center();
-      return Math.atan2(ev.clientY - c.y, ev.clientX - c.x) * 180 / Math.PI;
-    };
+    const box = node.getBoundingClientRect(); // 旋转不改变中心点，整段手势量一次即可
+    const c = {x: box.left + box.width / 2, y: box.top + box.height / 2};
+    const ang = ev => Math.atan2(ev.clientY - c.y, ev.clientX - c.x) * 180 / Math.PI;
     const a0 = ang(e), r0 = st.rot;
     node.classList.add("drag");
     const move = ev => {
@@ -1307,11 +1359,11 @@ document.getElementById("addBtn").onclick = e => {
   e.stopPropagation();
   palette.classList.toggle("open");
 };
-document.getElementById("searchBox").oninput = () => { renderAll(); renderSearchResults(document.getElementById("searchBox").value); };
-document.getElementById("viewMode").onchange = e => openOverview(e.target.value);
+searchBox.oninput = () => { renderAll(); renderSearchResults(searchBox.value); };
+viewMode.onchange = e => openOverview(e.target.value);
 document.getElementById("ovClose").onclick = () => closeOverview();
-document.getElementById("viewMode").addEventListener("pointerdown", () => { // 打开下拉即预收菜单打开的面板：规避「画布」同值不触发 change 的死角
-  const ovPanel = document.getElementById("overview");
+viewMode.addEventListener("pointerdown", () => { // 打开下拉即预收菜单打开的面板：规避「画布」同值不触发 change 的死角
+  const ovPanel = overviewPanel;
   if (ovPanel.classList.contains("open") && ["trash", "search"].includes(ovPanel.dataset.mode)) closeOverview();
 });
 /* ---- 弹出层：工具 / 更多，同一时刻只开一个 ---- */
@@ -1322,9 +1374,11 @@ document.getElementById("moreBtn").onclick = e => { e.stopPropagation(); toggleP
 const importPick = document.getElementById("importPick");
 const insStatus = document.getElementById("insStatus"), insPriority = document.getElementById("insPriority"), insDue = document.getElementById("insDue"), insTags = document.getElementById("insTags"), subtaskEditor = document.getElementById("subtaskEditor"), insSubNew = document.getElementById("insSubNew"), insSubAdd = document.getElementById("insSubAdd"), insLocked = document.getElementById("insLocked"), imageActions = document.getElementById("imageActions"), imgCropScale = document.getElementById("imgCropScale"), imgCropX = document.getElementById("imgCropX"), imgCropY = document.getElementById("imgCropY"), imgAnnotation = document.getElementById("imgAnnotation"), elmText = document.getElementById("elmText"), elmColor = document.getElementById("elmColor"), elmArrow = document.getElementById("elmArrow"), batchStatus = document.getElementById("batchStatus"), batchPriority = document.getElementById("batchPriority"), batchDue = document.getElementById("batchDue"), batchTag = document.getElementById("batchTag");
 document.getElementById("insMoreBtn").onclick = () => { insMoreOpen = !insMoreOpen; syncInsMore(); };
-elmText.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.text = elmText.value.trim().slice(0, 200); save(); renderAll(); };
-elmColor.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm) return; elm.color = elmColor.value; save(); renderAll(); };
-elmArrow.onchange = () => { const elm = (board().elements || []).find(x => x.id === document.getElementById("inspector").dataset.elementId); if (!elm || elm.type !== "connector") return; elm.arrow = elmArrow.checked; save(); renderAll(); };
+const currentSticky = () => board().stickies.find(x => x.id === inspector.dataset.id);
+const currentElement = () => (board().elements || []).find(x => x.id === inspector.dataset.elementId);
+elmText.onchange = () => { const elm = currentElement(); if (!elm) return; elm.text = elmText.value.trim().slice(0, 200); save(); renderAll(); };
+elmColor.onchange = () => { const elm = currentElement(); if (!elm) return; elm.color = elmColor.value; save(); renderAll(); };
+elmArrow.onchange = () => { const elm = currentElement(); if (!elm || elm.type !== "connector") return; elm.arrow = elmArrow.checked; save(); renderAll(); };
 document.getElementById("batchApply").onclick = () => {
   const targets = selectedStickies(); if (!targets.length) { showToast("批量修改只作用于便利贴"); return; }
   targets.forEach(st => {
@@ -1340,7 +1394,7 @@ insSubAdd.onclick = () => { const value = insSubNew.value.trim(); if (!value) re
 insSubNew.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); insSubAdd.click(); } };
 // 属性面板即时生效：字段一改就写回并重渲染，不再需要「应用」按钮
 function applyInspector() {
-  const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id);
+  const st = currentSticky();
   if (!st) return;
   st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value;
   st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20);
@@ -1350,8 +1404,8 @@ function applyInspector() {
 }
 [insStatus, insPriority, insDue, insTags, insLocked, imgAnnotation].forEach(field => field.onchange = applyInspector);
 subtaskEditor.addEventListener("change", applyInspector); // 子任务行的勾选/下拉即时生效；文本框失焦时触发 change 后统一保存
-document.getElementById("insTrash").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (st) { st.trashed = true; save(); renderAll(); document.getElementById("inspector").style.display = "none"; } };
-document.getElementById("insClose").onclick = () => document.getElementById("inspector").style.display = "none";
+document.getElementById("insTrash").onclick = () => { const st = currentSticky(); if (st) { st.trashed = true; save(); renderAll(); hideInspector(); } };
+document.getElementById("insClose").onclick = () => hideInspector();
 document.getElementById("insFront").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = ++Z; }); save(); renderAll(); };
 document.getElementById("insBack").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = 0; }); save(); renderAll(); };
 document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { activeTool = btn.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x => x.classList.toggle("active", x === btn)); });
@@ -1370,6 +1424,7 @@ importPick.onchange = () => {
   const file = importPick.files && importPick.files[0];
   if (!file) return;
   const reader = new FileReader();
+  reader.onerror = () => alert("读取备份文件失败，换一个文件或重试。");
   reader.onload = () => {
     try {
       const next = normalizeState(JSON.parse(reader.result));
@@ -1398,11 +1453,11 @@ imgPick.onchange = () => {
   rd.onload = () => downscaleImage(rd.result, url => { if (replaceTarget) { replaceTarget.src = url; replaceTarget = null; save(); renderAll(); } else addImage(url, f.name); });
   rd.readAsDataURL(f);
 };
-document.getElementById("imgReplace").onclick = () => { const id = document.getElementById("inspector").dataset.id; replaceTarget = board().stickies.find(st => st.id === id && st.kind === "img") || null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
-document.getElementById("imgPreview").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); };
+document.getElementById("imgReplace").onclick = () => { const target = currentSticky(); replaceTarget = target && target.kind === "img" ? target : null; if (!replaceTarget) return; const h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.pickImage; if (h) h.postMessage({replace:true}); else imgPick.click(); };
+document.getElementById("imgPreview").onclick = () => { const st = currentSticky(); if (!st || !st.src) return; const preview = document.getElementById("mediaPreview"); preview.querySelector("img").src = st.src; preview.classList.add("open"); };
 document.getElementById("mediaClose").onclick = () => document.getElementById("mediaPreview").classList.remove("open");
-function previewImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; const img = world.querySelector(`[data-id="${st.id}"] img`); if (img) { img.style.objectPosition = st.crop.x + "% " + st.crop.y + "%"; img.style.transform = "scale(" + (st.crop.scale || 1) + ")"; } }
-function commitImageCrop() { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st || st.kind !== "img") return; previewImageCrop(); save(); renderAll(); }
+function previewImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; const host = nodeById(st.id), img = host && host.querySelector("img"); if (img) { img.style.objectPosition = st.crop.x + "% " + st.crop.y + "%"; img.style.transform = "scale(" + (st.crop.scale || 1) + ")"; } }
+function commitImageCrop() { const st = currentSticky(); if (!st || st.kind !== "img") return; previewImageCrop(); save(); renderAll(); }
 imgCropScale.oninput = previewImageCrop; imgCropX.oninput = previewImageCrop; imgCropY.oninput = previewImageCrop;
 imgCropScale.onchange = commitImageCrop; imgCropX.onchange = commitImageCrop; imgCropY.onchange = commitImageCrop;
 document.addEventListener("paste", e => {
@@ -1413,35 +1468,42 @@ document.addEventListener("paste", e => {
 });
 function downscaleImage(dataUrl, done) {
   const im = new Image();
+  // 失败时必须解除 replaceTarget，否则下次贴图会被误判成「替换上一张」
+  const fail = () => { replaceTarget = null; alert("这张图片读不出来，换一张试试"); };
   im.onload = () => {
     const shot = (max, q, type) => {
       const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
       const c = document.createElement("canvas");
       c.width = Math.max(1, Math.round(im.naturalWidth * s));
       c.height = Math.max(1, Math.round(im.naturalHeight * s));
-      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      const ctx = c.getContext("2d");
+      if (!ctx) return "";
+      ctx.drawImage(im, 0, 0, c.width, c.height);
       return c.toDataURL(type || "image/jpeg", q);
     };
     const preservePng = /^data:image\/png/i.test(dataUrl);
     let out = shot(1000, 0.85, preservePng ? "image/png" : "image/jpeg");
     if (out.length > 1200000) out = shot(700, preservePng ? 1 : 0.7, preservePng ? "image/png" : "image/jpeg");
+    if (!out) { fail(); return; }
     done(out);
   };
-  im.onerror = () => alert("这张图片读不出来，换一张试试");
+  im.onerror = fail;
   im.src = dataUrl;
 }
 function addImage(dataUrl, name) {
   const b = board(), v = b.view;
   const cx = (viewport.clientWidth / 2 - v.x) / v.k;
   const cy = (viewport.clientHeight / 2 - v.y) / v.k;
-  const st = mkSticky("white", "img", Math.round(cx - 120), Math.round(cy - 100),
+  const st = mkSticky("white", "img", // 与 addSticky 同一套边界钳制，别把图片丢到负坐标上
+    Math.min(BOARD.width - 240, Math.max(0, Math.round(cx - 120))),
+    Math.min(BOARD.height - 180, Math.max(0, Math.round(cy - 100))),
     (name || "图片").replace(/\.[^.]+$/, "").slice(0, 20));
   st.src = dataUrl;
   st.crop = {x:50,y:50,scale:1}; st.annotation = "";
   b.stickies.push(st);
   save(); renderAll();
   requestAnimationFrame(() => {
-    const n = world.querySelector(`[data-id="${st.id}"]`);
+    const n = nodeById(st.id);
     if (n) { selectedIds.clear(); selectedElementIds.clear(); selectedIds.add(st.id); n.classList.add("sel", "selected-outline"); n.style.zIndex = ++Z; openInspector(st); }
   });
 }
@@ -1553,8 +1615,8 @@ function nudgeSelected(dx, dy) {
 }
 document.addEventListener("keydown", e => {
   const inInput = e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
-  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); document.getElementById("mediaPreview").classList.remove("open"); const ovPanel = document.getElementById("overview"); if (ovPanel.classList.contains("open")) closeOverview(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); clearSelection(); syncInspector(); }
-  if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); document.getElementById("inspector").style.display = "none"; showToast("已移到回收站"); }
+  if (e.key === "Escape") { palette.classList.remove("open"); closePops(); toggleHelp(false); closeIsland(); document.getElementById("mediaPreview").classList.remove("open"); const ovPanel = overviewPanel; if (ovPanel.classList.contains("open")) closeOverview(); activeTool = null; selectionMode = false; document.querySelectorAll("[data-tool],[data-op=select]").forEach(button => button.classList.remove("active")); clearSelection(); syncInspector(); }
+  if ((e.key === "Delete" || e.key === "Backspace") && !inInput && (selectedIds.size || selectedElementIds.size)) { e.preventDefault(); board().stickies.forEach(st => { if (selectedIds.has(st.id)) st.trashed = true; }); (board().elements || []).forEach(elm => { if (selectedElementIds.has(elm.id)) elm.trashed = true; }); selectedIds.clear(); selectedElementIds.clear(); save(); renderAll(); hideInspector(); showToast("已移到回收站"); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !inInput) { e.preventDefault(); undo(); }
   if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "z" || (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") && !inInput) { e.preventDefault(); redo(); }
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "d" && !inInput && selectedIds.size) { e.preventDefault(); duplicateSelected(); }

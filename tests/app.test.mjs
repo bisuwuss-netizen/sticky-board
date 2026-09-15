@@ -153,6 +153,19 @@ test('normalizeSticky keeps subtasks, crop and annotation', () => {
   assert.deepEqual(plain(normalizeSticky({}).crop), {x: 50, y: 50, scale: 1});
 });
 
+test('normalizeSticky repairs malformed checklist items', () => {
+  // 渲染期读 it.t / it.done，混进一个 null 会整块白屏，所以逐项兜底而不是整批透传
+  assert.deepEqual(plain(normalizeSticky({items: [null, {t: 'ok', done: true}, '裸字符串', 7, undefined]}).items), [
+    {t: 'ok', done: true},
+    {t: '裸字符串', done: false},
+    {t: '7', done: false},
+  ]);
+  // 缺 t / done 的项补默认值
+  assert.deepEqual(plain(normalizeSticky({items: [{}]}).items), [{t: '', done: false}]);
+  assert.deepEqual(plain(normalizeSticky({items: 'nope'}).items), []);
+  assert.deepEqual(plain(normalizeSticky({items: []}).items), []);
+});
+
 /* ---------- normalizeElement ---------- */
 
 test('normalizeElement enforces size limits and keeps elements on the board', () => {
