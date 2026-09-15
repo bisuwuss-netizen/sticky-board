@@ -7,28 +7,6 @@ export function selectInRect(items, rect) {
   const right = rect.x + rect.w, bottom = rect.y + rect.h;
   return items.filter(item => item.x < right && item.x + (item.w || 0) > rect.x && item.y < bottom && item.y + (item.h || 0) > rect.y);
 }
-export function alignItems(items, mode) {
-  if (!items.length) return [];
-  const copy = items.map(item => ({...item}));
-  if (mode === "left") { const x = Math.min(...copy.map(item => item.x)); copy.forEach(item => { item.x = x; }); }
-  if (mode === "right") { const x = Math.max(...copy.map(item => item.x + (item.w || 0))); copy.forEach(item => { item.x = x - (item.w || 0); }); }
-  if (mode === "top") { const y = Math.min(...copy.map(item => item.y)); copy.forEach(item => { item.y = y; }); }
-  if (mode === "bottom") { const y = Math.max(...copy.map(item => item.y + (item.h || 0))); copy.forEach(item => { item.y = y - (item.h || 0); }); }
-  if (mode === "center-x") { const x = copy.reduce((sum, item) => sum + item.x + (item.w || 0) / 2, 0) / copy.length; copy.forEach(item => { item.x = x - (item.w || 0) / 2; }); }
-  if (mode === "center-y") { const y = copy.reduce((sum, item) => sum + item.y + (item.h || 0) / 2, 0) / copy.length; copy.forEach(item => { item.y = y - (item.h || 0) / 2; }); }
-  return copy;
-}
-export function distributeItems(items, axis) {
-  if (items.length < 3) return items.map(item => ({...item}));
-  const dimension = axis === "y" ? "h" : "w";
-  const copy = items.map(item => ({...item})).sort((a, b) => a[axis] - b[axis]);
-  const start = copy[0][axis], end = copy[copy.length - 1][axis] + (copy[copy.length - 1][dimension] || 0);
-  const totalSize = copy.reduce((sum, item) => sum + (item[dimension] || 0), 0);
-  const gap = (end - start - totalSize) / (copy.length - 1);
-  let cursor = start;
-  copy.forEach(item => { item[axis] = Math.round(cursor); cursor += (item[dimension] || 0) + gap; });
-  return copy;
-}
 export function snapConnector(connector, items, radius = 42) {
   const points = [{key: "from", x: connector.x, y: connector.y}, {key: "to", x: connector.x2 ?? connector.x + (connector.w || 0), y: connector.y2 ?? connector.y}];
   const snapped = {...connector};
@@ -56,18 +34,6 @@ export function highlightCode(source, language = "text") {
     last = match.index + value.length;
   }
   return result + escape(code.slice(last)).replace(/\b(const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|def|print|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|true|false|null|undefined)\b/g, '<span class="tok-keyword">$1</span>');
-}
-export function progressTree(nodes) {
-  const byParent = new Map(); nodes.forEach(node => { const key = node.parentId || "root"; if (!byParent.has(key)) byParent.set(key, []); byParent.get(key).push(node); });
-  const walk = node => { const children = byParent.get(node.id) || []; if (!children.length) return node.status === "done" ? 1 : 0; return children.reduce((sum, child) => sum + walk(child), 0) / children.length; };
-  return nodes.map(node => ({...node, progress: Math.round(walk(node) * 100)}));
-}
-export function streakFromDates(dates, today = new Date()) {
-  const set = new Set(dates);
-  const key = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  let cursor = new Date(today); let streak = 0;
-  while (set.has(key(cursor))) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
-  return streak;
 }
 export function clampView(view, viewport, scale = view.k || 1) {
   const k = Math.min(1.6, Math.max(0.4, Number(scale) || 1));
@@ -167,11 +133,10 @@ function normalizeSticky(st) {
     status: STATUSES.includes(st.status) ? st.status : "backlog",
     priority: PRIORITIES.includes(st.priority === "urgent" ? "high" : st.priority) ? (st.priority === "urgent" ? "high" : st.priority) : "none",
     due: typeof st.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(st.due) ? st.due : "",
-    locked: Boolean(st.locked), groupId: typeof st.groupId === "string" ? st.groupId : "",
+    locked: Boolean(st.locked),
     z: Number.isFinite(Number(st.z)) ? Number(st.z) : 0, trashed: Boolean(st.trashed),
     ...(kind === "img" && typeof st.src === "string" ? {src: st.src} : {}),
     subtasks: Array.isArray(st.subtasks) ? st.subtasks.filter(Boolean).map(item => ({id: String(item.id || uid()), title: String(item.title || item.t || "").slice(0, 500), status: STATUSES.includes(item.status) ? item.status : "backlog"})) : [],
-    goalId: typeof st.goalId === "string" ? st.goalId : "",
     crop: st.crop && typeof st.crop === "object" ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)} : {x: 50, y: 50, scale: 1},
     annotation: typeof st.annotation === "string" ? st.annotation.slice(0, 1000) : "",
   };
@@ -195,9 +160,8 @@ export function normalizeState(input) {
     elements: Array.isArray(b.elements) ? b.elements.map(normalizeElement).filter(Boolean) : [],
   })) : [];
   if (!boards.length) boards.push({id: uid(), name: "我的画板", view: {x: 0, y: 0, k: 1}, stickies: [], elements: []});
-  const plans = raw.plans && typeof raw.plans === "object" ? {daily: String(raw.plans.daily || ""), weekly: String(raw.plans.weekly || ""), review: String(raw.plans.review || ""), habitDates: Array.isArray(raw.plans.habitDates) ? raw.plans.habitDates.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-365) : []} : {daily:"", weekly:"", review:"", habitDates:[]};
-  const goals = Array.isArray(raw.goals) ? raw.goals.filter(Boolean).map(g => ({id: String(g.id || uid()), title: String(g.title || "未命名目标").slice(0, 120), type: ["goal","stage","milestone"].includes(g.type) ? g.type : "goal", parentId: typeof g.parentId === "string" ? g.parentId : "", playbook: String(g.playbook || ""), reviewTemplate: String(g.reviewTemplate || ""), status: ["backlog","doing","done"].includes(g.status) ? g.status : "backlog"})) : [];
   const activity = Array.isArray(raw.activity) ? raw.activity.filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date)).slice(-90) : [];
   const activeId = boards.some(b => b.id === raw.activeId) ? raw.activeId : boards[0].id;
-  return {v: 1, activeId, boards, plans, goals, activity};
+  // 计划复盘与目标层级已移除：旧存档的 plans / goals 静默清除（与 index.html 的 normalizeState 保持一致）
+  return {v: 1, activeId, boards, activity};
 }

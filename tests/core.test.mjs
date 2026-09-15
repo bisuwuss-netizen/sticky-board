@@ -1,23 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { BOARD_SIZE, alignItems, clampPoint, clampView, distributeItems, formatRichText, highlightCode, normalizeState, progressTree, selectInRect, snapConnector, streakFromDates } from '../core.mjs';
+import { BOARD_SIZE, clampPoint, clampView, formatRichText, highlightCode, normalizeState, selectInRect, snapConnector } from '../core.mjs';
 
-test('selection and alignment operate on overlapping cards', () => {
+test('selection picks the cards overlapping the marquee', () => {
   const items = [{id:'a',x:10,y:10,w:50,h:50},{id:'b',x:90,y:30,w:40,h:40},{id:'c',x:180,y:80,w:20,h:20}];
   assert.equal(selectInRect(items, {x:0,y:0,w:120,h:100}).length, 2);
-  assert.deepEqual(alignItems(items.slice(0,2), 'top').map(x => x.y), [10, 10]);
-  assert.deepEqual(distributeItems(items, 'x').map(x => x.x), [10, 100, 180]);
 });
 
 test('connectors snap endpoints to nearby cards', () => {
   const snapped = snapConnector({id:'l',x:20,y:20,x2:190,y2:90,w:170,h:70}, [{id:'a',x:0,y:0,w:40,h:40},{id:'b',x:180,y:80,w:40,h:40}]);
   assert.equal(snapped.fromId, 'a'); assert.equal(snapped.toId, 'b');
-});
-
-test('hierarchy progress and habit streak are derived from task state', () => {
-  const tree = progressTree([{id:'goal',status:'doing'},{id:'task',parentId:'goal',status:'done'},{id:'task2',parentId:'goal',status:'doing'}]);
-  assert.equal(tree.find(x => x.id === 'goal').progress, 50);
-  assert.equal(streakFromDates(['2026-09-13','2026-09-12'], new Date('2026-09-13T12:00:00Z')), 2);
 });
 
 test('highlightCode marks keywords, strings, numbers, and comments', () => {
@@ -27,11 +19,15 @@ test('highlightCode marks keywords, strings, numbers, and comments', () => {
   assert.match(html, /tok-comment/);
 });
 
-test('normalizeState preserves plans, goals, and activity data', () => {
-  const state = normalizeState({boards: [], plans: {daily: 'focus', habitDates: ['2026-09-13']}, goals: [{id: 'g', title: 'Ship', type: 'goal'}], activity: [{date: '2026-09-13', done: 2}]});
-  assert.equal(state.plans.daily, 'focus');
-  assert.equal(state.goals[0].title, 'Ship');
+test('normalizeState preserves activity data', () => {
+  const state = normalizeState({boards: [], activity: [{date: '2026-09-13', done: 2}]});
   assert.equal(state.activity[0].done, 2);
+});
+
+test('normalizeState drops retired plans and goals fields', () => {
+  const state = normalizeState({boards: [], plans: {daily: 'focus', habitDates: ['2026-09-13']}, goals: [{id: 'g', title: 'Ship', type: 'goal'}]});
+  assert.equal('plans' in state, false);
+  assert.equal('goals' in state, false);
 });
 
 test('clampPoint keeps new sticky positions inside the fixed board', () => {
@@ -111,14 +107,6 @@ test('formatRichText renders fenced code blocks with highlighting', () => {
 test('normalizeState keeps crop position 0 instead of resetting to 50', () => {
   const state = normalizeState({boards: [{id: 'b', stickies: [{id: 's', kind: 'img', src: 'data:image/png;base64,x', crop: {x: 0, y: 0, scale: 2}}]}]});
   assert.deepEqual(state.boards[0].stickies[0].crop, {x: 0, y: 0, scale: 2});
-});
-
-test('streakFromDates counts local calendar days regardless of timezone', () => {
-  const today = new Date(2026, 8, 14, 1, 0, 0); // 本地时间 9-14 凌晨 1 点
-  const yesterday = new Date(2026, 8, 13, 12, 0, 0);
-  const fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  assert.equal(streakFromDates([fmt(today), fmt(yesterday)], today), 2);
-  assert.equal(streakFromDates([fmt(yesterday)], today), 0);
 });
 
 test('snapConnector tolerates a connector without width', () => {
