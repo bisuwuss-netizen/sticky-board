@@ -375,7 +375,7 @@ button:not(:disabled):focus-visible,select:focus-visible,input:focus-visible,[co
 <div id="viewport"><div id="world"></div></div>
 <section id="overview"></section>
 <button id="ovClose" title="关闭面板 (Esc)">×</button>
-<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions"><button id="insApply">应用</button><button id="insGroup">编组</button><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
+<aside id="inspector"><div class="ins-title">属性</div><div id="batchActions" style="display:none"><div class="ins-grid"><label>批量状态<select id="batchStatus"><option value="">不变</option><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>批量优先级<select id="batchPriority"><option value="">不变</option><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>批量截止<input id="batchDue" type="date"></label><label>追加标签<input id="batchTag" placeholder="留空不加"></label></div><div class="ins-actions"><button id="batchApply">应用到全部所选</button></div></div><div class="ins-grid" id="stickyFields"><label>状态<select id="insStatus"><option value="backlog">待办</option><option value="next">下一步</option><option value="doing">进行中</option><option value="blocked">阻塞</option><option value="done">完成</option></select></label><label>优先级<select id="insPriority"><option value="none">无</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></label><label>截止日期<input id="insDue" type="date"></label><button id="insMoreBtn" type="button" class="ins-more-btn">更多属性 ▸</button><div id="insMore" class="ins-more" style="display:none"><label>标签<input id="insTags" placeholder="工作, 研究"></label><label>子任务<div id="subtaskEditor" class="subtask-editor"></div><div class="subtask-add"><input id="insSubNew" placeholder="新增子任务"><button id="insSubAdd" type="button">添加</button></div></label><label>归属目标<select id="insGoal"><option value="">无</option></select></label><label class="check-label">锁定 <input id="insLocked" type="checkbox"></label></div></div><div class="img-actions" id="imageActions"><button id="imgReplace">替换图片</button><button id="imgPreview">预览图片</button><label>裁剪缩放<input id="imgCropScale" type="range" min="1" max="3" step="0.05" value="1"></label><label>水平位置<input id="imgCropX" type="range" min="0" max="100" value="50"></label><label>垂直位置<input id="imgCropY" type="range" min="0" max="100" value="50"></label><label>标注<textarea id="imgAnnotation" rows="2" placeholder="图片标注"></textarea></label></div><div class="img-actions" id="elementActions"><label class="check-label" id="elmArrowRow">箭头 <input id="elmArrow" type="checkbox"></label><label id="elmTextRow">文字<input id="elmText" placeholder="图形上的文字"></label><label id="elmColorRow">填充颜色<select id="elmColor"><option value="">默认</option><option value="white">白</option><option value="yellow">黄</option><option value="blue">蓝</option><option value="pink">粉</option><option value="green">绿</option><option value="purple">紫</option><option value="cyan">青</option></select></label></div><div class="ins-actions" id="stickyActions"><button id="insFront">置顶</button><button id="insBack">置底</button><button id="insTrash">回收站</button><button id="insClose">关闭</button></div></aside>
 <div id="mediaPreview"><button id="mediaClose">关闭</button><img alt="图片预览"></div>
 <div id="empty">点「+ 便利贴」放第一张贴纸 ~</div>
 
@@ -477,6 +477,7 @@ function normalizeSticky(st) { // 单张贴纸：补 id、钳坐标/类型/颜�
     ? {x: Number.isFinite(Number(st.crop.x)) ? Number(st.crop.x) : 50, y: Number.isFinite(Number(st.crop.y)) ? Number(st.crop.y) : 50, scale: Math.max(1, Number(st.crop.scale) || 1)}
     : {x: 50, y: 50, scale: 1};
   out.annotation = typeof st.annotation === "string" ? st.annotation : "";
+  out.groupId = undefined; // 编组功能已移除：旧数据落盘时静默清除
   out.locked = !!st.locked;
   out.trashed = !!st.trashed;
   return out;
@@ -888,7 +889,7 @@ function setInspectorMode(mode) { // mode: "sticky" | "element" | "batch" | "non
   document.getElementById("stickyFields").style.display = mode === "sticky" ? "grid" : "none";
   document.getElementById("batchActions").style.display = mode === "batch" ? "block" : "none";
   document.getElementById("elementActions").classList.toggle("open", mode === "element");
-  document.querySelector("#inspector .ins-actions").style.display = mode === "element" || mode === "batch" ? "none" : "flex";
+  document.getElementById("stickyActions").style.display = mode === "sticky" ? "flex" : "none"; // 只在单选便利贴时显示；修掉原先选图形时按钮排残留（且按钮全部无效）的问题
   if (mode !== "sticky") imageActions.classList.remove("open");
 }
 function openInspector(st) {
@@ -1305,13 +1306,14 @@ function enableDrag(node, st) {
     e.stopPropagation();
     const v = board().view;
     sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; moved = false;
-    const grouped = st.groupId ? board().stickies.filter(item => item.groupId === st.groupId && !item.locked && !item.trashed) : [st];
-    const origins = new Map(grouped.map(item => [item.id, {x:item.x, y:item.y}]));
     node.classList.add("drag");
     const move = ev => {
       const dx = (ev.clientX - sx) / v.k, dy = (ev.clientY - sy) / v.k;
       if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
-      grouped.forEach(item => { const origin = origins.get(item.id), size = stickySize(item); item.x = Math.round(Math.max(0, Math.min(BOARD.width - size.w, origin.x + dx))); item.y = Math.round(Math.max(0, Math.min(BOARD.height - size.h, origin.y + dy))); const itemNode = world.querySelector(`[data-id="${item.id}"]`); if (itemNode) { itemNode.style.left = item.x + "px"; itemNode.style.top = item.y + "px"; } });
+      const size = stickySize(st);
+      st.x = Math.round(Math.max(0, Math.min(BOARD.width - size.w, ox + dx)));
+      st.y = Math.round(Math.max(0, Math.min(BOARD.height - size.h, oy + dy)));
+      node.style.left = st.x + "px"; node.style.top = st.y + "px";
       refreshConnectors();
     };
     const up = () => {
@@ -1420,10 +1422,20 @@ document.getElementById("batchApply").onclick = () => {
 };
 insSubAdd.onclick = () => { const value = insSubNew.value.trim(); if (!value) return; appendSubtaskRow({id:uid(), title:value, status:"backlog"}); insSubNew.value = ""; insSubNew.focus(); };
 insSubNew.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); insSubAdd.click(); } };
-document.getElementById("insApply").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (!st) return; st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value; st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20); st.subtasks = readSubtasks(); st.goalId = insGoal.value.trim(); st.locked = insLocked.checked; if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); } save(); renderAll(); selectSticky(st, false); };
+// 属性面板即时生效：字段一改就写回并重渲染，不再需要「应用」按钮
+function applyInspector() {
+  const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id);
+  if (!st) return;
+  st.status = insStatus.value; st.priority = insPriority.value; st.due = insDue.value;
+  st.tags = insTags.value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20);
+  st.subtasks = readSubtasks(); st.goalId = insGoal.value.trim(); st.locked = insLocked.checked;
+  if (st.kind === "img") { st.crop = {scale:Number(imgCropScale.value), x:Number(imgCropX.value), y:Number(imgCropY.value)}; st.annotation = imgAnnotation.value.trim(); }
+  save(); renderAll(); selectSticky(st, false);
+}
+[insStatus, insPriority, insDue, insTags, insGoal, insLocked, imgAnnotation].forEach(field => field.onchange = applyInspector);
+subtaskEditor.addEventListener("change", applyInspector); // 子任务行的勾选/下拉即时生效；文本框失焦时触发 change 后统一保存
 document.getElementById("insTrash").onclick = () => { const id = document.getElementById("inspector").dataset.id, st = board().stickies.find(x => x.id === id); if (st) { st.trashed = true; save(); renderAll(); document.getElementById("inspector").style.display = "none"; } };
 document.getElementById("insClose").onclick = () => document.getElementById("inspector").style.display = "none";
-document.getElementById("insGroup").onclick = () => { const gid = uid(); selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.groupId = gid; }); save(); };
 document.getElementById("insFront").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = ++Z; }); save(); renderAll(); };
 document.getElementById("insBack").onclick = () => { selectedIds.forEach(id => { const st = board().stickies.find(x => x.id === id); if (st) st.z = 0; }); save(); renderAll(); };
 document.querySelectorAll("[data-tool]").forEach(btn => btn.onclick = () => { activeTool = btn.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x => x.classList.toggle("active", x === btn)); });
